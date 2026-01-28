@@ -188,3 +188,6 @@ export const getProductsBySubcategory = (category: string, subcategory: string) 
     p.category.toLowerCase() === category.toLowerCase() && 
     p.subcategory?.toLowerCase() === subcategory.toLowerCase()
   );
+export const getProductById = (id: string) => products.find(p => p.id === id);
+export const getRelatedProducts = (product: Product) => 
+  products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);

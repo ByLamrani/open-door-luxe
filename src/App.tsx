@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { CartProvider } from "@/context/CartContext";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
+import ProductDetailPage from "./pages/ProductDetailPage";
 import CartPage from "./pages/CartPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import WhyUsPage from "./pages/WhyUsPage";
@@ -34,6 +35,8 @@ const App = () => (
             <Route path="/watches" element={<CategoryPage category="Watches" />} />
             <Route path="/watches/men" element={<CategoryPage category="Watches" subcategory="For Men" />} />
             <Route path="/watches/women" element={<CategoryPage category="Watches" subcategory="For Women" />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
+            <Route path="/new" element={<CategoryPage category="New Arrivals" />} />
             <Route path="/cart" element={<CartPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/why-us" element={<WhyUsPage />} />
