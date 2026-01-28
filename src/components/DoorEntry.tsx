@@ -74,7 +74,7 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
         onClick={handleDoorClick}
       >
         {/* Door Frame */}
-        <div className="relative" style={{ perspective: "1500px" }}>
+        <div className="relative" style={{ perspective: "1500px", transformStyle: "preserve-3d" }}>
           {/* Outer glow effect */}
           <motion.div
             className="absolute -inset-4 rounded-t-[80px] opacity-50"
@@ -91,29 +91,46 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
           {/* Door Frame Border */}
           <div className="absolute -inset-3 rounded-t-[75px] border-2 border-gold/30 bg-gradient-to-b from-gold/10 to-transparent" />
 
-          {/* The Custom Moroccan Door */}
-          <MoroccanDoor isOpening={isOpening} />
-
-          {/* Inside the door (revealed when opening) */}
-          <AnimatePresence>
-            {isOpening && (
-              <motion.div
-                className="absolute inset-0 rounded-t-[70px] bg-gradient-to-b from-gold/20 via-gold/10 to-transparent"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
-              >
+          {/* Inside the door - the room beyond (always visible behind door) */}
+          <div className="absolute inset-0 rounded-t-[70px] overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-amber-900/80 via-amber-950 to-charcoal" />
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center"
+              initial={{ opacity: 0.3 }}
+              animate={isOpening ? { opacity: 1 } : { opacity: 0.3 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+            >
+              <div className="text-center">
                 <motion.div
-                  className="absolute inset-0 flex items-center justify-center"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.6, duration: 0.4 }}
+                  animate={isOpening ? { scale: [1, 1.1, 1], opacity: 1 } : { opacity: 0.5 }}
+                  transition={{ duration: 0.8, delay: 0.6 }}
                 >
-                  <span className="text-gold font-display text-2xl">Welcome...</span>
+                  <span className="text-gold font-display text-3xl md:text-4xl drop-shadow-lg">Welcome</span>
                 </motion.div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                <motion.p
+                  className="text-gold/60 font-body text-sm mt-2"
+                  animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
+                  transition={{ delay: 0.9, duration: 0.5 }}
+                >
+                  to a world of luxury
+                </motion.p>
+              </div>
+            </motion.div>
+            {/* Light rays coming from inside */}
+            <motion.div
+              className="absolute inset-0"
+              style={{
+                background: "radial-gradient(ellipse at center, hsl(43 56% 55% / 0.3) 0%, transparent 70%)"
+              }}
+              animate={isOpening ? { opacity: [0, 0.8, 0.5] } : { opacity: 0 }}
+              transition={{ duration: 1.2, delay: 0.3 }}
+            />
+          </div>
+
+          {/* The Custom Moroccan Door - positioned on top */}
+          <div className="relative z-10">
+            <MoroccanDoor isOpening={isOpening} />
+          </div>
         </div>
 
         {/* Click hint */}
