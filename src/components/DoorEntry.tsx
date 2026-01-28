@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import moroccanDoor from "@/assets/moroccan-door.jpg";
 import logo from "@/assets/logo.png";
+import MoroccanDoor from "./MoroccanDoor";
 
 interface DoorEntryProps {
   onEnter: () => void;
@@ -35,8 +35,8 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
             key={i}
             className="absolute w-1 h-1 bg-gold/30 rounded-full"
             initial={{
-              x: Math.random() * window.innerWidth,
-              y: Math.random() * window.innerHeight,
+              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
             }}
             animate={{
               y: [null, -100],
@@ -91,46 +91,8 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
           {/* Door Frame Border */}
           <div className="absolute -inset-3 rounded-t-[75px] border-2 border-gold/30 bg-gradient-to-b from-gold/10 to-transparent" />
 
-          {/* The Door */}
-          <motion.div
-            className="relative w-[280px] md:w-[320px] h-[450px] md:h-[520px] rounded-t-[70px] overflow-hidden shadow-2xl origin-left"
-            animate={isOpening ? {
-              rotateY: -105,
-              transition: { duration: 1.2, ease: [0.4, 0, 0.2, 1] }
-            } : {}}
-            style={{ transformStyle: "preserve-3d" }}
-          >
-            {/* Door Image */}
-            <img
-              src={moroccanDoor}
-              alt="Enter ale LifeStyle"
-              className="w-full h-full object-cover"
-            />
-
-            {/* Door overlay for depth */}
-            <div className="absolute inset-0 bg-gradient-to-t from-charcoal/40 via-transparent to-charcoal/20" />
-
-            {/* Hover shimmer effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-gold/20 to-transparent opacity-0 group-hover:opacity-100"
-              initial={false}
-              animate={showHint ? { x: ["-100%", "100%"] } : {}}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-            />
-
-            {/* Door handle glow */}
-            <motion.div
-              className="absolute top-1/2 right-8 w-6 h-6 rounded-full bg-gold/60"
-              animate={{
-                boxShadow: [
-                  "0 0 10px hsl(43 56% 55% / 0.4)",
-                  "0 0 25px hsl(43 56% 55% / 0.8)",
-                  "0 0 10px hsl(43 56% 55% / 0.4)",
-                ],
-              }}
-              transition={{ duration: 2, repeat: Infinity }}
-            />
-          </motion.div>
+          {/* The Custom Moroccan Door */}
+          <MoroccanDoor isOpening={isOpening} />
 
           {/* Inside the door (revealed when opening) */}
           <AnimatePresence>

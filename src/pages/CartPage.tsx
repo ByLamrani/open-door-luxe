@@ -190,10 +190,12 @@ const CartPage = () => {
                     variant="gold"
                     size="lg"
                     className="w-full mt-6"
-                    onClick={handleCheckout}
+                    asChild
                   >
-                    Proceed to Checkout
-                    <ArrowRight className="ml-2 w-4 h-4" />
+                    <Link to="/checkout">
+                      Proceed to Checkout
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Link>
                   </Button>
 
                   <p className="font-body text-xs text-muted-foreground text-center mt-4">
