@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, ChevronDown } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 
 interface SubMenuItem {
   name: string;
@@ -44,6 +45,7 @@ const menuItems: MenuItem[] = [
       { name: "For Women", path: "/watches/women" },
     ],
   },
+  { name: "Track Order", path: "/track-order" },
   { name: "Why Us", path: "/why-us" },
   { name: "Contact", path: "/contact" },
 ];
@@ -53,6 +55,7 @@ const Navbar = () => {
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const location = useLocation();
   const { itemCount } = useCart();
+  const { user, signOut } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -120,8 +123,34 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Cart & Mobile Menu */}
+          {/* Cart, Auth & Mobile Menu */}
           <div className="flex items-center gap-4">
+            {/* Auth Button */}
+            {user ? (
+              <div className="hidden sm:flex items-center gap-2">
+                <Link
+                  to="/account"
+                  className="p-2 text-foreground/80 hover:text-gold transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                </Link>
+                <button
+                  onClick={() => signOut()}
+                  className="text-xs text-muted-foreground hover:text-gold transition-colors"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/auth"
+                className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-sm font-body text-gold border border-gold/50 rounded-full hover:bg-gold/10 transition-colors"
+              >
+                <User className="w-4 h-4" />
+                Sign In
+              </Link>
+            )}
+
             <Link
               to="/cart"
               className="relative p-2 text-foreground/80 hover:text-gold transition-colors"
@@ -159,6 +188,17 @@ const Navbar = () => {
             className="lg:hidden bg-card border-t border-border overflow-hidden"
           >
             <div className="px-4 py-4 space-y-1">
+              {/* Auth for mobile */}
+              {!user && (
+                <Link
+                  to="/auth"
+                  onClick={() => setIsOpen(false)}
+                  className="block px-4 py-3 text-sm font-body text-gold"
+                >
+                  Sign In / Sign Up
+                </Link>
+              )}
+              
               {menuItems.map((item) => (
                 <div key={item.name}>
                   <Link
@@ -188,6 +228,15 @@ const Navbar = () => {
                   )}
                 </div>
               ))}
+
+              {user && (
+                <button
+                  onClick={() => { signOut(); setIsOpen(false); }}
+                  className="block w-full text-left px-4 py-3 text-sm font-body text-muted-foreground hover:text-gold"
+                >
+                  Sign Out
+                </button>
+              )}
             </div>
           </motion.div>
         )}

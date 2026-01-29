@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, Instagram, Facebook, Twitter } from "lucide-react";
+import { Instagram, Facebook, Twitter } from "lucide-react";
 import logo from "@/assets/logo.png";
 
 const Footer = () => {
@@ -33,13 +33,20 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-lg text-foreground mb-6">Quick Links</h4>
             <ul className="space-y-3">
-              {["Home", "Self-Care", "Fragrances", "Watches", "Why Us"].map((link) => (
-                <li key={link}>
+              {[
+                { name: "Home", path: "/" },
+                { name: "Self-Care", path: "/self-care" },
+                { name: "Fragrances", path: "/fragrances" },
+                { name: "Watches", path: "/watches" },
+                { name: "Track Order", path: "/track-order" },
+                { name: "Why Us", path: "/why-us" },
+              ].map((link) => (
+                <li key={link.name}>
                   <Link
-                    to={`/${link.toLowerCase().replace(" ", "-")}`}
+                    to={link.path}
                     className="text-muted-foreground font-body text-sm hover:text-gold transition-colors"
                   >
-                    {link}
+                    {link.name}
                   </Link>
                 </li>
               ))}
@@ -50,42 +57,38 @@ const Footer = () => {
           <div>
             <h4 className="font-display text-lg text-foreground mb-6">Categories</h4>
             <ul className="space-y-3">
-              {["Tondeuse", "SPA Packs", "Massage Articles", "Air Diffusers", "Men's Watches", "Women's Watches"].map((cat) => (
-                <li key={cat}>
+              {[
+                { name: "Tondeuse", path: "/self-care/tondeuse" },
+                { name: "SPA Packs", path: "/self-care/spa" },
+                { name: "Massage Articles", path: "/self-care/massage" },
+                { name: "Air Diffusers", path: "/air-diffusers" },
+                { name: "Men's Watches", path: "/watches/men" },
+                { name: "Women's Watches", path: "/watches/women" },
+              ].map((cat) => (
+                <li key={cat.name}>
                   <Link
-                    to="#"
+                    to={cat.path}
                     className="text-muted-foreground font-body text-sm hover:text-gold transition-colors"
                   >
-                    {cat}
+                    {cat.name}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Contact */}
+          {/* Send Us a Message */}
           <div>
-            <h4 className="font-display text-lg text-foreground mb-6">Contact Us</h4>
-            <ul className="space-y-4">
-              <li className="flex items-start gap-3">
-                <MapPin className="w-4 h-4 text-gold mt-1 flex-shrink-0" />
-                <span className="text-muted-foreground font-body text-sm">
-                  123 Luxury Avenue, Casablanca, Morocco
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Phone className="w-4 h-4 text-gold flex-shrink-0" />
-                <span className="text-muted-foreground font-body text-sm">
-                  +212 5XX-XXXXXX
-                </span>
-              </li>
-              <li className="flex items-center gap-3">
-                <Mail className="w-4 h-4 text-gold flex-shrink-0" />
-                <span className="text-muted-foreground font-body text-sm">
-                  contact@alelifestyle.com
-                </span>
-              </li>
-            </ul>
+            <h4 className="font-display text-lg text-foreground mb-6">Get in Touch</h4>
+            <p className="text-muted-foreground font-body text-sm mb-4">
+              Have questions? We'd love to hear from you.
+            </p>
+            <Link
+              to="/contact"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-lg text-gold text-sm font-body hover:bg-gold/20 transition-colors"
+            >
+              Send Us a Message
+            </Link>
           </div>
         </div>
 
@@ -96,10 +99,10 @@ const Footer = () => {
           </p>
           <div className="flex items-center gap-4">
             <span className="px-3 py-1 bg-gold/10 text-gold text-xs font-body rounded-full">
-              10% OFF on Online Payment
+              Up to 8% OFF Online
             </span>
             <span className="text-muted-foreground font-body text-xs">
-              Cash on Delivery Available
+              Cash on Delivery (Morocco)
             </span>
           </div>
         </div>

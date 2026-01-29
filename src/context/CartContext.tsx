@@ -15,9 +15,11 @@ interface CartContextType {
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
   clearCart: () => void;
+  isInCart: (id: string) => boolean;
   itemCount: number;
   subtotal: number;
   onlineDiscount: number;
+  bulkDiscount: number;
   total: (isOnline: boolean) => number;
 }
 
@@ -54,10 +56,32 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => setItems([]);
 
+  const isInCart = (id: string) => items.some((i) => i.id === id);
+
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  const onlineDiscount = subtotal * 0.1; // 10% discount
-  const total = (isOnline: boolean) => isOnline ? subtotal - onlineDiscount : subtotal;
+  
+  // 5% online discount
+  const onlineDiscount = subtotal * 0.05;
+  
+  // 8% bulk discount for orders over $700
+  const bulkDiscount = subtotal >= 700 ? subtotal * 0.08 : 0;
+  
+  const total = (isOnline: boolean) => {
+    let finalTotal = subtotal;
+    
+    // Apply bulk discount first (if applicable)
+    if (subtotal >= 700) {
+      finalTotal -= bulkDiscount;
+    }
+    
+    // Apply online discount (if applicable)
+    if (isOnline) {
+      finalTotal -= onlineDiscount;
+    }
+    
+    return Math.max(0, finalTotal);
+  };
 
   return (
     <CartContext.Provider
@@ -67,9 +91,11 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
         removeItem,
         updateQuantity,
         clearCart,
+        isInCart,
         itemCount,
         subtotal,
         onlineDiscount,
+        bulkDiscount,
         total,
       }}
     >
