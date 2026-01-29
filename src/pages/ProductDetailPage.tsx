@@ -1,22 +1,29 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart } from "lucide-react";
+import { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
+import { useAuth } from "@/context/AuthContext";
 import { getProductById, getRelatedProducts } from "@/data/products";
-import { useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { addItem } = useCart();
+  const { toast } = useToast();
+  const { addItem, isInCart } = useCart();
+  const { user } = useAuth();
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(0);
 
   const product = id ? getProductById(id) : undefined;
+  const inCart = product ? isInCart(product.id) : false;
 
   if (!product) {
     return (
@@ -35,9 +42,14 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = getRelatedProducts(product);
-  const discountedPrice = product.price * 0.9;
+  const discountedPrice = product.price * 0.95; // 5% online discount
 
   const handleAddToCart = () => {
+    if (inCart) {
+      navigate("/cart");
+      return;
+    }
+    
     for (let i = 0; i < quantity; i++) {
       addItem({
         id: product.id,
@@ -64,6 +76,77 @@ const ProductDetailPage = () => {
     navigate("/checkout");
   };
 
+  const handleAddToFavorites = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in Required",
+        description: "Please sign in to add items to favorites",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from("favorites").insert({
+        user_id: user.id,
+        product_id: product.id,
+      });
+
+      if (error) {
+        if (error.code === "23505") {
+          toast({ title: "Already in Favorites", description: "This product is already in your favorites" });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({ title: "Added to Favorites! ❤️", description: `${product.name} has been saved to your favorites` });
+      }
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
+  const handleShare = () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator.share({ title: product.name, url });
+    } else {
+      navigator.clipboard.writeText(url);
+      toast({ title: "Link Copied!", description: "Product link has been copied to clipboard" });
+    }
+  };
+
+  const handleRecommend = async () => {
+    if (!user) {
+      toast({
+        title: "Sign in Required",
+        description: "Please sign in to recommend products and earn $1",
+        variant: "destructive",
+      });
+      navigate("/auth");
+      return;
+    }
+
+    const email = prompt("Enter your friend's email to recommend this product:");
+    if (!email) return;
+
+    try {
+      await supabase.from("recommendations").insert({
+        recommender_id: user.id,
+        product_id: product.id,
+        recipient_email: email,
+      });
+
+      toast({
+        title: "Recommendation Sent! 🎁",
+        description: "You'll receive $1 in your E-Wallet when your friend makes a purchase!",
+      });
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message, variant: "destructive" });
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -87,31 +170,47 @@ const ProductDetailPage = () => {
 
           {/* Product Details */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {/* Product Image */}
+            {/* Product Images */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="relative"
+              className="space-y-4"
             >
-              <div className="aspect-square rounded-2xl overflow-hidden bg-card border border-border">
+              {/* Main Image */}
+              <div className="aspect-square rounded-2xl overflow-hidden bg-card border border-border relative">
                 <img
-                  src={product.image}
+                  src={product.images[selectedImage]}
                   alt={product.name}
                   className="w-full h-full object-cover"
                 />
-              </div>
-              
-              {/* Badges */}
-              <div className="absolute top-4 left-4 flex flex-col gap-2">
-                {product.isNew && (
-                  <span className="px-3 py-1 bg-gold text-primary-foreground text-xs font-body font-semibold tracking-wider rounded">
-                    NEW
+                
+                {/* Badges */}
+                <div className="absolute top-4 left-4 flex flex-col gap-2">
+                  {product.isNew && (
+                    <span className="px-3 py-1 bg-gold text-primary-foreground text-xs font-body font-semibold tracking-wider rounded">
+                      NEW
+                    </span>
+                  )}
+                  <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-body tracking-wide rounded">
+                    Up to 8% OFF
                   </span>
-                )}
-                <span className="px-3 py-1 bg-accent text-accent-foreground text-xs font-body tracking-wide rounded">
-                  10% OFF Online
-                </span>
+                </div>
+              </div>
+
+              {/* Thumbnail Gallery */}
+              <div className="flex gap-2 overflow-x-auto pb-2">
+                {product.images.map((img, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setSelectedImage(i)}
+                    className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
+                      selectedImage === i ? "border-gold" : "border-border hover:border-gold/50"
+                    }`}
+                  >
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
+                ))}
               </div>
             </motion.div>
 
@@ -139,7 +238,7 @@ const ProductDetailPage = () => {
                   ${product.price.toFixed(2)}
                 </span>
                 <span className="text-sm text-accent-foreground bg-accent px-2 py-1 rounded">
-                  Save 10% with online payment
+                  Save 5% online
                 </span>
               </div>
 
@@ -171,7 +270,7 @@ const ProductDetailPage = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 mb-8">
+              <div className="flex flex-col sm:flex-row gap-4 mb-6">
                 <Button
                   variant="gold"
                   size="lg"
@@ -183,6 +282,11 @@ const ProductDetailPage = () => {
                     <>
                       <Check className="w-5 h-5 mr-2" />
                       Added to Cart
+                    </>
+                  ) : inCart ? (
+                    <>
+                      <ShoppingCart className="w-5 h-5 mr-2" />
+                      Check My Cart
                     </>
                   ) : (
                     <>
@@ -201,15 +305,46 @@ const ProductDetailPage = () => {
                 </Button>
               </div>
 
+              {/* Social Actions */}
+              <div className="flex gap-3 mb-8">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleAddToFavorites}
+                  className="flex-1"
+                >
+                  <Heart className="w-4 h-4 mr-2" />
+                  Add to Favorites
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleShare}
+                  className="flex-1"
+                >
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleRecommend}
+                  className="flex-1"
+                >
+                  <Gift className="w-4 h-4 mr-2" />
+                  Recommend (+$1)
+                </Button>
+              </div>
+
               {/* Features */}
               <div className="border-t border-border pt-6 space-y-4">
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <CreditCard className="w-5 h-5 text-gold" />
-                  <span className="font-body text-sm">10% OFF with Online Payment</span>
+                  <span className="font-body text-sm">Up to 8% OFF with Online Payment</span>
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Truck className="w-5 h-5 text-gold" />
-                  <span className="font-body text-sm">Cash on Delivery Available</span>
+                  <span className="font-body text-sm">Cash on Delivery Available (Morocco only)</span>
                 </div>
                 <div className="flex items-center gap-3 text-muted-foreground">
                   <Shield className="w-5 h-5 text-gold" />

@@ -3,6 +3,7 @@ export interface Product {
   name: string;
   price: number;
   image: string;
+  images: string[];
   category: string;
   subcategory?: string;
   description: string;
@@ -17,9 +18,16 @@ export const products: Product[] = [
     name: "Professional Gold Trimmer",
     price: 149.99,
     image: "https://images.unsplash.com/photo-1621607512214-68297480165e?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1621607512214-68297480165e?w=800",
+      "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=800",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800",
+      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800",
+      "https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Tondeuse",
-    description: "Premium gold-plated trimmer with precision blades for the perfect grooming experience.",
+    description: "Premium gold-plated trimmer with precision blades for the perfect grooming experience. Features adjustable length settings and a powerful motor for smooth, even cuts.",
     isNew: true,
     isFeatured: true,
   },
@@ -28,9 +36,15 @@ export const products: Product[] = [
     name: "Precision Beard Sculpt",
     price: 89.99,
     image: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=800",
+      "https://images.unsplash.com/photo-1621607512214-68297480165e?w=800",
+      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800",
+      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Tondeuse",
-    description: "Advanced beard sculpting tool with multiple attachments for versatile styling.",
+    description: "Advanced beard sculpting tool with multiple attachments for versatile styling. Ergonomic design for comfortable grip and precise control.",
     isFeatured: true,
   },
   // Self-Care - SPA
@@ -39,9 +53,17 @@ export const products: Product[] = [
     name: "Luxury SPA Home Kit",
     price: 299.99,
     image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+      "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=800",
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800",
+      "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=800",
+      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Pack de Soin/SPA",
-    description: "Complete home spa experience with premium oils, salts, and aromatherapy essentials.",
+    description: "Complete home spa experience with premium oils, salts, and aromatherapy essentials. Transform your bathroom into a luxurious retreat.",
     isNew: true,
     isFeatured: true,
   },
@@ -50,9 +72,16 @@ export const products: Product[] = [
     name: "Rejuvenating Face Set",
     price: 179.99,
     image: "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800",
+      "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?w=800",
+      "https://images.unsplash.com/photo-1598440947619-2c35fc9aa908?w=800",
+      "https://images.unsplash.com/photo-1620756236308-65c3ef5d25f3?w=800",
+      "https://images.unsplash.com/photo-1596755389378-c31d21fd1273?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Pack de Soin/SPA",
-    description: "Anti-aging facial care set with natural ingredients for radiant skin.",
+    description: "Anti-aging facial care set with natural ingredients for radiant skin. Includes cleanser, serum, moisturizer, and eye cream.",
   },
   // Self-Care - Massage
   {
@@ -60,9 +89,15 @@ export const products: Product[] = [
     name: "Deep Tissue Massager",
     price: 199.99,
     image: "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800",
+      "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=800",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Articles de Massage",
-    description: "Professional-grade deep tissue massager for muscle relief and relaxation.",
+    description: "Professional-grade deep tissue massager for muscle relief and relaxation. Multiple speed settings and interchangeable heads.",
     isFeatured: true,
   },
   {
@@ -70,9 +105,16 @@ export const products: Product[] = [
     name: "Hot Stone Set",
     price: 129.99,
     image: "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1600334129128-685c5582fd35?w=800",
+      "https://images.unsplash.com/photo-1519823551278-64ac92734fb1?w=800",
+      "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+      "https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=800",
+    ],
     category: "Self-Care",
     subcategory: "Articles de Massage",
-    description: "Authentic volcanic hot stones for therapeutic massage therapy.",
+    description: "Authentic volcanic hot stones for therapeutic massage therapy. Includes heating bag and essential oils.",
   },
   // Fragrances - Men
   {
@@ -80,9 +122,16 @@ export const products: Product[] = [
     name: "Noir Intense EDP",
     price: 189.99,
     image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800",
+      "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800",
+      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800",
+      "https://images.unsplash.com/photo-1557170334-a9632e77c6e4?w=800",
+      "https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?w=800",
+    ],
     category: "Fragrances",
     subcategory: "For Men",
-    description: "Bold and mysterious fragrance with notes of oud, leather, and amber.",
+    description: "Bold and mysterious fragrance with notes of oud, leather, and amber. Long-lasting scent that commands attention.",
     isNew: true,
     isFeatured: true,
   },
@@ -91,9 +140,15 @@ export const products: Product[] = [
     name: "Ocean Breeze Cologne",
     price: 129.99,
     image: "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1595425970377-c9703cf48b6d?w=800",
+      "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=800",
+      "https://images.unsplash.com/photo-1523293182086-7651a899d37f?w=800",
+      "https://images.unsplash.com/photo-1547887538-e3a2f32cb1cc?w=800",
+    ],
     category: "Fragrances",
     subcategory: "For Men",
-    description: "Fresh aquatic scent with marine notes and citrus undertones.",
+    description: "Fresh aquatic scent with marine notes and citrus undertones. Perfect for everyday wear.",
   },
   // Fragrances - Women
   {
@@ -101,9 +156,17 @@ export const products: Product[] = [
     name: "Rose Élégante",
     price: 219.99,
     image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800",
+      "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=800",
+      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800",
+      "https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800",
+      "https://images.unsplash.com/photo-1595535873420-a599195b3f4a?w=800",
+      "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=800",
+    ],
     category: "Fragrances",
     subcategory: "For Women",
-    description: "Sophisticated floral bouquet with Moroccan rose and jasmine.",
+    description: "Sophisticated floral bouquet with Moroccan rose and jasmine. An elegant fragrance for the modern woman.",
     isFeatured: true,
   },
   {
@@ -111,9 +174,16 @@ export const products: Product[] = [
     name: "Mystic Amber",
     price: 179.99,
     image: "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1588405748880-12d1d2a59f75?w=800",
+      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800",
+      "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800",
+      "https://images.unsplash.com/photo-1563170351-be82bc888aa4?w=800",
+      "https://images.unsplash.com/photo-1587017539504-67cfbddac569?w=800",
+    ],
     category: "Fragrances",
     subcategory: "For Women",
-    description: "Warm and sensual fragrance with amber, vanilla, and sandalwood.",
+    description: "Warm and sensual fragrance with amber, vanilla, and sandalwood. Perfect for evening occasions.",
     isNew: true,
   },
   // Air Diffusers
@@ -122,8 +192,14 @@ export const products: Product[] = [
     name: "Ceramic Aroma Diffuser",
     price: 79.99,
     image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
+      "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=800",
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800",
+      "https://images.unsplash.com/photo-1607004468138-e7e23ea26947?w=800",
+    ],
     category: "Air Diffusers",
-    description: "Elegant ceramic diffuser with mood lighting and whisper-quiet operation.",
+    description: "Elegant ceramic diffuser with mood lighting and whisper-quiet operation. Covers up to 500 sq ft.",
     isFeatured: true,
   },
   {
@@ -131,8 +207,15 @@ export const products: Product[] = [
     name: "Smart Home Diffuser",
     price: 149.99,
     image: "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=800",
+      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
+      "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800",
+      "https://images.unsplash.com/photo-1607004468138-e7e23ea26947?w=800",
+      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+    ],
     category: "Air Diffusers",
-    description: "App-controlled smart diffuser with scheduling and intensity settings.",
+    description: "App-controlled smart diffuser with scheduling and intensity settings. Voice assistant compatible.",
     isNew: true,
   },
   // Watches - Men
@@ -141,9 +224,17 @@ export const products: Product[] = [
     name: "Executive Chronograph",
     price: 599.99,
     image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800",
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800",
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800",
+      "https://images.unsplash.com/photo-1542496658-e33a6d0d50f6?w=800",
+      "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=800",
+      "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800",
+    ],
     category: "Watches",
     subcategory: "For Men",
-    description: "Swiss-movement chronograph with sapphire crystal and leather strap.",
+    description: "Swiss-movement chronograph with sapphire crystal and genuine leather strap. Water resistant to 100m.",
     isFeatured: true,
   },
   {
@@ -151,9 +242,15 @@ export const products: Product[] = [
     name: "Minimalist Steel",
     price: 349.99,
     image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800",
+      "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=800",
+      "https://images.unsplash.com/photo-1522312346375-d1a52e2b99b3?w=800",
+      "https://images.unsplash.com/photo-1614164185128-e4ec99c436d7?w=800",
+    ],
     category: "Watches",
     subcategory: "For Men",
-    description: "Clean, minimalist design with brushed stainless steel case.",
+    description: "Clean, minimalist design with brushed stainless steel case. Japanese quartz movement.",
     isNew: true,
   },
   // Watches - Women
@@ -162,9 +259,16 @@ export const products: Product[] = [
     name: "Diamond Elegance",
     price: 799.99,
     image: "https://images.unsplash.com/photo-1549972574-8e3e1ed6a347?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1549972574-8e3e1ed6a347?w=800",
+      "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800",
+      "https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=800",
+      "https://images.unsplash.com/photo-1518131672697-613becd4fab5?w=800",
+      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800",
+    ],
     category: "Watches",
     subcategory: "For Women",
-    description: "Exquisite timepiece adorned with genuine diamonds and mother of pearl dial.",
+    description: "Exquisite timepiece adorned with genuine diamonds and mother of pearl dial. A statement of luxury.",
     isFeatured: true,
   },
   {
@@ -172,9 +276,17 @@ export const products: Product[] = [
     name: "Rose Gold Classic",
     price: 449.99,
     image: "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=500",
+    images: [
+      "https://images.unsplash.com/photo-1612817159949-195b6eb9e31a?w=800",
+      "https://images.unsplash.com/photo-1549972574-8e3e1ed6a347?w=800",
+      "https://images.unsplash.com/photo-1548169874-53e85f753f1e?w=800",
+      "https://images.unsplash.com/photo-1524805444758-089113d48a6d?w=800",
+      "https://images.unsplash.com/photo-1518131672697-613becd4fab5?w=800",
+      "https://images.unsplash.com/photo-1533139502658-0198f920d8e8?w=800",
+    ],
     category: "Watches",
     subcategory: "For Women",
-    description: "Timeless rose gold design with mesh bracelet and slim profile.",
+    description: "Timeless rose gold design with mesh bracelet and slim profile. Elegant for any occasion.",
     isNew: true,
   },
 ];
@@ -191,3 +303,15 @@ export const getProductsBySubcategory = (category: string, subcategory: string) 
 export const getProductById = (id: string) => products.find(p => p.id === id);
 export const getRelatedProducts = (product: Product) => 
   products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
+export const getDiverseProducts = () => {
+  // Get products from different categories
+  const categories = [...new Set(products.map(p => p.category))];
+  const diverse: Product[] = [];
+  
+  categories.forEach(cat => {
+    const catProducts = products.filter(p => p.category === cat);
+    diverse.push(...catProducts.slice(0, 2));
+  });
+  
+  return diverse.slice(0, 8);
+};

@@ -4,17 +4,19 @@ import DoorEntry from "@/components/DoorEntry";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import MostRecommended from "@/components/MostRecommended";
+import LamraniSignature from "@/components/LamraniSignature";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getFeaturedProducts, getNewProducts } from "@/data/products";
+import { getDiverseProducts, getNewProducts } from "@/data/products";
 import logo from "@/assets/logo.png";
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
-  const featuredProducts = getFeaturedProducts();
+  const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
 
   useEffect(() => {
@@ -57,6 +59,9 @@ const Index = () => {
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
               style={{ background: "var(--gradient-radial-gold)" }}
             />
+            
+            {/* Lamrani Signature Background */}
+            <LamraniSignature />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
               <motion.div
@@ -116,7 +121,7 @@ const Index = () => {
               >
                 <Sparkles className="w-4 h-4 text-gold" />
                 <span className="font-body text-sm text-gold">
-                  10% OFF on Online Payments
+                  Up to 8% OFF on Online Payments
                 </span>
               </motion.div>
             </div>
@@ -142,12 +147,15 @@ const Index = () => {
             </motion.div>
           </section>
 
+          {/* Most Recommended - Right after hero */}
+          <MostRecommended />
+
           {/* Features Banner */}
-          <section className="py-8 bg-card border-y border-border">
+          <section className="py-8 bg-background border-y border-border">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                  { icon: CreditCard, text: "10% OFF Online Payment" },
+                  { icon: CreditCard, text: "Up to 8% OFF Online" },
                   { icon: Truck, text: "Cash on Delivery" },
                   { icon: Shield, text: "Secure Shopping" },
                   { icon: Sparkles, text: "Premium Quality" },
@@ -170,7 +178,7 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Featured Products */}
+          {/* Explore Collection - Diverse Products */}
           <section className="py-20 md:py-28">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <motion.div
@@ -180,15 +188,15 @@ const Index = () => {
                 className="text-center mb-12"
               >
                 <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                  Featured <span className="text-gradient-gold">Collection</span>
+                  Explore <span className="text-gradient-gold">Collection</span>
                 </h2>
                 <p className="font-body text-muted-foreground max-w-xl mx-auto">
-                  Handpicked premium products for the discerning lifestyle connoisseur.
+                  Discover our diverse range of premium products across all categories.
                 </p>
               </motion.div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {featuredProducts.slice(0, 8).map((product) => (
+                {diverseProducts.map((product) => (
                   <ProductCard key={product.id} {...product} />
                 ))}
               </div>

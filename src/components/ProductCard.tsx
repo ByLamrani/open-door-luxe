@@ -1,8 +1,7 @@
 import { motion } from "framer-motion";
-import { ShoppingBag, Eye } from "lucide-react";
+import { ShoppingBag, Eye, ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { Link, useNavigate } from "react-router-dom";
 
 interface ProductCardProps {
   id: string;
@@ -14,13 +13,23 @@ interface ProductCardProps {
 }
 
 const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardProps) => {
-  const { addItem } = useCart();
+  const { addItem, isInCart } = useCart();
+  const navigate = useNavigate();
+  const inCart = isInCart(id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    addItem({ id, name, price, image, category });
+    
+    if (inCart) {
+      navigate("/cart");
+    } else {
+      addItem({ id, name, price, image, category });
+    }
   };
+
+  // Show 5% discounted price for online
+  const discountedPrice = price * 0.95;
 
   return (
     <motion.div
@@ -52,7 +61,7 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
 
           {/* Online Discount Badge */}
           <div className="absolute top-3 right-3 px-2 py-1 bg-accent/90 text-accent-foreground text-xs font-body tracking-wide rounded backdrop-blur-sm">
-            10% OFF Online
+            Up to 8% OFF
           </div>
 
           {/* Hover Overlay */}
@@ -61,9 +70,17 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleAddToCart}
-              className="p-3 bg-gold text-primary-foreground rounded-full shadow-lg"
+              className={`p-3 rounded-full shadow-lg ${
+                inCart 
+                  ? "bg-foreground/10 backdrop-blur-sm text-foreground border border-foreground/20" 
+                  : "bg-gold text-primary-foreground"
+              }`}
             >
-              <ShoppingBag className="w-5 h-5" />
+              {inCart ? (
+                <ShoppingCart className="w-5 h-5" />
+              ) : (
+                <ShoppingBag className="w-5 h-5" />
+              )}
             </motion.button>
             <motion.div
               whileHover={{ scale: 1.1 }}
@@ -85,12 +102,15 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
           </h3>
           <div className="flex items-center gap-2">
             <span className="font-body font-semibold text-gold">
-              ${(price * 0.9).toFixed(2)}
+              ${discountedPrice.toFixed(2)}
             </span>
             <span className="text-sm text-muted-foreground line-through">
               ${price.toFixed(2)}
             </span>
           </div>
+          {inCart && (
+            <p className="text-xs text-gold font-body">✓ In Cart - Click to view</p>
+          )}
         </div>
       </Link>
     </motion.div>
