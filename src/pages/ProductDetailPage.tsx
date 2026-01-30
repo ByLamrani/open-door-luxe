@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -11,6 +11,8 @@ import { useAuth } from "@/context/AuthContext";
 import { getProductById, getRelatedProducts } from "@/data/products";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import AuthRequiredModal from "@/components/AuthRequiredModal";
+import ShareModal from "@/components/ShareModal";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -21,9 +23,28 @@ const ProductDetailPage = () => {
   const [quantity, setQuantity] = useState(1);
   const [addedToCart, setAddedToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authAction, setAuthAction] = useState("");
+  const [showShareModal, setShowShareModal] = useState(false);
 
   const product = id ? getProductById(id) : undefined;
   const inCart = product ? isInCart(product.id) : false;
+
+  // Check if product is in favorites
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (!user || !product) return;
+      const { data } = await supabase
+        .from("favorites")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("product_id", product.id)
+        .single();
+      setIsFavorite(!!data);
+    };
+    checkFavorite();
+  }, [user, product]);
 
   if (!product) {
     return (
@@ -44,107 +65,115 @@ const ProductDetailPage = () => {
   const relatedProducts = getRelatedProducts(product);
   const discountedPrice = product.price * 0.95; // 5% online discount
 
-  const handleAddToCart = () => {
-    if (inCart) {
-      navigate("/cart");
+  const requireAuth = (action: string, callback: () => void) => {
+    if (!user) {
+      setAuthAction(action);
+      setShowAuthModal(true);
       return;
     }
-    
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-      });
-    }
-    setAddedToCart(true);
-    setTimeout(() => setAddedToCart(false), 2000);
+    callback();
+  };
+
+  const handleAddToCart = () => {
+    requireAuth("add items to cart", () => {
+      if (inCart) {
+        navigate("/cart");
+        return;
+      }
+      
+      for (let i = 0; i < quantity; i++) {
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          category: product.category,
+        });
+      }
+      setAddedToCart(true);
+      setTimeout(() => setAddedToCart(false), 2000);
+    });
   };
 
   const handleBuyNow = () => {
-    for (let i = 0; i < quantity; i++) {
-      addItem({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        category: product.category,
-      });
-    }
-    navigate("/checkout");
+    requireAuth("buy this product", () => {
+      for (let i = 0; i < quantity; i++) {
+        addItem({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
+          category: product.category,
+        });
+      }
+      navigate("/checkout");
+    });
   };
 
   const handleAddToFavorites = async () => {
-    if (!user) {
-      toast({
-        title: "Sign in Required",
-        description: "Please sign in to add items to favorites",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
+    requireAuth("add items to favorites", async () => {
+      if (!user) return;
 
-    try {
-      const { error } = await supabase.from("favorites").insert({
-        user_id: user.id,
-        product_id: product.id,
-      });
-
-      if (error) {
-        if (error.code === "23505") {
-          toast({ title: "Already in Favorites", description: "This product is already in your favorites" });
-        } else {
-          throw error;
-        }
+      if (isFavorite) {
+        // Remove from favorites
+        await supabase
+          .from("favorites")
+          .delete()
+          .eq("user_id", user.id)
+          .eq("product_id", product.id);
+        setIsFavorite(false);
+        toast({ title: "Removed from Favorites", description: `${product.name} has been removed from your favorites` });
       } else {
-        toast({ title: "Added to Favorites! ❤️", description: `${product.name} has been saved to your favorites` });
+        // Add to favorites
+        try {
+          const { error } = await supabase.from("favorites").insert({
+            user_id: user.id,
+            product_id: product.id,
+          });
+
+          if (error) {
+            if (error.code === "23505") {
+              toast({ title: "Already in Favorites", description: "This product is already in your favorites" });
+            } else {
+              throw error;
+            }
+          } else {
+            setIsFavorite(true);
+            toast({ title: "Added to Favorites! ❤️", description: `${product.name} has been saved to your favorites` });
+          }
+        } catch (error: any) {
+          toast({ title: "Error", description: error.message, variant: "destructive" });
+        }
       }
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+    });
   };
 
   const handleShare = () => {
-    const url = window.location.href;
-    if (navigator.share) {
-      navigator.share({ title: product.name, url });
-    } else {
-      navigator.clipboard.writeText(url);
-      toast({ title: "Link Copied!", description: "Product link has been copied to clipboard" });
-    }
+    setShowShareModal(true);
   };
 
   const handleRecommend = async () => {
-    if (!user) {
-      toast({
-        title: "Sign in Required",
-        description: "Please sign in to recommend products and earn $1",
-        variant: "destructive",
-      });
-      navigate("/auth");
-      return;
-    }
+    requireAuth("recommend products and earn $1", async () => {
+      if (!user) return;
 
-    const email = prompt("Enter your friend's email to recommend this product:");
-    if (!email) return;
+      const email = prompt("Enter your friend's email to recommend this product:");
+      if (!email) return;
 
-    try {
-      await supabase.from("recommendations").insert({
-        recommender_id: user.id,
-        product_id: product.id,
-        recipient_email: email,
-      });
+      try {
+        await supabase.from("recommendations").insert({
+          recommender_id: user.id,
+          product_id: product.id,
+          recipient_email: email,
+        });
 
-      toast({
-        title: "Recommendation Sent! 🎁",
-        description: "You'll receive $1 in your E-Wallet when your friend makes a purchase!",
-      });
-    } catch (error: any) {
-      toast({ title: "Error", description: error.message, variant: "destructive" });
-    }
+        toast({
+          title: "Recommendation Sent! 🎁",
+          description: "You'll receive $1 in your E-Wallet when your friend makes a purchase!",
+        });
+      } catch (error: any) {
+        toast({ title: "Error", description: error.message, variant: "destructive" });
+      }
+    });
   };
 
   return (
@@ -313,8 +342,8 @@ const ProductDetailPage = () => {
                   onClick={handleAddToFavorites}
                   className="flex-1"
                 >
-                  <Heart className="w-4 h-4 mr-2" />
-                  Add to Favorites
+                  <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-white" : ""}`} />
+                  {isFavorite ? "In Favorites" : "Add to Favorites"}
                 </Button>
                 <Button
                   variant="outline"
@@ -379,6 +408,19 @@ const ProductDetailPage = () => {
       </main>
 
       <Footer />
+
+      <AuthRequiredModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        action={authAction}
+      />
+
+      <ShareModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        productName={product.name}
+        productUrl={window.location.href}
+      />
     </div>
   );
 };

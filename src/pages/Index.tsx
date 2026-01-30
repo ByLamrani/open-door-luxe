@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
-import logo from "@/assets/logo.png";
+// Removed logo import - using Lamrani text instead
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
@@ -64,16 +64,53 @@ const Index = () => {
             <LamraniSignature />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+              {/* Lamrani Text with Signature Line */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
+                className="mb-6"
               >
-                <img 
-                  src={logo} 
-                  alt="ale LifeStyle" 
-                  className="h-32 md:h-40 w-auto mx-auto mb-8 drop-shadow-2xl"
-                />
+                <h2 
+                  className="font-display text-5xl md:text-7xl lg:text-8xl italic"
+                  style={{
+                    background: "linear-gradient(135deg, #C4A052 0%, #E8D5A3 50%, #C4A052 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    textShadow: "0 0 60px rgba(196, 160, 82, 0.3)",
+                  }}
+                >
+                  Lamrani
+                </h2>
+                {/* Signature Line */}
+                <svg 
+                  viewBox="0 0 200 20" 
+                  className="w-48 md:w-64 mx-auto mt-2"
+                  style={{ filter: "drop-shadow(0 0 10px rgba(196, 160, 82, 0.5))" }}
+                >
+                  <path
+                    d="M10 10 Q50 5 100 10 T190 10"
+                    fill="none"
+                    stroke="url(#goldGradient)"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                  <path
+                    d="M170 10 Q180 15 190 8"
+                    fill="none"
+                    stroke="url(#goldGradient)"
+                    strokeWidth="1.5"
+                    strokeLinecap="round"
+                  />
+                  <defs>
+                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                      <stop offset="0%" stopColor="#C4A052" />
+                      <stop offset="50%" stopColor="#E8D5A3" />
+                      <stop offset="100%" stopColor="#C4A052" />
+                    </linearGradient>
+                  </defs>
+                </svg>
               </motion.div>
 
               <motion.h1
@@ -82,7 +119,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-6"
               >
-                Elevate Your <span className="text-gradient-gold">Lifestyle</span>
+                Elevate Your <span className="text-gradient-gold">LifeStyle</span>
               </motion.h1>
 
               <motion.p
@@ -125,26 +162,6 @@ const Index = () => {
                 </span>
               </motion.div>
             </div>
-
-            {/* Scroll Indicator */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1.5 }}
-              className="absolute bottom-8 left-1/2 -translate-x-1/2"
-            >
-              <motion.div
-                animate={{ y: [0, 10, 0] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="w-6 h-10 border-2 border-gold/50 rounded-full flex justify-center pt-2"
-              >
-                <motion.div
-                  animate={{ y: [0, 12, 0] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="w-1.5 h-1.5 bg-gold rounded-full"
-                />
-              </motion.div>
-            </motion.div>
           </section>
 
           {/* Most Recommended - Right after hero */}

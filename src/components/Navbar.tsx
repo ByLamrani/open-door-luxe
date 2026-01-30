@@ -129,7 +129,7 @@ const Navbar = () => {
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
                 <Link
-                  to="/account"
+                  to="/profile"
                   className="p-2 text-foreground/80 hover:text-gold transition-colors"
                 >
                   <User className="w-5 h-5" />

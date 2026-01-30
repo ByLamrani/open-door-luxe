@@ -1,3 +1,14 @@
+// Product images imports
+import tondeuse1 from "@/assets/products/tondeuse-1.jpeg";
+import tondeuse2 from "@/assets/products/tondeuse-2.jpeg";
+import tondeuse3 from "@/assets/products/tondeuse-3.jpg";
+import tondeuse4 from "@/assets/products/tondeuse-4.jpg";
+import tondeuse5 from "@/assets/products/tondeuse-5.jpeg";
+import diffuser1 from "@/assets/products/diffuser-1.png";
+import diffuser2 from "@/assets/products/diffuser-2.png";
+import diffuser3 from "@/assets/products/diffuser-3.png";
+import diffuser4 from "@/assets/products/diffuser-4.png";
+
 export interface Product {
   id: string;
   name: string;
@@ -17,13 +28,13 @@ export const products: Product[] = [
     id: "tondeuse-1",
     name: "Professional Gold Trimmer",
     price: 149.99,
-    image: "https://images.unsplash.com/photo-1621607512214-68297480165e?w=500",
+    image: tondeuse1,
     images: [
-      "https://images.unsplash.com/photo-1621607512214-68297480165e?w=800",
-      "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=800",
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800",
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800",
-      "https://images.unsplash.com/photo-1493256338651-d82f7acb2b38?w=800",
+      tondeuse1,
+      tondeuse2,
+      tondeuse3,
+      tondeuse4,
+      tondeuse5,
     ],
     category: "Self-Care",
     subcategory: "Tondeuse",
@@ -35,12 +46,13 @@ export const products: Product[] = [
     id: "tondeuse-2",
     name: "Precision Beard Sculpt",
     price: 89.99,
-    image: "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=500",
+    image: tondeuse3,
     images: [
-      "https://images.unsplash.com/photo-1585751119414-ef2636f8aede?w=800",
-      "https://images.unsplash.com/photo-1621607512214-68297480165e?w=800",
-      "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=800",
-      "https://images.unsplash.com/photo-1622286342621-4bd786c2447c?w=800",
+      tondeuse3,
+      tondeuse1,
+      tondeuse2,
+      tondeuse4,
+      tondeuse5,
     ],
     category: "Self-Care",
     subcategory: "Tondeuse",
@@ -191,12 +203,12 @@ export const products: Product[] = [
     id: "diffuser-1",
     name: "Ceramic Aroma Diffuser",
     price: 79.99,
-    image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=500",
+    image: diffuser1,
     images: [
-      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
-      "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=800",
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800",
-      "https://images.unsplash.com/photo-1607004468138-e7e23ea26947?w=800",
+      diffuser1,
+      diffuser2,
+      diffuser3,
+      diffuser4,
     ],
     category: "Air Diffusers",
     description: "Elegant ceramic diffuser with mood lighting and whisper-quiet operation. Covers up to 500 sq ft.",
@@ -206,16 +218,44 @@ export const products: Product[] = [
     id: "diffuser-2",
     name: "Smart Home Diffuser",
     price: 149.99,
-    image: "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=500",
+    image: diffuser2,
     images: [
-      "https://images.unsplash.com/photo-1602928309823-85c4e05ecc79?w=800",
-      "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=800",
-      "https://images.unsplash.com/photo-1603006905003-be475563bc59?w=800",
-      "https://images.unsplash.com/photo-1607004468138-e7e23ea26947?w=800",
-      "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800",
+      diffuser2,
+      diffuser1,
+      diffuser3,
+      diffuser4,
     ],
     category: "Air Diffusers",
     description: "App-controlled smart diffuser with scheduling and intensity settings. Voice assistant compatible.",
+    isNew: true,
+  },
+  {
+    id: "diffuser-3",
+    name: "Cherry Reed Diffuser",
+    price: 49.99,
+    image: diffuser3,
+    images: [
+      diffuser3,
+      diffuser1,
+      diffuser2,
+      diffuser4,
+    ],
+    category: "Air Diffusers",
+    description: "Premium reed diffuser with rich cherry fragrance. Long-lasting scent that fills any room.",
+  },
+  {
+    id: "diffuser-4",
+    name: "Peach Paradise Diffuser",
+    price: 54.99,
+    image: diffuser4,
+    images: [
+      diffuser4,
+      diffuser1,
+      diffuser2,
+      diffuser3,
+    ],
+    category: "Air Diffusers",
+    description: "Fresh peach-scented reed diffuser with elegant design. Perfect for living rooms and bedrooms.",
     isNew: true,
   },
   // Watches - Men

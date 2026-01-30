@@ -174,8 +174,11 @@ const CheckoutPage = () => {
     // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
     
-    // Generate order ID
-    const generatedOrderId = `ALE-${Date.now().toString(36).toUpperCase()}`;
+    // Generate longer, more complex order ID
+    const timestamp = Date.now().toString(36).toUpperCase();
+    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const checksum = (Date.now() % 1000).toString().padStart(3, '0');
+    const generatedOrderId = `ALE-${timestamp}-${randomPart}-${checksum}`;
     
     // Calculate final total
     const isOnline = paymentMethod === "online" || paymentMethod === "wallet";
@@ -311,11 +314,17 @@ const CheckoutPage = () => {
       <section className="pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <button
-            onClick={() => step === "shipping" ? navigate("/cart") : setStep("shipping")}
+            onClick={() => {
+              if (step === "verification") setStep("payment");
+              else if (step === "payment") setStep("shipping");
+              else navigate("/cart");
+            }}
             className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span className="font-body">{step === "shipping" ? "Back to Cart" : "Back to Shipping"}</span>
+            <span className="font-body">
+              {step === "verification" ? "Back to Payment" : step === "payment" ? "Back to Shipping" : "Back to Cart"}
+            </span>
           </button>
 
           {/* Step Indicator */}

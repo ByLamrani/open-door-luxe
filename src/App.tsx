@@ -13,6 +13,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import WhyUsPage from "./pages/WhyUsPage";
 import ContactPage from "./pages/ContactPage";
 import AuthPage from "./pages/AuthPage";
+import ProfilePage from "./pages/ProfilePage";
 import TrackOrderPage from "./pages/TrackOrderPage";
 import NotFound from "./pages/NotFound";
 
@@ -29,6 +30,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<AuthPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
               <Route path="/track-order" element={<TrackOrderPage />} />
               <Route path="/self-care" element={<CategoryPage category="Self-Care" />} />
               <Route path="/self-care/tondeuse" element={<CategoryPage category="Self-Care" subcategory="Tondeuse" />} />
