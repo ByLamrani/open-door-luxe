@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,6 +10,9 @@ import { Label } from "@/components/ui/label";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import DepositModal from "@/components/DepositModal";
+import SavedCardSection from "@/components/SavedCardSection";
+import { getProductById } from "@/data/products";
 
 interface Profile {
   full_name: string;
@@ -59,8 +62,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites">("profile");
   const [isEditing, setIsEditing] = useState(false);
-  const [depositAmount, setDepositAmount] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [showDepositModal, setShowDepositModal] = useState(false);
+  const [showWithdrawModal, setShowWithdrawModal] = useState(false);
 
   const [profile, setProfile] = useState<Profile>({
     full_name: "",
@@ -173,19 +176,14 @@ const ProfilePage = () => {
     }
   };
 
-  const handleDeposit = async () => {
-    if (!wallet || !depositAmount) return;
-    const amount = parseFloat(depositAmount);
-    if (isNaN(amount) || amount <= 0) {
-      toast({ title: "Invalid Amount", description: "Please enter a valid amount", variant: "destructive" });
-      return;
-    }
+  const handleDeposit = async (amount: number) => {
+    if (!wallet) return;
 
     const { error } = await supabase.from("wallet_transactions").insert({
       wallet_id: wallet.id,
       amount: amount,
       transaction_type: "deposit",
-      description: "Wallet deposit",
+      description: "Wallet deposit via card",
     });
 
     if (!error) {
@@ -194,29 +192,20 @@ const ProfilePage = () => {
         .update({ balance: wallet.balance + amount })
         .eq("id", wallet.id);
       
-      toast({ title: "Deposit Successful", description: `$${amount.toFixed(2)} added to your wallet` });
-      setDepositAmount("");
       fetchWallet();
+    } else {
+      throw error;
     }
   };
 
-  const handleWithdraw = async () => {
-    if (!wallet || !withdrawAmount) return;
-    const amount = parseFloat(withdrawAmount);
-    if (isNaN(amount) || amount <= 0) {
-      toast({ title: "Invalid Amount", description: "Please enter a valid amount", variant: "destructive" });
-      return;
-    }
-    if (amount > wallet.balance) {
-      toast({ title: "Insufficient Balance", description: "You don't have enough funds", variant: "destructive" });
-      return;
-    }
+  const handleWithdraw = async (amount: number) => {
+    if (!wallet) return;
 
     const { error } = await supabase.from("wallet_transactions").insert({
       wallet_id: wallet.id,
       amount: -amount,
       transaction_type: "withdrawal",
-      description: "Wallet withdrawal",
+      description: "Wallet withdrawal to card",
     });
 
     if (!error) {
@@ -225,9 +214,9 @@ const ProfilePage = () => {
         .update({ balance: wallet.balance - amount })
         .eq("id", wallet.id);
       
-      toast({ title: "Withdrawal Successful", description: `$${amount.toFixed(2)} withdrawn from your wallet` });
-      setWithdrawAmount("");
       fetchWallet();
+    } else {
+      throw error;
     }
   };
 
@@ -347,7 +336,7 @@ const ProfilePage = () => {
                       </Button>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                       <div className="space-y-2">
                         <Label>Full Name</Label>
                         <Input
@@ -399,6 +388,9 @@ const ProfilePage = () => {
                         </select>
                       </div>
                     </div>
+
+                    {/* Saved Card Section */}
+                    <SavedCardSection />
                   </>
                 )}
 
@@ -412,38 +404,26 @@ const ProfilePage = () => {
                       <p className="font-display text-4xl">${wallet?.balance.toFixed(2) || "0.00"}</p>
                     </div>
 
-                    {/* Deposit / Withdraw */}
+                    {/* Deposit / Withdraw Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                      <div className="p-4 border border-border rounded-lg">
-                        <h3 className="font-display text-lg mb-3 flex items-center gap-2">
-                          <Plus className="w-5 h-5 text-green-500" />
-                          Deposit
-                        </h3>
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Amount"
-                            value={depositAmount}
-                            onChange={(e) => setDepositAmount(e.target.value)}
-                          />
-                          <Button variant="gold" onClick={handleDeposit}>Add</Button>
-                        </div>
-                      </div>
-                      <div className="p-4 border border-border rounded-lg">
-                        <h3 className="font-display text-lg mb-3 flex items-center gap-2">
-                          <Minus className="w-5 h-5 text-red-500" />
-                          Withdraw
-                        </h3>
-                        <div className="flex gap-2">
-                          <Input
-                            type="number"
-                            placeholder="Amount"
-                            value={withdrawAmount}
-                            onChange={(e) => setWithdrawAmount(e.target.value)}
-                          />
-                          <Button variant="outline" onClick={handleWithdraw}>Withdraw</Button>
-                        </div>
-                      </div>
+                      <Button
+                        variant="gold"
+                        size="lg"
+                        className="w-full"
+                        onClick={() => setShowDepositModal(true)}
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Deposit Funds
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="lg"
+                        className="w-full"
+                        onClick={() => setShowWithdrawModal(true)}
+                      >
+                        <Minus className="w-5 h-5 mr-2" />
+                        Withdraw Funds
+                      </Button>
                     </div>
 
                     {/* Transactions History */}
@@ -460,7 +440,7 @@ const ProfilePage = () => {
                             <div>
                               <p className="font-body text-sm text-foreground capitalize">{tx.transaction_type}</p>
                               <p className="font-body text-xs text-muted-foreground">
-                                {new Date(tx.created_at).toLocaleDateString()}
+                                {new Date(tx.created_at).toLocaleDateString()} • {tx.description || ""}
                               </p>
                             </div>
                             <span className={`font-display text-lg ${tx.amount > 0 ? "text-green-500" : "text-red-500"}`}>
@@ -538,22 +518,43 @@ const ProfilePage = () => {
                       </div>
                     ) : (
                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        {favorites.map((fav) => (
-                          <div key={fav.id} className="border border-border rounded-lg p-3 relative group">
-                            <button
-                              onClick={() => handleRemoveFavorite(fav.id)}
-                              className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
-                            >
-                              <Heart className="w-3 h-3 fill-current" />
-                            </button>
-                            <Link to={`/product/${fav.product_id}`}>
-                              <p className="font-body text-sm text-foreground">Product #{fav.product_id}</p>
-                              <p className="text-xs text-muted-foreground">
-                                Added {new Date(fav.created_at).toLocaleDateString()}
-                              </p>
-                            </Link>
-                          </div>
-                        ))}
+                        {favorites.map((fav) => {
+                          const product = getProductById(fav.product_id);
+                          return (
+                            <div key={fav.id} className="border border-border rounded-lg overflow-hidden relative group">
+                              <button
+                                onClick={() => handleRemoveFavorite(fav.id)}
+                                className="absolute top-2 right-2 z-10 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                              >
+                                <Heart className="w-3 h-3 fill-current" />
+                              </button>
+                              <Link to={`/product/${fav.product_id}`}>
+                                {product ? (
+                                  <>
+                                    <div className="aspect-square overflow-hidden">
+                                      <img 
+                                        src={product.image} 
+                                        alt={product.name}
+                                        className="w-full h-full object-cover"
+                                      />
+                                    </div>
+                                    <div className="p-3">
+                                      <p className="font-body text-sm text-foreground truncate">{product.name}</p>
+                                      <p className="text-gold font-display">${(product.price * 0.95).toFixed(2)}</p>
+                                    </div>
+                                  </>
+                                ) : (
+                                  <div className="p-3">
+                                    <p className="font-body text-sm text-foreground">Product #{fav.product_id}</p>
+                                    <p className="text-xs text-muted-foreground">
+                                      Added {new Date(fav.created_at).toLocaleDateString()}
+                                    </p>
+                                  </div>
+                                )}
+                              </Link>
+                            </div>
+                          );
+                        })}
                       </div>
                     )}
                   </>
@@ -565,6 +566,23 @@ const ProfilePage = () => {
       </main>
 
       <Footer />
+
+      {/* Deposit Modal */}
+      <DepositModal
+        isOpen={showDepositModal}
+        onClose={() => setShowDepositModal(false)}
+        onSuccess={handleDeposit}
+        type="deposit"
+      />
+
+      {/* Withdraw Modal */}
+      <DepositModal
+        isOpen={showWithdrawModal}
+        onClose={() => setShowWithdrawModal(false)}
+        onSuccess={handleWithdraw}
+        type="withdraw"
+        currentBalance={wallet?.balance || 0}
+      />
     </div>
   );
 };
