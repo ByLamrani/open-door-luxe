@@ -5,6 +5,8 @@ import { useAuth } from "@/context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
+import ProductQuickView from "@/components/ProductQuickView";
+import { getProductById, Product } from "@/data/products";
 
 interface ProductCardProps {
   id: string;
@@ -21,6 +23,8 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
   const navigate = useNavigate();
   const inCart = isInCart(id);
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [showQuickView, setShowQuickView] = useState(false);
+  const [product, setProduct] = useState<Product | null>(null);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -35,6 +39,18 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
       navigate("/cart");
     } else {
       addItem({ id, name, price, image, category });
+    }
+  };
+
+  const handleQuickView = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Get the full product data
+    const fullProduct = getProductById(id);
+    if (fullProduct) {
+      setProduct(fullProduct);
+      setShowQuickView(true);
     }
   };
 
@@ -93,13 +109,14 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
                   <ShoppingBag className="w-5 h-5" />
                 )}
               </motion.button>
-              <motion.div
+              <motion.button
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={handleQuickView}
                 className="p-3 bg-foreground/10 backdrop-blur-sm text-foreground rounded-full border border-foreground/20"
               >
                 <Eye className="w-5 h-5" />
-              </motion.div>
+              </motion.button>
             </div>
           </div>
 
@@ -130,6 +147,13 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
         action="add items to cart"
+      />
+
+      <ProductQuickView
+        product={product}
+        isOpen={showQuickView}
+        onClose={() => setShowQuickView(false)}
+        onAuthRequired={() => setShowAuthModal(true)}
       />
     </>
   );

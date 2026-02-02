@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import lamraniSignature from "@/assets/lamrani-signature.png";
 
 const LamraniSignature = () => {
   return (
@@ -9,14 +8,19 @@ const LamraniSignature = () => {
       transition={{ duration: 1.5, delay: 0.5 }}
       className="absolute inset-0 flex items-center justify-center pointer-events-none overflow-hidden"
     >
-      <img
-        src={lamraniSignature}
-        alt=""
-        className="w-[80%] max-w-[800px] h-auto object-contain opacity-100 select-none"
+      {/* Text-based Lamrani with same styling as hero */}
+      <h2 
+        className="font-display text-[20rem] md:text-[30rem] italic select-none"
         style={{
-          filter: "invert(1) brightness(1.2)",
+          background: "linear-gradient(135deg, #C4A052 0%, #E8D5A3 50%, #C4A052 100%)",
+          WebkitBackgroundClip: "text",
+          WebkitTextFillColor: "transparent",
+          backgroundClip: "text",
+          opacity: 1,
         }}
-      />
+      >
+        Lamrani
+      </h2>
     </motion.div>
   );
 };
