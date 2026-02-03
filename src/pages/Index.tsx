@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
-// Removed logo import - using Lamrani text instead
+import lamraniSignatureImg from "@/assets/lamrani-signature.png";
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
@@ -20,7 +20,6 @@ const Index = () => {
   const newProducts = getNewProducts();
 
   useEffect(() => {
-    // Check if user has already entered (session storage)
     const entered = sessionStorage.getItem("aleLifestyleEntered");
     if (entered) {
       setHasEntered(true);
@@ -36,12 +35,10 @@ const Index = () => {
 
   return (
     <>
-      {/* Door Entry Animation */}
       <AnimatePresence>
         {!hasEntered && <DoorEntry onEnter={handleEnter} />}
       </AnimatePresence>
 
-      {/* Main Content */}
       {showContent && (
         <motion.div
           initial={{ opacity: 0 }}
@@ -64,53 +61,21 @@ const Index = () => {
             <LamraniSignature />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              {/* Lamrani Text with Signature Line */}
+              {/* Lamrani Signature Image */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="mb-6"
               >
-                <h2 
-                  className="font-display text-5xl md:text-7xl lg:text-8xl italic"
+                <img 
+                  src={lamraniSignatureImg}
+                  alt="Lamrani"
+                  className="w-64 md:w-80 lg:w-96 mx-auto"
                   style={{
-                    background: "linear-gradient(135deg, #C4A052 0%, #E8D5A3 50%, #C4A052 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                    textShadow: "0 0 60px rgba(196, 160, 82, 0.3)",
+                    filter: "brightness(1.2) sepia(1) hue-rotate(15deg) saturate(2)",
                   }}
-                >
-                  Lamrani
-                </h2>
-                {/* Signature Line */}
-                <svg 
-                  viewBox="0 0 200 20" 
-                  className="w-48 md:w-64 mx-auto mt-2"
-                  style={{ filter: "drop-shadow(0 0 10px rgba(196, 160, 82, 0.5))" }}
-                >
-                  <path
-                    d="M10 10 Q50 5 100 10 T190 10"
-                    fill="none"
-                    stroke="url(#goldGradient)"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                  <path
-                    d="M170 10 Q180 15 190 8"
-                    fill="none"
-                    stroke="url(#goldGradient)"
-                    strokeWidth="1.5"
-                    strokeLinecap="round"
-                  />
-                  <defs>
-                    <linearGradient id="goldGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                      <stop offset="0%" stopColor="#C4A052" />
-                      <stop offset="50%" stopColor="#E8D5A3" />
-                      <stop offset="100%" stopColor="#C4A052" />
-                    </linearGradient>
-                  </defs>
-                </svg>
+                />
               </motion.div>
 
               <motion.h1
@@ -164,7 +129,7 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Most Recommended - Right after hero */}
+          {/* Most Recommended */}
           <MostRecommended />
 
           {/* Features Banner */}

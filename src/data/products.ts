@@ -344,13 +344,17 @@ export const getProductById = (id: string) => products.find(p => p.id === id);
 export const getRelatedProducts = (product: Product) => 
   products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 4);
 export const getDiverseProducts = () => {
-  // Get products from different categories
-  const categories = [...new Set(products.map(p => p.category))];
+  // Get one product from each category for maximum diversity
+  const categories = ["Self-Care", "Fragrances", "Air Diffusers", "Watches"];
   const diverse: Product[] = [];
   
   categories.forEach(cat => {
     const catProducts = products.filter(p => p.category === cat);
-    diverse.push(...catProducts.slice(0, 2));
+    // Get 2 products per category, preferring featured and new ones
+    const featured = catProducts.filter(p => p.isFeatured || p.isNew);
+    const selected = featured.length >= 2 ? featured.slice(0, 2) : 
+      [...featured, ...catProducts.filter(p => !p.isFeatured && !p.isNew)].slice(0, 2);
+    diverse.push(...selected);
   });
   
   return diverse.slice(0, 8);
