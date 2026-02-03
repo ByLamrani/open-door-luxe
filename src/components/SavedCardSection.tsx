@@ -6,22 +6,26 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 
-interface SavedCard {
+export interface SavedCard {
   id: string;
   name: string;
   last4: string;
   expiry: string;
   brand: string;
+  fullNumber?: string;
+  cvv?: string;
 }
 
 interface SavedCardSectionProps {
   onCardSave?: (card: SavedCard) => void;
+  compact?: boolean;
 }
 
-const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
+const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps) => {
   const { toast } = useToast();
   const [isEnabled, setIsEnabled] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | null>(null);
+  const [storedCard, setStoredCard] = useState<SavedCard | null>(null); // Persisted card data
   const [isEditing, setIsEditing] = useState(false);
   const [cardDetails, setCardDetails] = useState({
     name: "",
@@ -30,24 +34,32 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
     cvv: "",
   });
 
-  // Load saved card from localStorage
+  // Load saved card and enabled state from localStorage
   useEffect(() => {
     const stored = localStorage.getItem("savedCard");
     const enabled = localStorage.getItem("savedCardEnabled");
+    
     if (stored) {
-      setSavedCard(JSON.parse(stored));
-    }
-    if (enabled === "true") {
-      setIsEnabled(true);
+      const parsedCard = JSON.parse(stored);
+      setStoredCard(parsedCard);
+      
+      // Only show as active if enabled
+      if (enabled === "true") {
+        setSavedCard(parsedCard);
+        setIsEnabled(true);
+      }
     }
   }, []);
 
   const handleToggle = (checked: boolean) => {
     setIsEnabled(checked);
     localStorage.setItem("savedCardEnabled", checked.toString());
-    if (!checked) {
-      // Clear saved card when disabled
-      localStorage.removeItem("savedCard");
+    
+    if (checked && storedCard) {
+      // Reactivate stored card without needing to re-enter info
+      setSavedCard(storedCard);
+    } else if (!checked) {
+      // Deactivate but keep stored card data
       setSavedCard(null);
     }
   };
@@ -98,9 +110,12 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
       last4: cleanNumber.slice(-4),
       expiry: cardDetails.expiry,
       brand: getCardBrand(cleanNumber),
+      fullNumber: cleanNumber,
+      cvv: cardDetails.cvv,
     };
 
     setSavedCard(newCard);
+    setStoredCard(newCard);
     localStorage.setItem("savedCard", JSON.stringify(newCard));
     setIsEditing(false);
     setCardDetails({ name: "", number: "", expiry: "", cvv: "" });
@@ -110,6 +125,7 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
 
   const handleDelete = () => {
     setSavedCard(null);
+    setStoredCard(null);
     localStorage.removeItem("savedCard");
     toast({ title: "Card Removed" });
   };
@@ -118,6 +134,29 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
     setIsEditing(false);
     setCardDetails({ name: "", number: "", expiry: "", cvv: "" });
   };
+
+  if (compact) {
+    return (
+      <div className="flex items-center justify-between p-3 bg-muted rounded-lg">
+        <div className="flex items-center gap-3">
+          <CreditCard className="w-5 h-5 text-gold" />
+          <div>
+            <p className="font-body text-sm text-foreground">Use Saved Card</p>
+            {savedCard && (
+              <p className="text-xs text-muted-foreground">
+                {savedCard.brand} •••• {savedCard.last4}
+              </p>
+            )}
+          </div>
+        </div>
+        <Switch 
+          checked={isEnabled && !!savedCard} 
+          onCheckedChange={handleToggle}
+          disabled={!storedCard && !savedCard}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="border border-border rounded-lg p-4">
@@ -134,7 +173,7 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
 
       {isEnabled && (
         <div className="pt-4 border-t border-border">
-          {!savedCard && !isEditing && (
+          {!savedCard && !storedCard && !isEditing && (
             <Button
               variant="outline"
               className="w-full border-dashed"
@@ -145,18 +184,18 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
             </Button>
           )}
 
-          {savedCard && !isEditing && (
+          {(savedCard || storedCard) && !isEditing && (
             <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-8 bg-gradient-to-r from-gold-light to-gold rounded flex items-center justify-center text-primary-foreground text-xs font-bold">
-                  {savedCard.brand.slice(0, 4)}
+                  {(savedCard || storedCard)?.brand.slice(0, 4)}
                 </div>
                 <div>
                   <p className="font-body text-sm text-foreground">
-                    •••• •••• •••• {savedCard.last4}
+                    •••• •••• •••• {(savedCard || storedCard)?.last4}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {savedCard.name} • Expires {savedCard.expiry}
+                    {(savedCard || storedCard)?.name} • Expires {(savedCard || storedCard)?.expiry}
                   </p>
                 </div>
               </div>
@@ -167,9 +206,9 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
                   onClick={() => {
                     setIsEditing(true);
                     setCardDetails({
-                      name: savedCard.name,
+                      name: (savedCard || storedCard)?.name || "",
                       number: "",
-                      expiry: savedCard.expiry,
+                      expiry: (savedCard || storedCard)?.expiry || "",
                       cvv: "",
                     });
                   }}
@@ -241,6 +280,22 @@ const SavedCardSection = ({ onCardSave }: SavedCardSectionProps) => {
       )}
     </div>
   );
+};
+
+// Helper to get saved card for checkout
+export const getSavedCardForCheckout = (): SavedCard | null => {
+  const enabled = localStorage.getItem("savedCardEnabled");
+  const stored = localStorage.getItem("savedCard");
+  
+  if (enabled === "true" && stored) {
+    return JSON.parse(stored);
+  }
+  return null;
+};
+
+// Helper to check if saved card is enabled
+export const isSavedCardEnabled = (): boolean => {
+  return localStorage.getItem("savedCardEnabled") === "true" && !!localStorage.getItem("savedCard");
 };
 
 export default SavedCardSection;

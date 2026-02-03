@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Truck, ArrowLeft, Check, Loader2, Wallet, Lock, AlertCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,7 @@ import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
 
 interface ShippingInfo {
   firstName: string;
@@ -40,13 +41,14 @@ const CheckoutPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { items, subtotal, onlineDiscount, bulkDiscount, total, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal">("online");
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
-  const [showVerification, setShowVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"shipping" | "payment" | "verification">("shipping");
+  const [useSavedCard, setUseSavedCard] = useState(false);
+  const [walletBalance, setWalletBalance] = useState(0);
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: "",
@@ -66,13 +68,35 @@ const CheckoutPage = () => {
     cvv: "",
   });
 
+  const savedCard = getSavedCardForCheckout();
+  const hasSavedCard = isSavedCardEnabled() && !!savedCard;
   const isMorocco = shippingInfo.country === "Morocco";
+
+  // Fetch wallet balance
+  useEffect(() => {
+    const fetchWallet = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("wallets")
+        .select("balance")
+        .eq("user_id", user.id)
+        .single();
+      if (data) setWalletBalance(data.balance);
+    };
+    fetchWallet();
+  }, [user]);
+
+  // Auto-enable saved card if available
+  useEffect(() => {
+    if (hasSavedCard) {
+      setUseSavedCard(true);
+    }
+  }, [hasSavedCard]);
 
   const handleShippingChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setShippingInfo((prev) => ({ ...prev, [name]: value }));
     
-    // Reset payment method to online if country changes to non-Morocco
     if (name === "country" && value !== "Morocco") {
       setPaymentMethod("online");
     }
@@ -121,6 +145,7 @@ const CheckoutPage = () => {
 
   const validateCard = (): boolean => {
     if (paymentMethod !== "online") return true;
+    if (useSavedCard && savedCard) return true;
 
     if (!cardInfo.nameOnCard.trim()) {
       toast({ title: "Missing Information", description: "Please enter the name on card", variant: "destructive" });
@@ -147,44 +172,68 @@ const CheckoutPage = () => {
   };
 
   const handleProceedToVerification = () => {
+    if (paymentMethod === "wallet") {
+      const finalTotal = total(true);
+      if (walletBalance < finalTotal) {
+        toast({ title: "Insufficient Balance", description: "Your wallet balance is not enough for this purchase", variant: "destructive" });
+        return;
+      }
+    }
+    
     if (!validateCard()) return;
     
-    // Show verification for online payments
-    if (paymentMethod === "online") {
-      setShowVerification(true);
+    if (paymentMethod === "online" || paymentMethod === "wallet") {
       setStep("verification");
-      // Simulate sending verification code
       toast({
         title: "Verification Code Sent",
         description: "A 6-digit code has been sent to your phone for security",
       });
+    } else if (paymentMethod === "paypal") {
+      handlePlaceOrder();
     } else {
       handlePlaceOrder();
     }
   };
 
   const handlePlaceOrder = async () => {
-    if (paymentMethod === "online" && verificationCode.length < 6) {
+    if ((paymentMethod === "online" || paymentMethod === "wallet") && verificationCode.length < 6) {
       toast({ title: "Enter Code", description: "Please enter the 6-digit verification code", variant: "destructive" });
       return;
     }
 
     setIsProcessing(true);
     
-    // Simulate payment processing
     await new Promise((resolve) => setTimeout(resolve, 2000));
     
     // Generate longer, more complex order ID
     const timestamp = Date.now().toString(36).toUpperCase();
-    const randomPart = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const checksum = (Date.now() % 1000).toString().padStart(3, '0');
-    const generatedOrderId = `ALE-${timestamp}-${randomPart}-${checksum}`;
+    const randomPart1 = Math.random().toString(36).substring(2, 7).toUpperCase();
+    const randomPart2 = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const checksum = (Date.now() % 10000).toString().padStart(4, '0');
+    const generatedOrderId = `ALE-${timestamp}-${randomPart1}-${randomPart2}-${checksum}`;
     
-    // Calculate final total
-    const isOnline = paymentMethod === "online" || paymentMethod === "wallet";
+    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
     const finalTotal = total(isOnline);
 
-    // Save order to database if user is logged in
+    // Deduct from wallet if using wallet payment
+    if (paymentMethod === "wallet" && user) {
+      const { data: walletData } = await supabase
+        .from("wallets")
+        .select("id, balance")
+        .eq("user_id", user.id)
+        .single();
+      
+      if (walletData) {
+        await supabase.from("wallets").update({ balance: walletData.balance - finalTotal }).eq("id", walletData.id);
+        await supabase.from("wallet_transactions").insert({
+          wallet_id: walletData.id,
+          amount: -finalTotal,
+          transaction_type: "purchase",
+          description: `Order ${generatedOrderId}`,
+        });
+      }
+    }
+
     if (user) {
       try {
         await supabase.from("orders").insert({
@@ -212,6 +261,12 @@ const CheckoutPage = () => {
       title: "Order Placed Successfully! 🎉",
       description: `Your order ${generatedOrderId} has been confirmed.`,
     });
+  };
+
+  const handleGoBack = () => {
+    if (step === "verification") setStep("payment");
+    else if (step === "payment") setStep("shipping");
+    else navigate("/cart");
   };
 
   if (items.length === 0 && !orderComplete) {
@@ -305,7 +360,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet";
+  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
 
   return (
     <div className="min-h-screen bg-background">
@@ -313,19 +368,15 @@ const CheckoutPage = () => {
 
       <section className="pt-32 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <button
-            onClick={() => {
-              if (step === "verification") setStep("payment");
-              else if (step === "payment") setStep("shipping");
-              else navigate("/cart");
-            }}
-            className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors mb-6"
+          {/* Back Button */}
+          <Button
+            variant="ghost"
+            onClick={handleGoBack}
+            className="mb-6 text-muted-foreground hover:text-gold"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="font-body">
-              {step === "verification" ? "Back to Payment" : step === "payment" ? "Back to Shipping" : "Back to Cart"}
-            </span>
-          </button>
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            {step === "verification" ? "Back to Payment" : step === "payment" ? "Back to Shipping" : "Back to Cart"}
+          </Button>
 
           {/* Step Indicator */}
           <div className="flex items-center justify-center gap-4 mb-8">
@@ -486,6 +537,7 @@ const CheckoutPage = () => {
                     </h2>
 
                     <div className="space-y-3">
+                      {/* Credit Card Option */}
                       <button
                         onClick={() => setPaymentMethod("online")}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
@@ -508,6 +560,7 @@ const CheckoutPage = () => {
                         </span>
                       </button>
 
+                      {/* E-Wallet Option */}
                       <button
                         onClick={() => setPaymentMethod("wallet")}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
@@ -522,7 +575,7 @@ const CheckoutPage = () => {
                             E-Wallet
                           </p>
                           <p className="font-body text-xs text-muted-foreground">
-                            Pay from your wallet balance - Fastest checkout
+                            Balance: ${walletBalance.toFixed(2)} - Fastest checkout
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
@@ -530,6 +583,32 @@ const CheckoutPage = () => {
                         </span>
                       </button>
 
+                      {/* PayPal Option */}
+                      <button
+                        onClick={() => setPaymentMethod("paypal")}
+                        className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                          paymentMethod === "paypal"
+                            ? "border-gold bg-gold/10"
+                            : "border-border hover:border-gold/50"
+                        }`}
+                      >
+                        <div className={`w-5 h-5 flex items-center justify-center text-xs font-bold ${paymentMethod === "paypal" ? "text-gold" : "text-muted-foreground"}`}>
+                          PP
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className={`font-body font-medium ${paymentMethod === "paypal" ? "text-gold" : "text-foreground"}`}>
+                            PayPal
+                          </p>
+                          <p className="font-body text-xs text-muted-foreground">
+                            Pay with your PayPal account - Secure & Fast
+                          </p>
+                        </div>
+                        <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
+                          5% OFF
+                        </span>
+                      </button>
+
+                      {/* Cash on Delivery (Morocco only) */}
                       {isMorocco && (
                         <button
                           onClick={() => setPaymentMethod("cod")}
@@ -553,7 +632,7 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Card Details Form */}
+                  {/* Card Details Form - Only show if online and not using saved card */}
                   {paymentMethod === "online" && (
                     <div className="bg-card rounded-lg border border-border p-6">
                       <h2 className="font-display text-xl text-foreground mb-6 flex items-center gap-2">
@@ -561,51 +640,83 @@ const CheckoutPage = () => {
                         Card Details
                       </h2>
 
-                      <div className="space-y-4">
-                        <div className="space-y-2">
-                          <Label htmlFor="nameOnCard">Name on Card *</Label>
-                          <Input
-                            id="nameOnCard"
-                            name="nameOnCard"
-                            value={cardInfo.nameOnCard}
-                            onChange={handleCardChange}
-                            placeholder="JOHN DOE"
-                          />
+                      {/* Saved Card Toggle */}
+                      {hasSavedCard && (
+                        <div className="mb-4 p-4 bg-muted rounded-lg">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <CreditCard className="w-5 h-5 text-gold" />
+                              <div>
+                                <p className="font-body text-sm font-medium text-foreground">
+                                  Use Saved Card
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {savedCard?.brand} •••• {savedCard?.last4} - Expires {savedCard?.expiry}
+                                </p>
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => setUseSavedCard(!useSavedCard)}
+                              className={`px-3 py-1 rounded text-sm font-medium transition-colors ${
+                                useSavedCard
+                                  ? "bg-gold text-primary-foreground"
+                                  : "bg-muted-foreground/20 text-muted-foreground"
+                              }`}
+                            >
+                              {useSavedCard ? "Selected" : "Use"}
+                            </button>
+                          </div>
                         </div>
-                        <div className="space-y-2">
-                          <Label htmlFor="cardNumber">Card Number *</Label>
-                          <Input
-                            id="cardNumber"
-                            name="cardNumber"
-                            value={cardInfo.cardNumber}
-                            onChange={handleCardChange}
-                            placeholder="1234 5678 9012 3456"
-                          />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
+                      )}
+
+                      {/* Manual Card Entry - Only if not using saved card */}
+                      {(!useSavedCard || !hasSavedCard) && (
+                        <div className="space-y-4">
                           <div className="space-y-2">
-                            <Label htmlFor="expireDate">Expire Date *</Label>
+                            <Label htmlFor="nameOnCard">Name on Card *</Label>
                             <Input
-                              id="expireDate"
-                              name="expireDate"
-                              value={cardInfo.expireDate}
+                              id="nameOnCard"
+                              name="nameOnCard"
+                              value={cardInfo.nameOnCard}
                               onChange={handleCardChange}
-                              placeholder="MM/YY"
+                              placeholder="JOHN DOE"
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="cvv">CVV *</Label>
+                            <Label htmlFor="cardNumber">Card Number *</Label>
                             <Input
-                              id="cvv"
-                              name="cvv"
-                              type="password"
-                              value={cardInfo.cvv}
+                              id="cardNumber"
+                              name="cardNumber"
+                              value={cardInfo.cardNumber}
                               onChange={handleCardChange}
-                              placeholder="123"
+                              placeholder="1234 5678 9012 3456"
                             />
                           </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="expireDate">Expire Date *</Label>
+                              <Input
+                                id="expireDate"
+                                name="expireDate"
+                                value={cardInfo.expireDate}
+                                onChange={handleCardChange}
+                                placeholder="MM/YY"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="cvv">CVV *</Label>
+                              <Input
+                                id="cvv"
+                                name="cvv"
+                                type="password"
+                                value={cardInfo.cvv}
+                                onChange={handleCardChange}
+                                placeholder="123"
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   )}
 
@@ -615,7 +726,11 @@ const CheckoutPage = () => {
                     className="w-full"
                     onClick={handleProceedToVerification}
                   >
-                    {paymentMethod === "online" ? "Proceed to Verification" : `Place Order - $${total(isOnlinePayment).toFixed(2)}`}
+                    {paymentMethod === "online" || paymentMethod === "wallet" 
+                      ? "Proceed to Verification" 
+                      : paymentMethod === "paypal"
+                      ? "Pay with PayPal"
+                      : `Place Order - $${total(isOnlinePayment).toFixed(2)}`}
                   </Button>
                 </motion.div>
               )}
