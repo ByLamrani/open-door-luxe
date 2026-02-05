@@ -143,13 +143,13 @@ const WhyUsPage = () => {
             >
               <div className="aspect-square rounded-2xl overflow-hidden border border-border">
                 <img
-                  src="https://images.unsplash.com/photo-1556228720-195a672e8a03?w=800"
+                  src="https://images.unsplash.com/photo-1515377905703-c4788e51af15?w=800"
                   alt="Luxury lifestyle"
                   className="w-full h-full object-cover"
                 />
               </div>
               <div className="absolute -bottom-6 -left-6 p-6 bg-card rounded-xl border border-gold/30 shadow-lg">
-                <p className="font-display text-2xl text-gold">10%</p>
+                <p className="font-display text-2xl text-gold">8%</p>
                 <p className="font-body text-sm text-muted-foreground">OFF on online payments</p>
               </div>
             </motion.div>

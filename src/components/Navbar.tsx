@@ -5,6 +5,7 @@ import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
 import logo from "@/assets/logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface SubMenuItem {
   name: string;
@@ -48,6 +49,7 @@ const menuItems: MenuItem[] = [
   { name: "Track Order", path: "/track-order" },
   { name: "Why Us", path: "/why-us" },
   { name: "Contact", path: "/contact" },
+  { name: "Collections", path: "/collections" },
 ];
 
 const Navbar = () => {
@@ -125,6 +127,9 @@ const Navbar = () => {
 
           {/* Cart, Auth & Mobile Menu */}
           <div className="flex items-center gap-4">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Auth Button */}
             {user ? (
               <div className="hidden sm:flex items-center gap-2">

@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart } from "lucide-react";
+import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart, ZoomIn } from "lucide-react";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
 import ShareModal from "@/components/ShareModal";
+import ImageViewer from "@/components/ImageViewer";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +28,8 @@ const ProductDetailPage = () => {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authAction, setAuthAction] = useState("");
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showImageViewer, setShowImageViewer] = useState(false);
+  const [viewerImageIndex, setViewerImageIndex] = useState(0);
 
   const product = id ? getProductById(id) : undefined;
   const inCart = product ? isInCart(product.id) : false;
@@ -176,6 +179,11 @@ const ProductDetailPage = () => {
     });
   };
 
+  const handleImageClick = (index: number) => {
+    setViewerImageIndex(index);
+    setShowImageViewer(true);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -207,7 +215,10 @@ const ProductDetailPage = () => {
               className="space-y-4"
             >
               {/* Main Image */}
-              <div className="aspect-square rounded-2xl overflow-hidden bg-card border border-border relative">
+              <div 
+                className="aspect-square rounded-2xl overflow-hidden bg-card border border-border relative cursor-zoom-in group"
+                onClick={() => handleImageClick(selectedImage)}
+              >
                 <img
                   src={product.images[selectedImage]}
                   alt={product.name}
@@ -225,6 +236,11 @@ const ProductDetailPage = () => {
                     Up to 8% OFF
                   </span>
                 </div>
+
+                {/* Zoom Indicator */}
+                <div className="absolute bottom-4 right-4 p-2 bg-card/80 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                  <ZoomIn className="w-5 h-5 text-foreground" />
+                </div>
               </div>
 
               {/* Thumbnail Gallery */}
@@ -232,7 +248,10 @@ const ProductDetailPage = () => {
                 {product.images.map((img, i) => (
                   <button
                     key={i}
-                    onClick={() => setSelectedImage(i)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(i);
+                    }}
                     className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 transition-all ${
                       selectedImage === i ? "border-gold" : "border-border hover:border-gold/50"
                     }`}
@@ -420,6 +439,14 @@ const ProductDetailPage = () => {
         onClose={() => setShowShareModal(false)}
         productName={product.name}
         productUrl={window.location.href}
+      />
+
+      {/* Image Viewer */}
+      <ImageViewer
+        images={product.images}
+        initialIndex={viewerImageIndex}
+        isOpen={showImageViewer}
+        onClose={() => setShowImageViewer(false)}
       />
     </div>
   );
