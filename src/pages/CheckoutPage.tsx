@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CreditCard, Truck, ArrowLeft, Check, Loader2, Wallet, Lock, AlertCircle } from "lucide-react";
+import { CreditCard, Truck, ArrowLeft, Check, Loader2, Wallet, Lock, AlertCircle, User, Users } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -46,9 +46,18 @@ const CheckoutPage = () => {
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
-  const [step, setStep] = useState<"shipping" | "payment" | "verification">("shipping");
+  const [step, setStep] = useState<"recipient" | "shipping" | "payment" | "verification">("recipient");
   const [useSavedCard, setUseSavedCard] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [recipientType, setRecipientType] = useState<"self" | "friend" | null>(null);
+  const [userProfile, setUserProfile] = useState<{
+    full_name: string;
+    email: string;
+    phone: string | null;
+    home_address: string | null;
+    city: string | null;
+    country: string | null;
+  } | null>(null);
   
   const [shippingInfo, setShippingInfo] = useState<ShippingInfo>({
     firstName: "",
@@ -74,16 +83,26 @@ const CheckoutPage = () => {
 
   // Fetch wallet balance
   useEffect(() => {
-    const fetchWallet = async () => {
+    const fetchUserData = async () => {
       if (!user) return;
-      const { data } = await supabase
+      
+      // Fetch wallet
+      const { data: walletData } = await supabase
         .from("wallets")
         .select("balance")
         .eq("user_id", user.id)
         .single();
-      if (data) setWalletBalance(data.balance);
+      if (walletData) setWalletBalance(walletData.balance);
+
+      // Fetch profile for "Deliver to Me"
+      const { data: profileData } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", user.id)
+        .single();
+      if (profileData) setUserProfile(profileData);
     };
-    fetchWallet();
+    fetchUserData();
   }, [user]);
 
   // Auto-enable saved card if available
@@ -263,9 +282,54 @@ const CheckoutPage = () => {
     });
   };
 
+  const handleRecipientSelect = (type: "self" | "friend") => {
+    setRecipientType(type);
+    
+    if (type === "self" && userProfile) {
+      // Auto-fill with user's profile data
+      const nameParts = userProfile.full_name.split(" ");
+      setShippingInfo({
+        firstName: nameParts[0] || "",
+        lastName: nameParts.slice(1).join(" ") || "",
+        email: userProfile.email,
+        phone: userProfile.phone || "",
+        address: userProfile.home_address || "",
+        city: userProfile.city || "",
+        postalCode: "",
+        country: userProfile.country || "Morocco",
+      });
+      // Skip shipping if profile is complete
+      if (userProfile.home_address && userProfile.city) {
+        setStep("payment");
+      } else {
+        setStep("shipping");
+      }
+    } else {
+      // Reset shipping info for friend
+      setShippingInfo({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        address: "",
+        city: "",
+        postalCode: "",
+        country: "Morocco",
+      });
+      setStep("shipping");
+    }
+  };
+
   const handleGoBack = () => {
     if (step === "verification") setStep("payment");
-    else if (step === "payment") setStep("shipping");
+    else if (step === "payment") {
+      if (recipientType === "self" && userProfile?.home_address && userProfile?.city) {
+        setStep("recipient");
+      } else {
+        setStep("shipping");
+      }
+    }
+    else if (step === "shipping") setStep("recipient");
     else navigate("/cart");
   };
 
@@ -380,17 +444,17 @@ const CheckoutPage = () => {
 
           {/* Step Indicator */}
           <div className="flex items-center justify-center gap-4 mb-8">
-            {["Shipping", "Payment", "Confirm"].map((s, i) => (
+            {["Recipient", "Shipping", "Payment", "Confirm"].map((s, i) => (
               <div key={s} className="flex items-center gap-2">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
-                  (i === 0 && step === "shipping") || (i === 1 && step === "payment") || (i === 2 && step === "verification")
+                  (i === 0 && step === "recipient") || (i === 1 && step === "shipping") || (i === 2 && step === "payment") || (i === 3 && step === "verification")
                     ? "bg-gold text-primary-foreground"
                     : "bg-muted text-muted-foreground"
                 }`}>
                   {i + 1}
                 </div>
                 <span className="font-body text-sm hidden sm:inline">{s}</span>
-                {i < 2 && <div className="w-8 h-0.5 bg-border" />}
+                {i < 3 && <div className="w-8 h-0.5 bg-border" />}
               </div>
             ))}
           </div>
@@ -400,12 +464,60 @@ const CheckoutPage = () => {
             animate={{ opacity: 1, y: 0 }}
             className="font-display text-3xl md:text-4xl text-foreground mb-8 text-center"
           >
-            {step === "shipping" ? "Shipping Details" : step === "payment" ? "Payment" : "Verify Payment"}
+            {step === "recipient" ? "Who is this for?" : step === "shipping" ? "Shipping Details" : step === "payment" ? "Payment" : "Verify Payment"}
           </motion.h1>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Form Section */}
             <div className="lg:col-span-2 space-y-6">
+              {step === "recipient" && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="bg-card rounded-lg border border-border p-6"
+                >
+                  <h2 className="font-display text-xl text-foreground mb-6">
+                    Select Recipient
+                  </h2>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button
+                      onClick={() => handleRecipientSelect("self")}
+                      className={`p-6 rounded-lg border-2 transition-all text-left ${
+                        recipientType === "self"
+                          ? "border-gold bg-gold/10"
+                          : "border-border hover:border-gold/50"
+                      }`}
+                    >
+                      <User className={`w-8 h-8 mb-3 ${recipientType === "self" ? "text-gold" : "text-muted-foreground"}`} />
+                      <h3 className={`font-display text-lg mb-2 ${recipientType === "self" ? "text-gold" : "text-foreground"}`}>
+                        Deliver to Me
+                      </h3>
+                      <p className="font-body text-sm text-muted-foreground">
+                        Use my saved address for faster checkout
+                      </p>
+                    </button>
+
+                    <button
+                      onClick={() => handleRecipientSelect("friend")}
+                      className={`p-6 rounded-lg border-2 transition-all text-left ${
+                        recipientType === "friend"
+                          ? "border-gold bg-gold/10"
+                          : "border-border hover:border-gold/50"
+                      }`}
+                    >
+                      <Users className={`w-8 h-8 mb-3 ${recipientType === "friend" ? "text-gold" : "text-muted-foreground"}`} />
+                      <h3 className={`font-display text-lg mb-2 ${recipientType === "friend" ? "text-gold" : "text-foreground"}`}>
+                        Deliver to a Friend
+                      </h3>
+                      <p className="font-body text-sm text-muted-foreground">
+                        Enter recipient's shipping details
+                      </p>
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+
               {step === "shipping" && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}

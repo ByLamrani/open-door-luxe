@@ -66,14 +66,14 @@ const Index = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="mb-6"
+                className="mb-4"
               >
                 <img 
                   src={lamraniSignatureImg}
                   alt="Lamrani"
-                  className="w-64 md:w-80 lg:w-96 mx-auto"
+                  className="w-[500px] md:w-[650px] lg:w-[800px] mx-auto max-w-full"
                   style={{
-                    filter: "brightness(1.2) sepia(1) hue-rotate(15deg) saturate(2)",
+                    filter: "brightness(1.5) sepia(1) hue-rotate(15deg) saturate(3)",
                   }}
                 />
               </motion.div>
@@ -82,7 +82,7 @@ const Index = () => {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.4 }}
-                className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-6"
+                className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-4"
               >
                 Elevate Your <span className="text-gradient-gold">LifeStyle</span>
               </motion.h1>

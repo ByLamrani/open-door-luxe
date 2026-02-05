@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard } from "lucide-react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -58,9 +58,13 @@ const countries = [
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites">("profile");
+  // Get initial tab from URL state or default to profile
+  const initialTab = (location.state as any)?.tab || "profile";
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
@@ -90,6 +94,21 @@ const ProfilePage = () => {
     fetchOrders();
     fetchFavorites();
   }, [user, navigate]);
+
+  // Track tab changes for back navigation
+  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites") => {
+    setPreviousTab(activeTab);
+    setActiveTab(tab);
+  };
+
+  const handleBackClick = () => {
+    // If we're on favorites and came from another tab, go back to that tab
+    if (activeTab !== "profile") {
+      setActiveTab(previousTab !== activeTab ? previousTab : "profile");
+    } else {
+      navigate("/");
+    }
+  };
 
   const fetchProfile = async () => {
     if (!user) return;
@@ -247,11 +266,11 @@ const ProfilePage = () => {
             className="mb-8"
           >
             <button
-              onClick={() => navigate("/")}
+              onClick={handleBackClick}
               className="flex items-center gap-2 text-muted-foreground hover:text-gold transition-colors font-body"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back to Home
+              {activeTab === "profile" ? "Back to Home" : "Back"}
             </button>
           </motion.div>
 
@@ -290,7 +309,7 @@ const ProfilePage = () => {
                   {tabs.map((tab) => (
                     <button
                       key={tab.id}
-                      onClick={() => setActiveTab(tab.id as any)}
+                      onClick={() => handleTabChange(tab.id as any)}
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                         activeTab === tab.id
                           ? "bg-gold/10 text-gold"

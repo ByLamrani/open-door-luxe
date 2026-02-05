@@ -40,6 +40,7 @@ const Footer = () => {
                 { name: "Watches", path: "/watches" },
                 { name: "Track Order", path: "/track-order" },
                 { name: "Why Us", path: "/why-us" },
+                { name: "Our Collections", path: "/collections" },
               ].map((link) => (
                 <li key={link.name}>
                   <Link
@@ -93,7 +94,17 @@ const Footer = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="mt-12 pt-8 border-t border-border flex flex-col gap-4">
+          <div className="flex flex-wrap justify-center gap-4 text-sm font-body">
+            <Link to="/terms" className="text-muted-foreground hover:text-gold transition-colors">
+              Terms of Service
+            </Link>
+            <span className="text-border">|</span>
+            <Link to="/privacy" className="text-muted-foreground hover:text-gold transition-colors">
+              Privacy Policy
+            </Link>
+          </div>
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground font-body text-sm">
             © 2025 ale LifeStyle. All rights reserved.
           </p>
@@ -104,6 +115,7 @@ const Footer = () => {
             <span className="text-muted-foreground font-body text-xs">
               Cash on Delivery (Morocco)
             </span>
+          </div>
           </div>
         </div>
       </div>
