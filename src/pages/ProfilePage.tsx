@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2 } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -21,6 +21,7 @@ interface Profile {
   home_address: string | null;
   city: string | null;
   country: string | null;
+  avatar_url: string | null;
 }
 
 interface WalletData {
@@ -68,6 +69,8 @@ const ProfilePage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
   const [showWithdrawModal, setShowWithdrawModal] = useState(false);
+  const [isUploadingPhoto, setIsUploadingPhoto] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [profile, setProfile] = useState<Profile>({
     full_name: "",
@@ -76,6 +79,7 @@ const ProfilePage = () => {
     home_address: "",
     city: "",
     country: "Morocco",
+    avatar_url: null,
   });
 
   const [wallet, setWallet] = useState<WalletData | null>(null);
@@ -126,7 +130,60 @@ const ProfilePage = () => {
         home_address: data.home_address || "",
         city: data.city || "",
         country: data.country || "Morocco",
+        avatar_url: data.avatar_url || null,
       });
+    }
+  };
+
+  const handlePhotoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !user) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Invalid file", description: "Please upload an image file", variant: "destructive" });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image smaller than 5MB", variant: "destructive" });
+      return;
+    }
+
+    setIsUploadingPhoto(true);
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/avatar.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('profile-photos')
+        .upload(fileName, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('profile-photos')
+        .getPublicUrl(fileName);
+
+      // Update profile with avatar URL
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      setProfile(prev => ({ ...prev, avatar_url: publicUrl }));
+      toast({ title: "Photo Updated", description: "Your profile photo has been updated" });
+    } catch (error: any) {
+      console.error('Upload error:', error);
+      toast({ title: "Upload Failed", description: error.message || "Failed to upload photo", variant: "destructive" });
+    } finally {
+      setIsUploadingPhoto(false);
     }
   };
 
@@ -293,11 +350,34 @@ const ProfilePage = () => {
                 {/* Profile Photo */}
                 <div className="flex flex-col items-center mb-6">
                   <div className="relative">
-                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold-light to-gold flex items-center justify-center text-3xl font-display text-primary-foreground">
-                      {profile.full_name.charAt(0).toUpperCase()}
-                    </div>
-                    <button className="absolute bottom-0 right-0 p-2 bg-card border border-border rounded-full hover:bg-muted transition-colors">
-                      <Camera className="w-4 h-4 text-muted-foreground" />
+                    {profile.avatar_url ? (
+                      <img 
+                        src={profile.avatar_url} 
+                        alt="Profile" 
+                        className="w-24 h-24 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gold-light to-gold flex items-center justify-center text-3xl font-display text-primary-foreground">
+                        {profile.full_name.charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      onChange={handlePhotoUpload}
+                      className="hidden"
+                    />
+                    <button 
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploadingPhoto}
+                      className="absolute bottom-0 right-0 p-2 bg-card border border-border rounded-full hover:bg-muted transition-colors disabled:opacity-50"
+                    >
+                      {isUploadingPhoto ? (
+                        <Loader2 className="w-4 h-4 text-muted-foreground animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4 text-muted-foreground" />
+                      )}
                     </button>
                   </div>
                   <h3 className="font-display text-lg text-foreground mt-3">{profile.full_name}</h3>
