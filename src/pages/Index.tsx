@@ -5,12 +5,11 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import MostRecommended from "@/components/MostRecommended";
-import LamraniSignature from "@/components/LamraniSignature";
+import AIChatbot from "@/components/AIChatbot";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
-import lamraniSignatureImg from "@/assets/lamrani-signature.png";
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
@@ -56,24 +55,36 @@ const Index = () => {
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
               style={{ background: "var(--gradient-radial-gold)" }}
             />
-            
-            {/* Lamrani Signature Background */}
-            <LamraniSignature />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              {/* Lamrani Signature Image */}
+              {/* Lamrani Text - Large Golden with Glow Effect */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="mb-4"
+                className="mb-2"
               >
-                <img 
-                  src={lamraniSignatureImg}
-                  alt="Lamrani"
-                  className="w-[500px] md:w-[650px] lg:w-[800px] mx-auto max-w-full"
+                <h1 
+                  className="font-display text-7xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold leading-none"
                   style={{
-                    filter: "brightness(1.5) sepia(1) hue-rotate(15deg) saturate(3)",
+                    background: "linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 56% 65%) 25%, hsl(43 74% 49%) 50%, hsl(43 40% 35%) 75%, hsl(43 74% 49%) 100%)",
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    textShadow: "0 0 80px hsl(43 56% 55% / 0.5), 0 0 120px hsl(43 56% 55% / 0.3)",
+                    filter: "drop-shadow(0 0 30px hsl(43 56% 55% / 0.4))",
+                  }}
+                >
+                  Lamrani
+                </h1>
+                {/* Signature Line */}
+                <motion.div
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: 1 }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                  className="mx-auto mt-2 h-1 w-48 md:w-64 lg:w-80 rounded-full"
+                  style={{
+                    background: "linear-gradient(90deg, transparent, hsl(43 56% 55%), transparent)",
                   }}
                 />
               </motion.div>
@@ -296,6 +307,9 @@ const Index = () => {
           </section>
 
           <Footer />
+          
+          {/* AI Chatbot */}
+          <AIChatbot />
         </motion.div>
       )}
     </>
