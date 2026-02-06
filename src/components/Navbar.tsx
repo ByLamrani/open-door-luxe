@@ -77,17 +77,17 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1">
+          <div className="hidden lg:flex items-center gap-0.5">
             {menuItems.map((item) => (
               <div
                 key={item.name}
-                className="relative"
+                className="relative flex-shrink-0"
                 onMouseEnter={() => item.submenu && setActiveSubmenu(item.name)}
                 onMouseLeave={() => setActiveSubmenu(null)}
               >
                 <Link
                   to={item.path}
-                  className={`px-4 py-2 text-sm font-body tracking-wide transition-colors flex items-center gap-1 ${
+                  className={`px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap ${
                     isActive(item.path)
                       ? "text-gold"
                       : "text-foreground/80 hover:text-gold"
@@ -113,7 +113,7 @@ const Navbar = () => {
                         <Link
                           key={subItem.name}
                           to={subItem.path}
-                          className="block px-4 py-2 text-sm font-body text-foreground/80 hover:text-gold hover:bg-muted transition-colors"
+                          className="block px-4 py-2 text-sm font-body text-foreground/80 hover:text-gold hover:bg-muted transition-colors whitespace-nowrap"
                         >
                           {subItem.name}
                         </Link>
