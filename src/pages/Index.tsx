@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
+import lamraniLogo from "@/assets/lamrani-logo.png";
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
@@ -57,34 +58,19 @@ const Index = () => {
             />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              {/* Lamrani Text - Large Golden with Glow Effect */}
+              {/* Lamrani Logo Image - Large Golden with Glow Effect */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="mb-2"
+                className="mb-4"
               >
-                <h1 
-                  className="font-display text-7xl md:text-9xl lg:text-[12rem] xl:text-[14rem] font-bold leading-none"
+                <img 
+                  src={lamraniLogo}
+                  alt="Lamrani"
+                  className="w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] max-w-[1200px] mx-auto select-none"
                   style={{
-                    background: "linear-gradient(135deg, hsl(43 74% 49%) 0%, hsl(43 56% 65%) 25%, hsl(43 74% 49%) 50%, hsl(43 40% 35%) 75%, hsl(43 74% 49%) 100%)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                    backgroundClip: "text",
-                    textShadow: "0 0 80px hsl(43 56% 55% / 0.5), 0 0 120px hsl(43 56% 55% / 0.3)",
-                    filter: "drop-shadow(0 0 30px hsl(43 56% 55% / 0.4))",
-                  }}
-                >
-                  Lamrani
-                </h1>
-                {/* Signature Line */}
-                <motion.div
-                  initial={{ scaleX: 0 }}
-                  animate={{ scaleX: 1 }}
-                  transition={{ duration: 0.8, delay: 0.5 }}
-                  className="mx-auto mt-2 h-1 w-48 md:w-64 lg:w-80 rounded-full"
-                  style={{
-                    background: "linear-gradient(90deg, transparent, hsl(43 56% 55%), transparent)",
+                    filter: "drop-shadow(0 0 40px hsl(43 56% 55% / 0.5)) drop-shadow(0 0 80px hsl(43 56% 55% / 0.3))",
                   }}
                 />
               </motion.div>
