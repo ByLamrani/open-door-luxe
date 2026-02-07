@@ -68,9 +68,10 @@ const Index = () => {
                 <img 
                   src={lamraniLogo}
                   alt="Lamrani"
-                  className="w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] max-w-[1200px] mx-auto select-none"
+                  className="w-[95vw] md:w-[90vw] lg:w-[85vw] xl:w-[80vw] max-w-[1600px] mx-auto select-none"
                   style={{
                     filter: "drop-shadow(0 0 40px hsl(43 56% 55% / 0.5)) drop-shadow(0 0 80px hsl(43 56% 55% / 0.3))",
+                    background: "transparent",
                   }}
                 />
               </motion.div>
