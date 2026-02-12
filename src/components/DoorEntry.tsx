@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import logo from "@/assets/logo.png";
-import MoroccanDoor from "./MoroccanDoor";
+import doorLeft from "@/assets/door-left.jpg";
+import doorRight from "@/assets/door-right.jpg";
 
 interface DoorEntryProps {
   onEnter: () => void;
@@ -16,14 +17,14 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
     setIsOpening(true);
     setTimeout(() => {
       onEnter();
-    }, 1500);
+    }, 1800);
   };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-background overflow-hidden">
-      {/* Background ambient glow */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-background to-charcoal-light" />
-      <div 
+      <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-20"
         style={{ background: "var(--gradient-radial-gold)" }}
       />
@@ -35,13 +36,10 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
             key={i}
             className="absolute w-1 h-1 bg-gold/30 rounded-full"
             initial={{
-              x: Math.random() * (typeof window !== 'undefined' ? window.innerWidth : 1000),
-              y: Math.random() * (typeof window !== 'undefined' ? window.innerHeight : 800),
+              x: Math.random() * (typeof window !== "undefined" ? window.innerWidth : 1000),
+              y: Math.random() * (typeof window !== "undefined" ? window.innerHeight : 800),
             }}
-            animate={{
-              y: [null, -100],
-              opacity: [0, 1, 0],
-            }}
+            animate={{ y: [null, -100], opacity: [0, 1, 0] }}
             transition={{
               duration: 4 + Math.random() * 3,
               repeat: Infinity,
@@ -53,84 +51,132 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
 
       {/* Logo above door */}
       <motion.div
-        className="absolute top-8 md:top-12"
+        className="absolute top-8 md:top-12 z-20"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.3 }}
       >
-        <img 
-          src={logo} 
-          alt="ale LifeStyle" 
+        <img
+          src={logo}
+          alt="ale LifeStyle"
           className="h-20 md:h-28 w-auto object-contain drop-shadow-2xl"
         />
       </motion.div>
 
       {/* Door Container */}
       <motion.div
-        className="relative cursor-pointer group"
+        className="relative cursor-pointer"
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.5 }}
         onClick={handleDoorClick}
+        style={{ perspective: "1800px" }}
       >
-        {/* Door Frame */}
-        <div className="relative" style={{ perspective: "1500px", transformStyle: "preserve-3d" }}>
-          {/* Outer glow effect */}
-          <motion.div
-            className="absolute -inset-4 rounded-t-[80px] opacity-50"
-            style={{ background: "var(--gradient-radial-gold)" }}
-            animate={{
-              opacity: [0.3, 0.6, 0.3],
-            }}
-            transition={{
-              duration: 3,
-              repeat: Infinity,
-            }}
-          />
+        {/* Outer glow */}
+        <motion.div
+          className="absolute -inset-6 rounded-t-[40px] opacity-40 blur-xl"
+          style={{ background: "var(--gradient-radial-gold)" }}
+          animate={{ opacity: [0.2, 0.5, 0.2] }}
+          transition={{ duration: 3, repeat: Infinity }}
+        />
 
-          {/* Door Frame Border */}
-          <div className="absolute -inset-3 rounded-t-[75px] border-2 border-gold/30 bg-gradient-to-b from-gold/10 to-transparent" />
-
-          {/* Inside the door - the room beyond (always visible behind door) */}
-          <div className="absolute inset-0 rounded-t-[70px] overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-amber-900/80 via-amber-950 to-charcoal" />
+        {/* Door assembly - the two halves side by side */}
+        <div className="relative flex w-[300px] h-[460px] sm:w-[380px] sm:h-[580px] md:w-[460px] md:h-[700px]">
+          
+          {/* "Welcome" behind the doors */}
+          <div className="absolute inset-0 flex items-center justify-center z-0 bg-gradient-to-b from-amber-900/90 via-amber-950 to-charcoal rounded-t-[30px]">
             <motion.div
-              className="absolute inset-0 flex items-center justify-center"
-              initial={{ opacity: 0.3 }}
-              animate={isOpening ? { opacity: 1 } : { opacity: 0.3 }}
+              className="text-center"
+              animate={isOpening ? { opacity: 1, scale: 1.05 } : { opacity: 0.3 }}
               transition={{ delay: 0.5, duration: 0.8 }}
             >
-              <div className="text-center">
-                <motion.div
-                  animate={isOpening ? { scale: [1, 1.1, 1], opacity: 1 } : { opacity: 0.5 }}
-                  transition={{ duration: 0.8, delay: 0.6 }}
-                >
-                  <span className="text-gold font-display text-3xl md:text-4xl drop-shadow-lg">Welcome</span>
-                </motion.div>
-                <motion.p
-                  className="text-gold/60 font-body text-sm mt-2"
-                  animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
-                  transition={{ delay: 0.9, duration: 0.5 }}
-                >
-                  to a world of luxury
-                </motion.p>
-              </div>
+              <span className="text-gold font-display text-3xl md:text-5xl drop-shadow-lg">
+                Welcome
+              </span>
+              <motion.p
+                className="text-gold/60 font-body text-sm mt-2"
+                animate={isOpening ? { opacity: 1 } : { opacity: 0 }}
+                transition={{ delay: 0.9, duration: 0.5 }}
+              >
+                to a world of luxury
+              </motion.p>
             </motion.div>
-            {/* Light rays coming from inside */}
+            {/* Light rays */}
             <motion.div
-              className="absolute inset-0"
+              className="absolute inset-0 rounded-t-[30px]"
               style={{
-                background: "radial-gradient(ellipse at center, hsl(43 56% 55% / 0.3) 0%, transparent 70%)"
+                background:
+                  "radial-gradient(ellipse at center, hsl(43 56% 55% / 0.3) 0%, transparent 70%)",
               }}
               animate={isOpening ? { opacity: [0, 0.8, 0.5] } : { opacity: 0 }}
               transition={{ duration: 1.2, delay: 0.3 }}
             />
           </div>
 
-          {/* The Custom Moroccan Door - positioned on top */}
-          <div className="relative z-10">
-            <MoroccanDoor isOpening={isOpening} />
+          {/* Static teal frame - left side (only the teal portion from left image) */}
+          <div
+            className="absolute left-0 top-0 bottom-0 z-10 overflow-hidden"
+            style={{ width: "42%" }}
+          >
+            <img
+              src={doorLeft}
+              alt=""
+              className="absolute top-0 left-0 w-full h-full object-cover object-left"
+              style={{
+                clipPath: "inset(0 55% 0 0)",
+              }}
+            />
           </div>
+
+          {/* Static teal frame - right side (only the teal portion from right image) */}
+          <div
+            className="absolute right-0 top-0 bottom-0 z-10 overflow-hidden"
+            style={{ width: "42%" }}
+          >
+            <img
+              src={doorRight}
+              alt=""
+              className="absolute top-0 right-0 w-full h-full object-cover object-right"
+              style={{
+                clipPath: "inset(0 0 0 55%)",
+              }}
+            />
+          </div>
+
+          {/* LEFT DOOR PANEL - swings open to the left */}
+          <motion.div
+            className="absolute left-0 top-0 bottom-0 z-20 overflow-hidden origin-left"
+            style={{ width: "50%" }}
+            animate={
+              isOpening
+                ? { rotateY: -110, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
+                : {}
+            }
+          >
+            <img
+              src={doorLeft}
+              alt=""
+              className="w-[200%] h-full object-cover object-right"
+            />
+          </motion.div>
+
+          {/* RIGHT DOOR PANEL - swings open to the right */}
+          <motion.div
+            className="absolute right-0 top-0 bottom-0 z-20 overflow-hidden origin-right"
+            style={{ width: "50%" }}
+            animate={
+              isOpening
+                ? { rotateY: 110, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
+                : {}
+            }
+          >
+            <img
+              src={doorRight}
+              alt=""
+              className="w-[200%] h-full object-cover object-left"
+              style={{ marginLeft: "-100%" }}
+            />
+          </motion.div>
         </div>
 
         {/* Click hint */}
