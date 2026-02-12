@@ -70,21 +70,21 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.8, delay: 0.5 }}
         onClick={handleDoorClick}
-        style={{ perspective: "1800px" }}
+        style={{ perspective: "2000px" }}
       >
         {/* Outer glow */}
         <motion.div
-          className="absolute -inset-6 rounded-t-[40px] opacity-40 blur-xl"
+          className="absolute -inset-6 opacity-40 blur-xl"
           style={{ background: "var(--gradient-radial-gold)" }}
           animate={{ opacity: [0.2, 0.5, 0.2] }}
           transition={{ duration: 3, repeat: Infinity }}
         />
 
-        {/* Door assembly - the two halves side by side */}
-        <div className="relative flex w-[300px] h-[460px] sm:w-[380px] sm:h-[580px] md:w-[460px] md:h-[700px]">
-          
-          {/* "Welcome" behind the doors */}
-          <div className="absolute inset-0 flex items-center justify-center z-0 bg-gradient-to-b from-amber-900/90 via-amber-950 to-charcoal rounded-t-[30px]">
+        {/* Main door assembly */}
+        <div className="relative w-[320px] h-[480px] sm:w-[400px] sm:h-[600px] md:w-[500px] md:h-[750px]">
+
+          {/* "Welcome" content behind the doors */}
+          <div className="absolute inset-0 flex items-center justify-center z-0 bg-gradient-to-b from-amber-900/90 via-amber-950 to-[hsl(var(--charcoal))]">
             <motion.div
               className="text-center"
               animate={isOpening ? { opacity: 1, scale: 1.05 } : { opacity: 0.3 }}
@@ -101,9 +101,8 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
                 to a world of luxury
               </motion.p>
             </motion.div>
-            {/* Light rays */}
             <motion.div
-              className="absolute inset-0 rounded-t-[30px]"
+              className="absolute inset-0"
               style={{
                 background:
                   "radial-gradient(ellipse at center, hsl(43 56% 55% / 0.3) 0%, transparent 70%)",
@@ -113,68 +112,101 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
             />
           </div>
 
-          {/* Static teal frame - left side (only the teal portion from left image) */}
-          <div
-            className="absolute left-0 top-0 bottom-0 z-10 overflow-hidden"
-            style={{ width: "42%" }}
-          >
-            <img
-              src={doorLeft}
-              alt=""
-              className="absolute top-0 left-0 w-full h-full object-cover object-left"
-              style={{
-                clipPath: "inset(0 55% 0 0)",
-              }}
-            />
+          {/* STATIC TEAL FRAME — stays in place when doors open */}
+          {/* Left teal frame strip */}
+          <div className="absolute left-0 top-0 bottom-0 z-30 pointer-events-none" style={{ width: "50%" }}>
+            <div className="relative w-full h-full overflow-hidden">
+              <img
+                src={doorLeft}
+                alt=""
+                className="absolute top-0 left-0 h-full object-cover object-left"
+                style={{ width: "200%", clipPath: "inset(0 60% 0 0)" }}
+                draggable={false}
+              />
+            </div>
+          </div>
+          {/* Right teal frame strip */}
+          <div className="absolute right-0 top-0 bottom-0 z-30 pointer-events-none" style={{ width: "50%" }}>
+            <div className="relative w-full h-full overflow-hidden">
+              <img
+                src={doorRight}
+                alt=""
+                className="absolute top-0 right-0 h-full object-cover object-right"
+                style={{ width: "200%", clipPath: "inset(0 0 0 60%)" }}
+                draggable={false}
+              />
+            </div>
           </div>
 
-          {/* Static teal frame - right side (only the teal portion from right image) */}
-          <div
-            className="absolute right-0 top-0 bottom-0 z-10 overflow-hidden"
-            style={{ width: "42%" }}
-          >
-            <img
-              src={doorRight}
-              alt=""
-              className="absolute top-0 right-0 w-full h-full object-cover object-right"
-              style={{
-                clipPath: "inset(0 0 0 55%)",
-              }}
-            />
+          {/* TOP DECORATIVE STRIP — the top zellige tiles above the arch, stays static */}
+          <div className="absolute top-0 left-0 right-0 z-30 pointer-events-none" style={{ height: "8%" }}>
+            <div className="flex w-full h-full">
+              <div className="w-1/2 h-full overflow-hidden">
+                <img
+                  src={doorLeft}
+                  alt=""
+                  className="w-full h-auto object-cover object-top"
+                  style={{ clipPath: "inset(0 0 90% 0)" }}
+                  draggable={false}
+                />
+              </div>
+              <div className="w-1/2 h-full overflow-hidden">
+                <img
+                  src={doorRight}
+                  alt=""
+                  className="w-full h-auto object-cover object-top"
+                  style={{ clipPath: "inset(0 0 90% 0)" }}
+                  draggable={false}
+                />
+              </div>
+            </div>
           </div>
 
-          {/* LEFT DOOR PANEL - swings open to the left */}
+          {/* LEFT DOOR PANEL — the wooden carved part, swings open to the left */}
           <motion.div
-            className="absolute left-0 top-0 bottom-0 z-20 overflow-hidden origin-left"
-            style={{ width: "50%" }}
+            className="absolute top-0 bottom-0 z-20 overflow-hidden"
+            style={{
+              left: "0",
+              width: "50%",
+              transformOrigin: "left center",
+              transformStyle: "preserve-3d",
+            }}
             animate={
               isOpening
-                ? { rotateY: -110, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
+                ? { rotateY: -105, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
                 : {}
             }
           >
             <img
               src={doorLeft}
-              alt=""
-              className="w-[200%] h-full object-cover object-right"
+              alt="Left door"
+              className="absolute top-0 left-0 h-full object-cover object-right"
+              style={{ width: "200%" }}
+              draggable={false}
             />
           </motion.div>
 
-          {/* RIGHT DOOR PANEL - swings open to the right */}
+          {/* RIGHT DOOR PANEL — the wooden carved part, swings open to the right */}
           <motion.div
-            className="absolute right-0 top-0 bottom-0 z-20 overflow-hidden origin-right"
-            style={{ width: "50%" }}
+            className="absolute top-0 bottom-0 z-20 overflow-hidden"
+            style={{
+              right: "0",
+              width: "50%",
+              transformOrigin: "right center",
+              transformStyle: "preserve-3d",
+            }}
             animate={
               isOpening
-                ? { rotateY: 110, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
+                ? { rotateY: 105, transition: { duration: 1.4, ease: [0.4, 0, 0.2, 1] } }
                 : {}
             }
           >
             <img
               src={doorRight}
-              alt=""
-              className="w-[200%] h-full object-cover object-left"
-              style={{ marginLeft: "-100%" }}
+              alt="Right door"
+              className="absolute top-0 right-0 h-full object-cover object-left"
+              style={{ width: "200%" }}
+              draggable={false}
             />
           </motion.div>
         </div>
