@@ -31,8 +31,39 @@ const ProductDetailPage = () => {
   const [showImageViewer, setShowImageViewer] = useState(false);
   const [viewerImageIndex, setViewerImageIndex] = useState(0);
 
-  const product = id ? getProductById(id) : undefined;
+  const [product, setProduct] = useState(id ? getProductById(id) : undefined);
+  const [loadingProduct, setLoadingProduct] = useState(!product);
   const inCart = product ? isInCart(product.id) : false;
+
+  // If not found in static data, try DB
+  useEffect(() => {
+    if (!product && id) {
+      const fetchFromDb = async () => {
+        const { data } = await supabase
+          .from("products")
+          .select("*")
+          .eq("id", id)
+          .single();
+        if (data) {
+          setProduct({
+            id: data.id,
+            name: data.name,
+            price: data.price,
+            image: data.image || "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500",
+            images: data.image ? [data.image] : [],
+            category: data.category || "",
+            description: data.description || "",
+            isNew: data.is_new || false,
+            isFeatured: data.is_featured || false,
+          });
+        }
+        setLoadingProduct(false);
+      };
+      fetchFromDb();
+    } else {
+      setLoadingProduct(false);
+    }
+  }, [id, product]);
 
   // Check if product is in favorites
   useEffect(() => {

@@ -65,10 +65,10 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.2 }}
                 className="mb-4"
               >
-              <img 
+                <img 
                   src={lamraniLogo}
                   alt="Lamrani"
-                  className="w-[280px] sm:w-[400px] md:w-[500px] lg:w-[600px] mx-auto select-none"
+                  className="w-[340px] sm:w-[480px] md:w-[600px] lg:w-[720px] mx-auto select-none"
                   style={{
                     filter: "drop-shadow(0 0 40px hsl(43 56% 55% / 0.5)) drop-shadow(0 0 80px hsl(43 56% 55% / 0.3))",
                     background: "transparent",
