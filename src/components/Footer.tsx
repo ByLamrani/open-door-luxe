@@ -16,10 +16,16 @@ const Footer = () => {
               fragrances, and luxury accessories.
             </p>
             <div className="flex gap-4">
-              {[Instagram, Facebook, Twitter].map((Icon, i) => (
+              {[
+                { Icon: Instagram, href: "https://www.instagram.com/ale.lifestyle1/" },
+                { Icon: Facebook, href: "#" },
+                { Icon: Twitter, href: "#" },
+              ].map(({ Icon, href }, i) => (
                 <motion.a
                   key={i}
-                  href="#"
+                  href={href}
+                  target={href !== "#" ? "_blank" : undefined}
+                  rel={href !== "#" ? "noopener noreferrer" : undefined}
                   whileHover={{ scale: 1.1, y: -2 }}
                   className="p-2 border border-border rounded-full text-muted-foreground hover:text-gold hover:border-gold transition-colors"
                 >

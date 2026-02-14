@@ -160,9 +160,9 @@ const AuthPage = () => {
         } else {
           toast({
             title: "Account Created! 🎉",
-            description: "Welcome to ale LifeStyle! You can now start shopping.",
+            description: "Please check your email to verify your account before signing in.",
           });
-          navigate("/");
+          setIsLogin(true);
         }
       }
     } catch (error: any) {

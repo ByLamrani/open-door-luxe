@@ -137,7 +137,11 @@ const Navbar = () => {
                   to="/profile"
                   className="p-2 text-foreground/80 hover:text-gold transition-colors"
                 >
-                  <User className="w-5 h-5" />
+                  {user.user_metadata?.avatar_url ? (
+                    <img src={user.user_metadata.avatar_url} alt="Profile" className="w-6 h-6 rounded-full object-cover" />
+                  ) : (
+                    <User className="w-5 h-5" />
+                  )}
                 </Link>
                 <button
                   onClick={() => signOut()}

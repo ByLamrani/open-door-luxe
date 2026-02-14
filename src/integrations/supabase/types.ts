@@ -126,10 +126,13 @@ export type Database = {
           country: string | null
           created_at: string
           email: string
+          facebook_url: string | null
           full_name: string
           home_address: string | null
           id: string
+          instagram_url: string | null
           phone: string | null
+          twitter_url: string | null
           updated_at: string
           user_id: string
         }
@@ -139,10 +142,13 @@ export type Database = {
           country?: string | null
           created_at?: string
           email: string
+          facebook_url?: string | null
           full_name: string
           home_address?: string | null
           id?: string
+          instagram_url?: string | null
           phone?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id: string
         }
@@ -152,10 +158,13 @@ export type Database = {
           country?: string | null
           created_at?: string
           email?: string
+          facebook_url?: string | null
           full_name?: string
           home_address?: string | null
           id?: string
+          instagram_url?: string | null
           phone?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id?: string
         }

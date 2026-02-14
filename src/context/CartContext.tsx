@@ -75,9 +75,9 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       finalTotal -= bulkDiscount;
     }
     
-    // Apply online discount (if applicable)
+    // Apply online discount on the post-bulk-discount price (if applicable)
     if (isOnline) {
-      finalTotal -= onlineDiscount;
+      finalTotal -= finalTotal * 0.05;
     }
     
     return Math.max(0, finalTotal);

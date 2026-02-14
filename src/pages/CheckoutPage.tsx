@@ -955,7 +955,7 @@ const CheckoutPage = () => {
                   {isOnlinePayment && (
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-gold">Online Discount (5%)</span>
-                      <span className="text-gold">-${onlineDiscount.toFixed(2)}</span>
+                      <span className="text-gold">-${((subtotal >= 700 ? subtotal - bulkDiscount : subtotal) * 0.05).toFixed(2)}</span>
                     </div>
                   )}
                   
