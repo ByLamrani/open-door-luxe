@@ -298,8 +298,9 @@ const CheckoutPage = () => {
         postalCode: "",
         country: userProfile.country || "Morocco",
       });
-      // Skip shipping if profile is complete
-      if (userProfile.home_address && userProfile.city) {
+      // Skip shipping if profile is complete (name, email, phone, address, city all filled)
+      const profileComplete = userProfile.full_name && userProfile.email && userProfile.phone && userProfile.home_address && userProfile.city;
+      if (profileComplete) {
         setStep("payment");
       } else {
         setStep("shipping");
@@ -323,7 +324,7 @@ const CheckoutPage = () => {
   const handleGoBack = () => {
     if (step === "verification") setStep("payment");
     else if (step === "payment") {
-      if (recipientType === "self" && userProfile?.home_address && userProfile?.city) {
+      if (recipientType === "self" && userProfile?.full_name && userProfile?.email && userProfile?.phone && userProfile?.home_address && userProfile?.city) {
         setStep("recipient");
       } else {
         setStep("shipping");
