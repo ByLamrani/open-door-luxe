@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Search, Package, Truck, Check, Clock, MapPin } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -81,6 +81,46 @@ const TrackOrderPage = () => {
       setIsLoading(false);
     }
   };
+
+  // Subscribe to realtime updates when an order is loaded
+  useEffect(() => {
+    if (!order) return;
+
+    const channel = supabase
+      .channel(`order-${order.order_id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'orders',
+          filter: `order_id=eq.${order.order_id}`,
+        },
+        (payload) => {
+          const updated = payload.new as any;
+          setOrder((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  status: updated.status,
+                  items: updated.items as any[],
+                  total: Number(updated.total),
+                  shipping_info: updated.shipping_info as OrderData['shipping_info'],
+                }
+              : prev
+          );
+          toast({
+            title: "Order Updated",
+            description: `Status changed to "${updated.status}"`,
+          });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [order?.order_id]);
 
   const getStatusIndex = (status: string) => {
     return statusSteps.findIndex((s) => s.key === status);
