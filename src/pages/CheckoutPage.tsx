@@ -191,18 +191,47 @@ const CheckoutPage = () => {
     setStep("payment");
   };
 
+  const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
+  
+  const getFinalTotal = () => {
+    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
+    let finalTotal = total(isOnline);
+    if (useAdvancePayment) {
+      finalTotal -= getAdvanceDiscount();
+    }
+    return Math.max(0, finalTotal);
+  };
+
+  const getAdvanceAmount = () => getFinalTotal() * 0.3;
+  const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
+
+  const getWalletCardSplit = () => {
+    const finalTotal = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
+    const walletPortion = Math.min(walletBalance, finalTotal);
+    const cardPortion = finalTotal - walletPortion;
+    return { walletPortion, cardPortion };
+  };
+
   const handleProceedToVerification = () => {
     if (paymentMethod === "wallet") {
-      const finalTotal = total(true);
-      if (walletBalance < finalTotal) {
-        toast({ title: "Insufficient Balance", description: "Your wallet balance is not enough for this purchase", variant: "destructive" });
+      const amountNeeded = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
+      if (walletBalance < amountNeeded) {
+        toast({ 
+          title: "Insufficient Balance", 
+          description: "Your wallet balance is not enough. Try 'Wallet + Card' option to combine payment methods.", 
+          variant: "destructive" 
+        });
         return;
       }
+    }
+
+    if (paymentMethod === "wallet_card") {
+      if (!validateCard()) return;
     }
     
     if (!validateCard()) return;
     
-    if (paymentMethod === "online" || paymentMethod === "wallet") {
+    if (paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
       setStep("verification");
       toast({
         title: "Verification Code Sent",
