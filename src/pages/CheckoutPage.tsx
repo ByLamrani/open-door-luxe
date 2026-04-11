@@ -461,7 +461,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
+  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
 
   return (
     <div className="min-h-screen bg-background">
