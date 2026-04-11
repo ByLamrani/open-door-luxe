@@ -1017,7 +1017,7 @@ const CheckoutPage = () => {
                         Processing...
                       </>
                     ) : (
-                      `Confirm & Pay $${total(true).toFixed(2)}`
+                      `Confirm & Pay $${useAdvancePayment ? getAdvanceAmount().toFixed(2) : getFinalTotal().toFixed(2)}`
                     )}
                   </Button>
                 </motion.div>
@@ -1080,6 +1080,13 @@ const CheckoutPage = () => {
                       <span className="text-gold">-${((subtotal >= 700 ? subtotal - bulkDiscount : subtotal) * 0.05).toFixed(2)}</span>
                     </div>
                   )}
+
+                  {useAdvancePayment && (
+                    <div className="flex justify-between font-body text-sm">
+                      <span className="text-gold">Advance Discount (3%)</span>
+                      <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-muted-foreground">Shipping</span>
@@ -1089,13 +1096,20 @@ const CheckoutPage = () => {
                   <div className="flex justify-between font-display text-lg pt-3 border-t border-border">
                     <span className="text-foreground">Total</span>
                     <span className="text-gold">
-                      ${total(isOnlinePayment).toFixed(2)}
+                      ${getFinalTotal().toFixed(2)}
                     </span>
                   </div>
 
+                  {useAdvancePayment && (
+                    <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
+                      <span className="text-gold font-medium">Pay Now (30%)</span>
+                      <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
+                    </div>
+                  )}
+
                   {subtotal >= 700 && (
                     <p className="text-xs text-gold text-center mt-2">
-                      🎉 You're saving ${bulkDiscount.toFixed(2)} with bulk discount!
+                      🎉 You're saving ${(bulkDiscount + (useAdvancePayment ? getAdvanceDiscount() : 0)).toFixed(2)} with discounts!
                     </p>
                   )}
                 </div>
