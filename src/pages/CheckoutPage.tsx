@@ -245,7 +245,7 @@ const CheckoutPage = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if ((paymentMethod === "online" || paymentMethod === "wallet") && verificationCode.length < 6) {
+    if ((paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card") && verificationCode.length < 6) {
       toast({ title: "Enter Code", description: "Please enter the 6-digit verification code", variant: "destructive" });
       return;
     }
