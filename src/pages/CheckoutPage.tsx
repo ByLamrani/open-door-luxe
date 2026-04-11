@@ -41,7 +41,8 @@ const CheckoutPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { items, subtotal, onlineDiscount, bulkDiscount, total, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
+  const [useAdvancePayment, setUseAdvancePayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
@@ -190,18 +191,47 @@ const CheckoutPage = () => {
     setStep("payment");
   };
 
+  const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
+  
+  const getFinalTotal = () => {
+    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
+    let finalTotal = total(isOnline);
+    if (useAdvancePayment) {
+      finalTotal -= getAdvanceDiscount();
+    }
+    return Math.max(0, finalTotal);
+  };
+
+  const getAdvanceAmount = () => getFinalTotal() * 0.3;
+  const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
+
+  const getWalletCardSplit = () => {
+    const finalTotal = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
+    const walletPortion = Math.min(walletBalance, finalTotal);
+    const cardPortion = finalTotal - walletPortion;
+    return { walletPortion, cardPortion };
+  };
+
   const handleProceedToVerification = () => {
     if (paymentMethod === "wallet") {
-      const finalTotal = total(true);
-      if (walletBalance < finalTotal) {
-        toast({ title: "Insufficient Balance", description: "Your wallet balance is not enough for this purchase", variant: "destructive" });
+      const amountNeeded = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
+      if (walletBalance < amountNeeded) {
+        toast({ 
+          title: "Insufficient Balance", 
+          description: "Your wallet balance is not enough. Try 'Wallet + Card' option to combine payment methods.", 
+          variant: "destructive" 
+        });
         return;
       }
+    }
+
+    if (paymentMethod === "wallet_card") {
+      if (!validateCard()) return;
     }
     
     if (!validateCard()) return;
     
-    if (paymentMethod === "online" || paymentMethod === "wallet") {
+    if (paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
       setStep("verification");
       toast({
         title: "Verification Code Sent",
@@ -215,7 +245,7 @@ const CheckoutPage = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if ((paymentMethod === "online" || paymentMethod === "wallet") && verificationCode.length < 6) {
+    if ((paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card") && verificationCode.length < 6) {
       toast({ title: "Enter Code", description: "Please enter the 6-digit verification code", variant: "destructive" });
       return;
     }
@@ -231,11 +261,12 @@ const CheckoutPage = () => {
     const checksum = (Date.now() % 10000).toString().padStart(4, '0');
     const generatedOrderId = `ALE-${timestamp}-${randomPart1}-${randomPart2}-${checksum}`;
     
-    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
-    const finalTotal = total(isOnline);
+    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
+    const finalTotal = getFinalTotal();
+    const advanceAmount = useAdvancePayment ? getAdvanceAmount() : finalTotal;
 
-    // Deduct from wallet if using wallet payment
-    if (paymentMethod === "wallet" && user) {
+    // Deduct from wallet if using wallet or wallet_card payment
+    if ((paymentMethod === "wallet" || paymentMethod === "wallet_card") && user) {
       const { data: walletData } = await supabase
         .from("wallets")
         .select("id, balance")
@@ -243,15 +274,20 @@ const CheckoutPage = () => {
         .single();
       
       if (walletData) {
-        await supabase.from("wallets").update({ balance: walletData.balance - finalTotal }).eq("id", walletData.id);
+        const walletDeduction = paymentMethod === "wallet_card" 
+          ? Math.min(walletData.balance, advanceAmount) 
+          : advanceAmount;
+        await supabase.from("wallets").update({ balance: walletData.balance - walletDeduction }).eq("id", walletData.id);
         await supabase.from("wallet_transactions").insert({
           wallet_id: walletData.id,
-          amount: -finalTotal,
+          amount: -walletDeduction,
           transaction_type: "purchase",
-          description: `Order ${generatedOrderId}`,
+          description: `Order ${generatedOrderId}${useAdvancePayment ? " (30% advance)" : ""}`,
         });
       }
     }
+
+    const totalDiscount = (isOnline ? onlineDiscount + bulkDiscount : bulkDiscount) + getAdvanceDiscount();
 
     if (user) {
       try {
@@ -260,11 +296,11 @@ const CheckoutPage = () => {
           order_id: generatedOrderId,
           items: items as unknown as import("@/integrations/supabase/types").Json,
           subtotal: subtotal,
-          discount_amount: isOnline ? onlineDiscount + bulkDiscount : bulkDiscount,
+          discount_amount: totalDiscount,
           total: finalTotal,
-          payment_method: paymentMethod,
+          payment_method: useAdvancePayment ? `${paymentMethod}_advance` : paymentMethod,
           shipping_info: shippingInfo as unknown as import("@/integrations/supabase/types").Json,
-          status: "pending",
+          status: useAdvancePayment ? "advance_paid" : "pending",
         });
       } catch (error) {
         console.error("Failed to save order:", error);
@@ -425,7 +461,7 @@ const CheckoutPage = () => {
     );
   }
 
-  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
+  const isOnlinePayment = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
 
   return (
     <div className="min-h-screen bg-background">
@@ -696,7 +732,34 @@ const CheckoutPage = () => {
                         </span>
                       </button>
 
-                      {/* PayPal Option */}
+                      {/* Wallet + Card Combo Option */}
+                      {walletBalance > 0 && (
+                        <button
+                          onClick={() => setPaymentMethod("wallet_card")}
+                          className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                            paymentMethod === "wallet_card"
+                              ? "border-gold bg-gold/10"
+                              : "border-border hover:border-gold/50"
+                          }`}
+                        >
+                          <div className={`flex items-center gap-1 ${paymentMethod === "wallet_card" ? "text-gold" : "text-muted-foreground"}`}>
+                            <Wallet className="w-4 h-4" />
+                            <span className="text-xs">+</span>
+                            <CreditCard className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className={`font-body font-medium ${paymentMethod === "wallet_card" ? "text-gold" : "text-foreground"}`}>
+                              Wallet + Card
+                            </p>
+                            <p className="font-body text-xs text-muted-foreground">
+                              Use ${walletBalance.toFixed(2)} from wallet, pay the rest by card
+                            </p>
+                          </div>
+                          <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
+                            5% OFF
+                          </span>
+                        </button>
+                      )}
                       <button
                         onClick={() => setPaymentMethod("paypal")}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
@@ -745,8 +808,66 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Card Details Form - Only show if online and not using saved card */}
-                  {paymentMethod === "online" && (
+                  {/* Advance Payment Option */}
+                  <div className="bg-card rounded-lg border border-border p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-display text-lg text-foreground">Pay 30% Advance</h3>
+                        <p className="font-body text-sm text-muted-foreground">
+                          Pay only 30% now and get <span className="text-gold font-semibold">3% OFF</span> the total price. Pay the remaining 70% on delivery.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setUseAdvancePayment(!useAdvancePayment)}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                          useAdvancePayment
+                            ? "bg-gold text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {useAdvancePayment ? "Enabled ✓" : "Enable"}
+                      </button>
+                    </div>
+                    {useAdvancePayment && (
+                      <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-lg space-y-1">
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">Advance (3% discount applied)</span>
+                          <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">Remaining on delivery</span>
+                          <span className="text-foreground">${getRemainingAmount().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-gold">You save</span>
+                          <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Wallet + Card Split Info */}
+                  {paymentMethod === "wallet_card" && (
+                    <div className="bg-card rounded-lg border border-border p-6">
+                      <h2 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-gold" />
+                        Payment Split
+                      </h2>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">From Wallet</span>
+                          <span className="text-gold font-semibold">${getWalletCardSplit().walletPortion.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">From Card</span>
+                          <span className="text-foreground font-semibold">${getWalletCardSplit().cardPortion.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Card Details Form - Show for online or wallet_card */}
+                  {(paymentMethod === "online" || paymentMethod === "wallet_card") && (
                     <div className="bg-card rounded-lg border border-border p-6">
                       <h2 className="font-display text-xl text-foreground mb-6 flex items-center gap-2">
                         <Lock className="w-5 h-5 text-gold" />
@@ -782,7 +903,7 @@ const CheckoutPage = () => {
                         </div>
                       )}
 
-                      {/* Manual Card Entry - Only if not using saved card */}
+                      {/* Manual Card Entry */}
                       {(!useSavedCard || !hasSavedCard) && (
                         <div className="space-y-4">
                           <div className="space-y-2">
@@ -839,11 +960,11 @@ const CheckoutPage = () => {
                     className="w-full"
                     onClick={handleProceedToVerification}
                   >
-                    {paymentMethod === "online" || paymentMethod === "wallet" 
-                      ? "Proceed to Verification" 
+                    {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
+                      ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}` 
                       : paymentMethod === "paypal"
                       ? "Pay with PayPal"
-                      : `Place Order - $${total(isOnlinePayment).toFixed(2)}`}
+                      : `Place Order - $${getFinalTotal().toFixed(2)}`}
                   </Button>
                 </motion.div>
               )}
@@ -896,7 +1017,7 @@ const CheckoutPage = () => {
                         Processing...
                       </>
                     ) : (
-                      `Confirm & Pay $${total(true).toFixed(2)}`
+                      `Confirm & Pay $${useAdvancePayment ? getAdvanceAmount().toFixed(2) : getFinalTotal().toFixed(2)}`
                     )}
                   </Button>
                 </motion.div>
@@ -959,6 +1080,13 @@ const CheckoutPage = () => {
                       <span className="text-gold">-${((subtotal >= 700 ? subtotal - bulkDiscount : subtotal) * 0.05).toFixed(2)}</span>
                     </div>
                   )}
+
+                  {useAdvancePayment && (
+                    <div className="flex justify-between font-body text-sm">
+                      <span className="text-gold">Advance Discount (3%)</span>
+                      <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                    </div>
+                  )}
                   
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-muted-foreground">Shipping</span>
@@ -968,13 +1096,20 @@ const CheckoutPage = () => {
                   <div className="flex justify-between font-display text-lg pt-3 border-t border-border">
                     <span className="text-foreground">Total</span>
                     <span className="text-gold">
-                      ${total(isOnlinePayment).toFixed(2)}
+                      ${getFinalTotal().toFixed(2)}
                     </span>
                   </div>
 
+                  {useAdvancePayment && (
+                    <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
+                      <span className="text-gold font-medium">Pay Now (30%)</span>
+                      <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
+                    </div>
+                  )}
+
                   {subtotal >= 700 && (
                     <p className="text-xs text-gold text-center mt-2">
-                      🎉 You're saving ${bulkDiscount.toFixed(2)} with bulk discount!
+                      🎉 You're saving ${(bulkDiscount + (useAdvancePayment ? getAdvanceDiscount() : 0)).toFixed(2)} with discounts!
                     </p>
                   )}
                 </div>
