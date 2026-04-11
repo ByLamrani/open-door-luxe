@@ -808,8 +808,66 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Card Details Form - Only show if online and not using saved card */}
-                  {paymentMethod === "online" && (
+                  {/* Advance Payment Option */}
+                  <div className="bg-card rounded-lg border border-border p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="font-display text-lg text-foreground">Pay 30% Advance</h3>
+                        <p className="font-body text-sm text-muted-foreground">
+                          Pay only 30% now and get <span className="text-gold font-semibold">3% OFF</span> the total price. Pay the remaining 70% on delivery.
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => setUseAdvancePayment(!useAdvancePayment)}
+                        className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${
+                          useAdvancePayment
+                            ? "bg-gold text-primary-foreground"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80"
+                        }`}
+                      >
+                        {useAdvancePayment ? "Enabled ✓" : "Enable"}
+                      </button>
+                    </div>
+                    {useAdvancePayment && (
+                      <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-lg space-y-1">
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">Advance (3% discount applied)</span>
+                          <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">Remaining on delivery</span>
+                          <span className="text-foreground">${getRemainingAmount().toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-gold">You save</span>
+                          <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Wallet + Card Split Info */}
+                  {paymentMethod === "wallet_card" && (
+                    <div className="bg-card rounded-lg border border-border p-6">
+                      <h2 className="font-display text-xl text-foreground mb-4 flex items-center gap-2">
+                        <Wallet className="w-5 h-5 text-gold" />
+                        Payment Split
+                      </h2>
+                      <div className="space-y-2 mb-4">
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">From Wallet</span>
+                          <span className="text-gold font-semibold">${getWalletCardSplit().walletPortion.toFixed(2)}</span>
+                        </div>
+                        <div className="flex justify-between text-sm font-body">
+                          <span className="text-muted-foreground">From Card</span>
+                          <span className="text-foreground font-semibold">${getWalletCardSplit().cardPortion.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Card Details Form - Show for online or wallet_card */}
+                  {(paymentMethod === "online" || paymentMethod === "wallet_card") && (
                     <div className="bg-card rounded-lg border border-border p-6">
                       <h2 className="font-display text-xl text-foreground mb-6 flex items-center gap-2">
                         <Lock className="w-5 h-5 text-gold" />
@@ -845,7 +903,7 @@ const CheckoutPage = () => {
                         </div>
                       )}
 
-                      {/* Manual Card Entry - Only if not using saved card */}
+                      {/* Manual Card Entry */}
                       {(!useSavedCard || !hasSavedCard) && (
                         <div className="space-y-4">
                           <div className="space-y-2">
