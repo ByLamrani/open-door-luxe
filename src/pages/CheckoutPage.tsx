@@ -732,7 +732,34 @@ const CheckoutPage = () => {
                         </span>
                       </button>
 
-                      {/* PayPal Option */}
+                      {/* Wallet + Card Combo Option */}
+                      {walletBalance > 0 && (
+                        <button
+                          onClick={() => setPaymentMethod("wallet_card")}
+                          className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
+                            paymentMethod === "wallet_card"
+                              ? "border-gold bg-gold/10"
+                              : "border-border hover:border-gold/50"
+                          }`}
+                        >
+                          <div className={`flex items-center gap-1 ${paymentMethod === "wallet_card" ? "text-gold" : "text-muted-foreground"}`}>
+                            <Wallet className="w-4 h-4" />
+                            <span className="text-xs">+</span>
+                            <CreditCard className="w-4 h-4" />
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className={`font-body font-medium ${paymentMethod === "wallet_card" ? "text-gold" : "text-foreground"}`}>
+                              Wallet + Card
+                            </p>
+                            <p className="font-body text-xs text-muted-foreground">
+                              Use ${walletBalance.toFixed(2)} from wallet, pay the rest by card
+                            </p>
+                          </div>
+                          <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
+                            5% OFF
+                          </span>
+                        </button>
+                      )}
                       <button
                         onClick={() => setPaymentMethod("paypal")}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
