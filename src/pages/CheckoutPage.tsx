@@ -41,7 +41,8 @@ const CheckoutPage = () => {
   const { toast } = useToast();
   const { user } = useAuth();
   const { items, subtotal, onlineDiscount, bulkDiscount, total, clearCart } = useCart();
-  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal">("online");
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
+  const [useAdvancePayment, setUseAdvancePayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
