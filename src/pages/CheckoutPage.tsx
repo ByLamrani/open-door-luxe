@@ -261,11 +261,12 @@ const CheckoutPage = () => {
     const checksum = (Date.now() % 10000).toString().padStart(4, '0');
     const generatedOrderId = `ALE-${timestamp}-${randomPart1}-${randomPart2}-${checksum}`;
     
-    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal";
-    const finalTotal = total(isOnline);
+    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
+    const finalTotal = getFinalTotal();
+    const advanceAmount = useAdvancePayment ? getAdvanceAmount() : finalTotal;
 
-    // Deduct from wallet if using wallet payment
-    if (paymentMethod === "wallet" && user) {
+    // Deduct from wallet if using wallet or wallet_card payment
+    if ((paymentMethod === "wallet" || paymentMethod === "wallet_card") && user) {
       const { data: walletData } = await supabase
         .from("wallets")
         .select("id, balance")
@@ -273,15 +274,20 @@ const CheckoutPage = () => {
         .single();
       
       if (walletData) {
-        await supabase.from("wallets").update({ balance: walletData.balance - finalTotal }).eq("id", walletData.id);
+        const walletDeduction = paymentMethod === "wallet_card" 
+          ? Math.min(walletData.balance, advanceAmount) 
+          : advanceAmount;
+        await supabase.from("wallets").update({ balance: walletData.balance - walletDeduction }).eq("id", walletData.id);
         await supabase.from("wallet_transactions").insert({
           wallet_id: walletData.id,
-          amount: -finalTotal,
+          amount: -walletDeduction,
           transaction_type: "purchase",
-          description: `Order ${generatedOrderId}`,
+          description: `Order ${generatedOrderId}${useAdvancePayment ? " (30% advance)" : ""}`,
         });
       }
     }
+
+    const totalDiscount = (isOnline ? onlineDiscount + bulkDiscount : bulkDiscount) + getAdvanceDiscount();
 
     if (user) {
       try {
@@ -290,11 +296,11 @@ const CheckoutPage = () => {
           order_id: generatedOrderId,
           items: items as unknown as import("@/integrations/supabase/types").Json,
           subtotal: subtotal,
-          discount_amount: isOnline ? onlineDiscount + bulkDiscount : bulkDiscount,
+          discount_amount: totalDiscount,
           total: finalTotal,
-          payment_method: paymentMethod,
+          payment_method: useAdvancePayment ? `${paymentMethod}_advance` : paymentMethod,
           shipping_info: shippingInfo as unknown as import("@/integrations/supabase/types").Json,
-          status: "pending",
+          status: useAdvancePayment ? "advance_paid" : "pending",
         });
       } catch (error) {
         console.error("Failed to save order:", error);
