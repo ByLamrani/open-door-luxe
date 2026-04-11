@@ -960,11 +960,11 @@ const CheckoutPage = () => {
                     className="w-full"
                     onClick={handleProceedToVerification}
                   >
-                    {paymentMethod === "online" || paymentMethod === "wallet" 
-                      ? "Proceed to Verification" 
+                    {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
+                      ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}` 
                       : paymentMethod === "paypal"
                       ? "Pay with PayPal"
-                      : `Place Order - $${total(isOnlinePayment).toFixed(2)}`}
+                      : `Place Order - $${getFinalTotal().toFixed(2)}`}
                   </Button>
                 </motion.div>
               )}
