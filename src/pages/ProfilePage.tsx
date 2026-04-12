@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2 } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2 } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import WearTimePredictor from "@/components/WearTimePredictor";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -55,6 +56,15 @@ interface Favorite {
   created_at: string;
 }
 
+interface Reminder {
+  id: string;
+  occasion_name: string;
+  occasion_date: string;
+  product_name: string;
+  recipient_name: string | null;
+  created_at: string;
+}
+
 const countries = [
   "Morocco", "United States", "United Kingdom", "France", "Spain", "Germany", 
   "Italy", "Canada", "Australia", "UAE", "Saudi Arabia", "Qatar", "Other"
@@ -67,8 +77,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -93,6 +103,7 @@ const ProfilePage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -104,10 +115,27 @@ const ProfilePage = () => {
     fetchWallet();
     fetchOrders();
     fetchFavorites();
+    fetchReminders();
   }, [user, navigate]);
 
+  const fetchReminders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("reminders" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .order("occasion_date", { ascending: true });
+    if (data) setReminders(data as any);
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    await supabase.from("reminders" as any).delete().eq("id", id);
+    toast({ title: "Reminder Deleted" });
+    fetchReminders();
+  };
+
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
@@ -340,6 +368,7 @@ const ProfilePage = () => {
     { id: "purchases", label: "Purchases", icon: ShoppingBag },
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
+    { id: "reminders", label: "Gift Reminders", icon: Bell },
   ];
 
   return (
@@ -772,6 +801,62 @@ const ProfilePage = () => {
                         )}
                       </div>
                     </div>
+                  </>
+                )}
+
+                {activeTab === "reminders" && (
+                  <>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="font-display text-xl text-foreground">Gift Reminders</h2>
+                      <Gift className="w-5 h-5 text-gold" />
+                    </div>
+
+                    <p className="text-sm text-muted-foreground font-body mb-6">
+                      We remember your special occasions and suggest the perfect complementary gifts one month before the date.
+                    </p>
+
+                    {reminders.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Bell className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">No reminders set yet</p>
+                        <p className="text-sm text-muted-foreground">When you make a purchase, we'll ask if it's a gift so we can remind you next year!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {reminders.map((reminder) => {
+                          const occasionDate = new Date(reminder.occasion_date);
+                          const today = new Date();
+                          const daysUntil = Math.ceil((occasionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                          const isUpcoming = daysUntil > 0 && daysUntil <= 30;
+
+                          return (
+                            <div key={reminder.id} className={`flex items-center justify-between p-4 rounded-lg border ${isUpcoming ? "border-gold/50 bg-gold/5" : "border-border"}`}>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-display text-sm text-foreground">{reminder.occasion_name}</span>
+                                  {isUpcoming && (
+                                    <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">Coming up!</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground font-body mt-1">
+                                  {occasionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                                  {reminder.recipient_name && ` • For ${reminder.recipient_name}`}
+                                </p>
+                                <p className="text-xs text-muted-foreground font-body">
+                                  Last gift: {reminder.product_name}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleDeleteReminder(reminder.id)}
+                                className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
                   </>
                 )}
               </motion.div>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Truck, ArrowLeft, Check, Loader2, Wallet, Lock, AlertCircle, User, Users } from "lucide-react";
+import GiftOccasionPrompt from "@/components/GiftOccasionPrompt";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -48,6 +49,8 @@ const CheckoutPage = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"recipient" | "shipping" | "payment" | "verification">("recipient");
+  const [showGiftPrompt, setShowGiftPrompt] = useState(false);
+  const [completedItems, setCompletedItems] = useState<Array<{ id: string; name: string }>>([]);
   const [useSavedCard, setUseSavedCard] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [recipientType, setRecipientType] = useState<"self" | "friend" | null>(null);
@@ -307,10 +310,16 @@ const CheckoutPage = () => {
       }
     }
 
+    setCompletedItems(items.map(item => ({ id: item.id, name: item.name })));
     setOrderId(generatedOrderId);
     clearCart();
     setOrderComplete(true);
     setIsProcessing(false);
+    
+    // Show gift prompt after a short delay
+    if (user) {
+      setTimeout(() => setShowGiftPrompt(true), 2000);
+    }
     
     toast({
       title: "Order Placed Successfully! 🎉",
@@ -457,6 +466,13 @@ const CheckoutPage = () => {
           </div>
         </section>
         <Footer />
+
+        {/* Gift Occasion Prompt */}
+        <GiftOccasionPrompt
+          isOpen={showGiftPrompt}
+          onClose={() => setShowGiftPrompt(false)}
+          items={completedItems}
+        />
       </div>
     );
   }

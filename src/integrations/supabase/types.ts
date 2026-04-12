@@ -286,6 +286,19 @@ export type Database = {
         }
         Returns: boolean
       }
+      match_products: {
+        Args: {
+          match_count?: number
+          match_threshold?: number
+          query_embedding: string
+        }
+        Returns: {
+          content_text: string
+          product_id: string
+          product_name: string
+          similarity: number
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
