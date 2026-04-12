@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { CreditCard, Truck, ArrowLeft, Check, Loader2, Wallet, Lock, AlertCircle, User, Users } from "lucide-react";
+import GiftOccasionPrompt from "@/components/GiftOccasionPrompt";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
