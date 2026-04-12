@@ -310,10 +310,16 @@ const CheckoutPage = () => {
       }
     }
 
+    setCompletedItems(items.map(item => ({ id: item.id, name: item.name })));
     setOrderId(generatedOrderId);
     clearCart();
     setOrderComplete(true);
     setIsProcessing(false);
+    
+    // Show gift prompt after a short delay
+    if (user) {
+      setTimeout(() => setShowGiftPrompt(true), 2000);
+    }
     
     toast({
       title: "Order Placed Successfully! 🎉",
