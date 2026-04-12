@@ -466,6 +466,13 @@ const CheckoutPage = () => {
           </div>
         </section>
         <Footer />
+
+        {/* Gift Occasion Prompt */}
+        <GiftOccasionPrompt
+          isOpen={showGiftPrompt}
+          onClose={() => setShowGiftPrompt(false)}
+          items={completedItems}
+        />
       </div>
     );
   }
