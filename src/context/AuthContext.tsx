@@ -21,10 +21,47 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Extract social login profile data on sign-in
+        if ((event === 'SIGNED_IN' || event === 'USER_UPDATED') && session?.user) {
+          const user = session.user;
+          const meta = user.user_metadata;
+          if (meta && (meta.full_name || meta.name || meta.avatar_url || meta.picture)) {
+            // Update profile with social login data (defer to avoid deadlock)
+            setTimeout(async () => {
+              try {
+                const { data: existingProfile } = await supabase
+                  .from("profiles")
+                  .select("full_name, avatar_url, phone")
+                  .eq("user_id", user.id)
+                  .single();
+
+                if (existingProfile) {
+                  const updates: Record<string, string> = {};
+                  const socialName = meta.full_name || meta.name || '';
+                  const socialAvatar = meta.avatar_url || meta.picture || '';
+
+                  // Only update if fields are empty
+                  if (!existingProfile.full_name && socialName) updates.full_name = socialName;
+                  if (!existingProfile.avatar_url && socialAvatar) updates.avatar_url = socialAvatar;
+
+                  if (Object.keys(updates).length > 0) {
+                    await supabase
+                      .from("profiles")
+                      .update(updates)
+                      .eq("user_id", user.id);
+                  }
+                }
+              } catch (err) {
+                console.error("Failed to sync social profile:", err);
+              }
+            }, 0);
+          }
+        }
       }
     );
 
