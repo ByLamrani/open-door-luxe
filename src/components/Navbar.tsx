@@ -6,6 +6,7 @@ import logo from "@/assets/logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
+import ScentSentimentSearch from "@/components/ScentSentimentSearch";
 
 interface SubMenuItem {
   name: string;
@@ -125,8 +126,13 @@ const Navbar = () => {
             ))}
           </div>
 
-          {/* Cart, Auth & Mobile Menu */}
-          <div className="flex items-center gap-4">
+          {/* Scent Sentiment Search, Cart, Auth & Mobile Menu */}
+          <div className="flex items-center gap-3">
+            {/* Neural Search */}
+            <div className="hidden md:block">
+              <ScentSentimentSearch />
+            </div>
+
             {/* Theme Toggle */}
             <ThemeToggle />
 
