@@ -49,6 +49,8 @@ const CheckoutPage = () => {
   const [orderId, setOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
   const [step, setStep] = useState<"recipient" | "shipping" | "payment" | "verification">("recipient");
+  const [showGiftPrompt, setShowGiftPrompt] = useState(false);
+  const [completedItems, setCompletedItems] = useState<Array<{ id: string; name: string }>>([]);
   const [useSavedCard, setUseSavedCard] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [recipientType, setRecipientType] = useState<"self" | "friend" | null>(null);
