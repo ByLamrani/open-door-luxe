@@ -77,8 +77,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -103,6 +103,7 @@ const ProfilePage = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [reminders, setReminders] = useState<Reminder[]>([]);
 
   useEffect(() => {
     if (!user) {
@@ -114,6 +115,7 @@ const ProfilePage = () => {
     fetchWallet();
     fetchOrders();
     fetchFavorites();
+    fetchReminders();
   }, [user, navigate]);
 
   // Track tab changes for back navigation
