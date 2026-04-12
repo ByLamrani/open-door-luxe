@@ -42,7 +42,7 @@ const GiftOccasionPrompt = ({ isOpen, onClose, items }: GiftOccasionPromptProps)
         recipient_name: recipientName || null,
       }));
 
-      const { error } = await supabase.from("reminders").insert(reminders);
+      const { error } = await supabase.from("reminders" as any).insert(reminders as any);
       if (error) throw error;
 
       toast({
