@@ -803,6 +803,62 @@ const ProfilePage = () => {
                     </div>
                   </>
                 )}
+
+                {activeTab === "reminders" && (
+                  <>
+                    <div className="flex items-center justify-between mb-6">
+                      <h2 className="font-display text-xl text-foreground">Gift Reminders</h2>
+                      <Gift className="w-5 h-5 text-gold" />
+                    </div>
+
+                    <p className="text-sm text-muted-foreground font-body mb-6">
+                      We remember your special occasions and suggest the perfect complementary gifts one month before the date.
+                    </p>
+
+                    {reminders.length === 0 ? (
+                      <div className="text-center py-12">
+                        <Bell className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+                        <p className="text-muted-foreground mb-2">No reminders set yet</p>
+                        <p className="text-sm text-muted-foreground">When you make a purchase, we'll ask if it's a gift so we can remind you next year!</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {reminders.map((reminder) => {
+                          const occasionDate = new Date(reminder.occasion_date);
+                          const today = new Date();
+                          const daysUntil = Math.ceil((occasionDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                          const isUpcoming = daysUntil > 0 && daysUntil <= 30;
+
+                          return (
+                            <div key={reminder.id} className={`flex items-center justify-between p-4 rounded-lg border ${isUpcoming ? "border-gold/50 bg-gold/5" : "border-border"}`}>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <span className="font-display text-sm text-foreground">{reminder.occasion_name}</span>
+                                  {isUpcoming && (
+                                    <span className="text-xs bg-gold/20 text-gold px-2 py-0.5 rounded-full">Coming up!</span>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground font-body mt-1">
+                                  {occasionDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}
+                                  {reminder.recipient_name && ` • For ${reminder.recipient_name}`}
+                                </p>
+                                <p className="text-xs text-muted-foreground font-body">
+                                  Last gift: {reminder.product_name}
+                                </p>
+                              </div>
+                              <button
+                                onClick={() => handleDeleteReminder(reminder.id)}
+                                className="p-2 text-muted-foreground hover:text-destructive transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
               </motion.div>
             </div>
           </div>
