@@ -368,6 +368,7 @@ const ProfilePage = () => {
     { id: "purchases", label: "Purchases", icon: ShoppingBag },
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
+    { id: "reminders", label: "Gift Reminders", icon: Bell },
   ];
 
   return (
