@@ -1,6 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart, ZoomIn } from "lucide-react";
+import WatchFitCheck from "@/components/WatchFitCheck";
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -414,6 +415,16 @@ const ProductDetailPage = () => {
                   Recommend (+$1)
                 </Button>
               </div>
+
+              {/* Watch Fit-Check (only for watches) */}
+              {product.category === "Watches" && (
+                <div className="mb-6">
+                  <WatchFitCheck
+                    productName={product.name}
+                    productDescription={product.description}
+                  />
+                </div>
+              )}
 
               {/* Features */}
               <div className="border-t border-border pt-6 space-y-4">
