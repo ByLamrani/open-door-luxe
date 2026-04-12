@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2 } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2 } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
+import WearTimePredictor from "@/components/WearTimePredictor";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -52,6 +53,15 @@ interface Order {
 interface Favorite {
   id: string;
   product_id: string;
+  created_at: string;
+}
+
+interface Reminder {
+  id: string;
+  occasion_name: string;
+  occasion_date: string;
+  product_name: string;
+  recipient_name: string | null;
   created_at: string;
 }
 
