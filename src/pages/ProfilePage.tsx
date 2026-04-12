@@ -118,8 +118,24 @@ const ProfilePage = () => {
     fetchReminders();
   }, [user, navigate]);
 
+  const fetchReminders = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("reminders" as any)
+      .select("*")
+      .eq("user_id", user.id)
+      .order("occasion_date", { ascending: true });
+    if (data) setReminders(data as any);
+  };
+
+  const handleDeleteReminder = async (id: string) => {
+    await supabase.from("reminders" as any).delete().eq("id", id);
+    toast({ title: "Reminder Deleted" });
+    fetchReminders();
+  };
+
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
