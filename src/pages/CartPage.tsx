@@ -199,7 +199,7 @@ const CartPage = () => {
                   </Button>
 
                   <p className="font-body text-xs text-muted-foreground text-center mt-4">
-                    Secure checkout powered by ale LifeStyle
+                    Secure checkout powered by VANTA by Lamrani
                   </p>
                 </div>
               </div>

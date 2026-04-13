@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Instagram, Facebook, Twitter } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/vanta-logo.png";
 
 const Footer = () => {
   return (
@@ -10,7 +10,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Brand */}
           <div className="space-y-6">
-            <img src={logo} alt="ale LifeStyle" className="h-16 w-auto" />
+            <img src={logo} alt="VANTA by Lamrani" className="h-16 w-auto rounded-md" />
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
               Elevate your lifestyle with our curated collection of premium self-care, 
               fragrances, and luxury accessories.
@@ -112,7 +112,7 @@ const Footer = () => {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground font-body text-sm">
-            © 2025 ale LifeStyle. All rights reserved.
+            © 2025 VANTA by Lamrani. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <span className="px-3 py-1 bg-gold/10 text-gold text-xs font-body rounded-full">

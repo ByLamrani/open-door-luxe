@@ -44,7 +44,7 @@
              <section className="bg-card rounded-lg border border-border p-6">
                <h2 className="font-display text-xl text-foreground mb-4">1. Introduction</h2>
                <p className="font-body text-muted-foreground leading-relaxed">
-                 Welcome to ale LifeStyle. These Terms of Service govern your use of our website and services. 
+                 Welcome to VANTA by Lamrani. These Terms of Service govern your use of our website and services. 
                  By accessing or using our platform, you agree to be bound by these terms. If you disagree 
                  with any part of these terms, you may not access our services.
                </p>

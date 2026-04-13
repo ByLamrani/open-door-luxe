@@ -13,7 +13,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a helpful customer support assistant for "ale LifeStyle" - a luxury e-commerce store specializing in premium self-care products, fragrances, air diffusers, and watches.
+    const systemPrompt = `You are a helpful customer support assistant for "VANTA by Lamrani" - a luxury e-commerce store specializing in premium self-care products, fragrances, air diffusers, and watches.
 
 Your role is to:
 - Answer questions about products, shipping, returns, and orders

@@ -54,7 +54,7 @@ const WhyUsPage = () => {
             className="text-center"
           >
             <h1 className="font-display text-4xl md:text-5xl text-foreground mb-6">
-              Why Choose <span className="text-gradient-gold">ale LifeStyle</span>
+              Why Choose <span className="text-gradient-gold">VANTA</span>
             </h1>
             <p className="font-body text-muted-foreground max-w-2xl mx-auto text-lg">
               We're committed to bringing you the finest lifestyle products with exceptional 
@@ -105,7 +105,7 @@ const WhyUsPage = () => {
                 Our <span className="text-gradient-gold">Promise</span> to You
               </h2>
               <p className="font-body text-muted-foreground mb-6 leading-relaxed">
-                At ale LifeStyle, we believe that everyone deserves access to premium 
+                At VANTA by Lamrani, we believe that everyone deserves access to premium 
                 self-care and lifestyle products. That's why we've made it our mission 
                 to curate the finest collection while keeping prices accessible.
               </p>

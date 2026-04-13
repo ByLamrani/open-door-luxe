@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/vanta-logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -70,8 +70,8 @@ const Navbar = () => {
           <Link to="/" className="flex-shrink-0">
             <motion.img
               src={logo}
-              alt="ale LifeStyle"
-              className="h-14 w-auto"
+              alt="VANTA by Lamrani"
+              className="h-14 w-auto rounded-md"
               whileHover={{ scale: 1.05 }}
               transition={{ type: "spring", stiffness: 300 }}
             />
