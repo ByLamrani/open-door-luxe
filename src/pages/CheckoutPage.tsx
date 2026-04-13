@@ -704,7 +704,7 @@ const CheckoutPage = () => {
                     <div className="space-y-3">
                       {/* Credit Card Option */}
                       <button
-                        onClick={() => setPaymentMethod("online")}
+                        onClick={() => { setPaymentMethod("online"); setUseAdvancePayment(false); }}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                           paymentMethod === "online"
                             ? "border-gold bg-gold/10"
@@ -727,7 +727,7 @@ const CheckoutPage = () => {
 
                       {/* E-Wallet Option */}
                       <button
-                        onClick={() => setPaymentMethod("wallet")}
+                        onClick={() => { setPaymentMethod("wallet"); setUseAdvancePayment(false); }}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                           paymentMethod === "wallet"
                             ? "border-gold bg-gold/10"
@@ -751,7 +751,7 @@ const CheckoutPage = () => {
                       {/* Wallet + Card Combo Option */}
                       {walletBalance > 0 && (
                         <button
-                          onClick={() => setPaymentMethod("wallet_card")}
+                          onClick={() => { setPaymentMethod("wallet_card"); setUseAdvancePayment(false); }}
                           className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                             paymentMethod === "wallet_card"
                               ? "border-gold bg-gold/10"
@@ -777,7 +777,7 @@ const CheckoutPage = () => {
                         </button>
                       )}
                       <button
-                        onClick={() => setPaymentMethod("paypal")}
+                        onClick={() => { setPaymentMethod("paypal"); setUseAdvancePayment(false); }}
                         className={`w-full flex items-center gap-3 p-4 rounded-lg border-2 transition-all ${
                           paymentMethod === "paypal"
                             ? "border-gold bg-gold/10"
@@ -824,7 +824,8 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Advance Payment Option */}
+                  {/* Advance Payment Option - COD Only */}
+                  {paymentMethod === "cod" && (
                   <div className="bg-card rounded-lg border border-border p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -861,6 +862,7 @@ const CheckoutPage = () => {
                       </div>
                     )}
                   </div>
+                  )}
 
                   {/* Wallet + Card Split Info */}
                   {paymentMethod === "wallet_card" && (
