@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/vanta-logo.png";
 
 const countries = [
   "Morocco", "United States", "United Kingdom", "France", "Spain", "Germany", 

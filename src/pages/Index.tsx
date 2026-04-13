@@ -10,7 +10,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
-import lamraniLogo from "@/assets/lamrani-logo.png";
+import vantaLogo from "@/assets/vanta-logo.png";
+import blueLamrani from "@/assets/blue-lamrani.png";
 
 const Index = () => {
   const [hasEntered, setHasEntered] = useState(false);
@@ -66,11 +67,11 @@ const Index = () => {
                 className="mb-4"
               >
                 <img 
-                  src={lamraniLogo}
-                  alt="Lamrani"
-                  className="w-[340px] sm:w-[480px] md:w-[600px] lg:w-[720px] mx-auto select-none"
+                  src={vantaLogo}
+                  alt="VANTA by Lamrani"
+                  className="w-[280px] sm:w-[380px] md:w-[460px] lg:w-[540px] mx-auto select-none rounded-xl"
                   style={{
-                    filter: "drop-shadow(0 0 40px hsl(43 56% 55% / 0.5)) drop-shadow(0 0 80px hsl(43 56% 55% / 0.3))",
+                    filter: "drop-shadow(0 0 40px hsl(197 100% 50% / 0.5)) drop-shadow(0 0 80px hsl(197 100% 50% / 0.3))",
                     background: "transparent",
                   }}
                 />
@@ -82,7 +83,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-4"
               >
-                Elevate Your <span className="text-gradient-gold">LifeStyle</span>
+                Elevate Your <span className="text-gradient-gold italic">LifeStyle</span>
               </motion.h1>
 
               <motion.p
