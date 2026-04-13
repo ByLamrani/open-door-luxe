@@ -824,7 +824,8 @@ const CheckoutPage = () => {
                     </div>
                   </div>
 
-                  {/* Advance Payment Option */}
+                  {/* Advance Payment Option - COD Only */}
+                  {paymentMethod === "cod" && (
                   <div className="bg-card rounded-lg border border-border p-6">
                     <div className="flex items-center justify-between">
                       <div>
@@ -861,6 +862,7 @@ const CheckoutPage = () => {
                       </div>
                     )}
                   </div>
+                  )}
 
                   {/* Wallet + Card Split Info */}
                   {paymentMethod === "wallet_card" && (
