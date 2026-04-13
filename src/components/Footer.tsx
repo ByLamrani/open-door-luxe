@@ -112,7 +112,7 @@ const Footer = () => {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-muted-foreground font-body text-sm">
-            © 2025 ale LifeStyle. All rights reserved.
+            © 2025 VANTA by Lamrani. All rights reserved.
           </p>
           <div className="flex items-center gap-4">
             <span className="px-3 py-1 bg-gold/10 text-gold text-xs font-body rounded-full">

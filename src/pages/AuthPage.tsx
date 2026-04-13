@@ -187,7 +187,7 @@ const AuthPage = () => {
           {/* Header */}
           <div className="text-center mb-6">
             <Link to="/">
-              <img src={logo} alt="ale LifeStyle" className="h-12 w-auto mx-auto mb-4" />
+              <img src={logo} alt="VANTA by Lamrani" className="h-12 w-auto mx-auto mb-4 rounded-md" />
             </Link>
             <h1 className="font-display text-2xl text-foreground mb-2">
               {isLogin ? "Welcome Back" : "Create Account"}
@@ -195,7 +195,7 @@ const AuthPage = () => {
             <p className="font-body text-sm text-muted-foreground">
               {isLogin 
                 ? "Sign in to access your account" 
-                : "Join ale LifeStyle for exclusive offers"}
+                : "Join VANTA for exclusive offers"}
             </p>
           </div>
 
