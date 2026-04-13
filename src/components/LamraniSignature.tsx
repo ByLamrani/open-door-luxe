@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import lamraniSignatureImg from "@/assets/lamrani-signature.png";
+import lamraniSignatureImg from "@/assets/blue-lamrani.png";
 
 const LamraniSignature = () => {
   return (
@@ -15,7 +15,7 @@ const LamraniSignature = () => {
         alt=""
         className="w-[80rem] md:w-[100rem] lg:w-[120rem] max-w-none select-none"
         style={{
-          filter: "brightness(1.3) sepia(1) hue-rotate(15deg) saturate(2.5)",
+          filter: "brightness(1.3) saturate(1.5)",
         }}
       />
     </motion.div>
