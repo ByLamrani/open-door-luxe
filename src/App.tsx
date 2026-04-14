@@ -19,6 +19,7 @@ import TrackOrderPage from "./pages/TrackOrderPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CollectionsPage from "./pages/CollectionsPage";
+import SellerDashboard from "./pages/SellerDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -57,6 +58,7 @@ const App = () => (
                 <Route path="/terms" element={<TermsPage />} />
                 <Route path="/privacy" element={<PrivacyPage />} />
                 <Route path="/collections" element={<CollectionsPage />} />
+                <Route path="/seller/dashboard" element={<SellerDashboard />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

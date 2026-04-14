@@ -121,6 +121,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
           avatar_url: string | null
           city: string | null
           country: string | null
@@ -137,6 +138,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_type?: string
           avatar_url?: string | null
           city?: string | null
           country?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_type?: string
           avatar_url?: string | null
           city?: string | null
           country?: string | null
@@ -194,6 +197,198 @@ export type Database = {
           product_id?: string
           recipient_email?: string
           recommender_id?: string
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          id: string
+          occasion_date: string
+          occasion_name: string
+          product_id: string
+          product_name: string
+          recipient_name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          occasion_date: string
+          occasion_name: string
+          product_id: string
+          product_name: string
+          recipient_name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          occasion_date?: string
+          occasion_name?: string
+          product_id?: string
+          product_name?: string
+          recipient_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      seller_listings: {
+        Row: {
+          created_at: string
+          id: string
+          listing_fee: number
+          listing_type: string
+          product_id: string | null
+          seller_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_fee?: number
+          listing_type?: string
+          product_id?: string | null
+          seller_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_fee?: number
+          listing_type?: string
+          product_id?: string | null
+          seller_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      seller_profiles: {
+        Row: {
+          business_name: string | null
+          created_at: string
+          fee_tier: string
+          id: string
+          national_id_url: string | null
+          passport_url: string | null
+          preferred_currency: string
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          business_name?: string | null
+          created_at?: string
+          fee_tier?: string
+          id?: string
+          national_id_url?: string | null
+          passport_url?: string | null
+          preferred_currency?: string
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          business_name?: string | null
+          created_at?: string
+          fee_tier?: string
+          id?: string
+          national_id_url?: string | null
+          passport_url?: string | null
+          preferred_currency?: string
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
+        }
+        Relationships: []
+      }
+      seller_transactions: {
+        Row: {
+          ai_fee: number
+          cleared_at: string | null
+          created_at: string
+          gross_amount: number
+          id: string
+          net_amount: number
+          order_id: string | null
+          platform_fee: number
+          processing_fee: number
+          seller_id: string
+          status: string
+          transaction_fee: number
+        }
+        Insert: {
+          ai_fee?: number
+          cleared_at?: string | null
+          created_at?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          order_id?: string | null
+          platform_fee?: number
+          processing_fee?: number
+          seller_id: string
+          status?: string
+          transaction_fee?: number
+        }
+        Update: {
+          ai_fee?: number
+          cleared_at?: string | null
+          created_at?: string
+          gross_amount?: number
+          id?: string
+          net_amount?: number
+          order_id?: string | null
+          platform_fee?: number
+          processing_fee?: number
+          seller_id?: string
+          status?: string
+          transaction_fee?: number
+        }
+        Relationships: []
+      }
+      shipping_company_profiles: {
+        Row: {
+          company_name: string | null
+          country_of_origin: string
+          created_at: string
+          id: string
+          legal_address: string | null
+          legal_document_url: string | null
+          registration_number: string | null
+          siege_social: string | null
+          updated_at: string
+          user_id: string
+          verification_status: string
+        }
+        Insert: {
+          company_name?: string | null
+          country_of_origin: string
+          created_at?: string
+          id?: string
+          legal_address?: string | null
+          legal_document_url?: string | null
+          registration_number?: string | null
+          siege_social?: string | null
+          updated_at?: string
+          user_id: string
+          verification_status?: string
+        }
+        Update: {
+          company_name?: string | null
+          country_of_origin?: string
+          created_at?: string
+          id?: string
+          legal_address?: string | null
+          legal_document_url?: string | null
+          registration_number?: string | null
+          siege_social?: string | null
+          updated_at?: string
+          user_id?: string
+          verification_status?: string
         }
         Relationships: []
       }

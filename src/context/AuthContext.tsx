@@ -6,7 +6,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, metadata?: { full_name?: string; phone?: string; home_address?: string; city?: string; country?: string }) => Promise<{ error: Error | null }>;
+  signUp: (email: string, password: string, metadata?: { full_name?: string; phone?: string; home_address?: string; city?: string; country?: string; account_type?: string; business_name?: string; company_name?: string; country_of_origin?: string }) => Promise<{ error: Error | null }>;
   signIn: (email: string, password: string) => Promise<{ error: Error | null }>;
   signOut: () => Promise<void>;
 }
@@ -78,7 +78,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const signUp = async (
     email: string, 
     password: string, 
-    metadata?: { full_name?: string; phone?: string; home_address?: string; city?: string; country?: string }
+    metadata?: { full_name?: string; phone?: string; home_address?: string; city?: string; country?: string; account_type?: string; business_name?: string; company_name?: string; country_of_origin?: string }
   ) => {
     const redirectUrl = `${window.location.origin}/`;
     
