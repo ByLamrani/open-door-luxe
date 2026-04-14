@@ -200,6 +200,39 @@ export type Database = {
         }
         Relationships: []
       }
+      reminders: {
+        Row: {
+          created_at: string
+          id: string
+          occasion_date: string
+          occasion_name: string
+          product_id: string
+          product_name: string
+          recipient_name: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          occasion_date: string
+          occasion_name: string
+          product_id: string
+          product_name: string
+          recipient_name?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          occasion_date?: string
+          occasion_name?: string
+          product_id?: string
+          product_name?: string
+          recipient_name?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       seller_listings: {
         Row: {
           created_at: string
