@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      escrow_transactions: {
+        Row: {
+          buyer_id: string | null
+          created_at: string
+          deposit_amount: number
+          id: string
+          order_id: string
+          payment_method: string
+          platform_share: number
+          released_at: string | null
+          seller_id: string | null
+          shipper_id: string | null
+          shipper_share: number
+          status: string
+          total_amount: number
+          updated_at: string
+          vendor_share: number
+        }
+        Insert: {
+          buyer_id?: string | null
+          created_at?: string
+          deposit_amount?: number
+          id?: string
+          order_id: string
+          payment_method: string
+          platform_share?: number
+          released_at?: string | null
+          seller_id?: string | null
+          shipper_id?: string | null
+          shipper_share?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          vendor_share?: number
+        }
+        Update: {
+          buyer_id?: string | null
+          created_at?: string
+          deposit_amount?: number
+          id?: string
+          order_id?: string
+          payment_method?: string
+          platform_share?: number
+          released_at?: string | null
+          seller_id?: string | null
+          shipper_id?: string | null
+          shipper_share?: number
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          vendor_share?: number
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -272,6 +326,7 @@ export type Database = {
           created_at: string
           fee_tier: string
           id: string
+          is_verified: boolean
           national_id_url: string | null
           passport_url: string | null
           preferred_currency: string
@@ -284,6 +339,7 @@ export type Database = {
           created_at?: string
           fee_tier?: string
           id?: string
+          is_verified?: boolean
           national_id_url?: string | null
           passport_url?: string | null
           preferred_currency?: string
@@ -296,6 +352,7 @@ export type Database = {
           created_at?: string
           fee_tier?: string
           id?: string
+          is_verified?: boolean
           national_id_url?: string | null
           passport_url?: string | null
           preferred_currency?: string
@@ -356,6 +413,7 @@ export type Database = {
           country_of_origin: string
           created_at: string
           id: string
+          is_verified: boolean
           legal_address: string | null
           legal_document_url: string | null
           registration_number: string | null
@@ -369,6 +427,7 @@ export type Database = {
           country_of_origin: string
           created_at?: string
           id?: string
+          is_verified?: boolean
           legal_address?: string | null
           legal_document_url?: string | null
           registration_number?: string | null
@@ -382,6 +441,7 @@ export type Database = {
           country_of_origin?: string
           created_at?: string
           id?: string
+          is_verified?: boolean
           legal_address?: string | null
           legal_document_url?: string | null
           registration_number?: string | null
@@ -406,6 +466,48 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verification_documents: {
+        Row: {
+          account_type: string
+          created_at: string
+          document_type: string
+          document_url: string
+          id: string
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          account_type: string
+          created_at?: string
+          document_type: string
+          document_url: string
+          id?: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          account_type?: string
+          created_at?: string
+          document_type?: string
+          document_url?: string
+          id?: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -447,23 +549,80 @@ export type Database = {
       }
       wallets: {
         Row: {
+          available_balance: number
           balance: number
           created_at: string
+          currency: string
           id: string
+          lifetime_earnings: number
+          pending_balance: number
           updated_at: string
           user_id: string
         }
         Insert: {
+          available_balance?: number
           balance?: number
           created_at?: string
+          currency?: string
           id?: string
+          lifetime_earnings?: number
+          pending_balance?: number
           updated_at?: string
           user_id: string
         }
         Update: {
+          available_balance?: number
           balance?: number
           created_at?: string
+          currency?: string
           id?: string
+          lifetime_earnings?: number
+          pending_balance?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      withdrawal_requests: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          destination: Json
+          id: string
+          method: string
+          notes: string | null
+          processed_at: string | null
+          processed_by: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          destination?: Json
+          id?: string
+          method: string
+          notes?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          destination?: Json
+          id?: string
+          method?: string
+          notes?: string | null
+          processed_at?: string | null
+          processed_by?: string | null
+          status?: string
           updated_at?: string
           user_id?: string
         }
