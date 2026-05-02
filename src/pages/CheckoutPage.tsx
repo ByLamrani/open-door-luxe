@@ -13,6 +13,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
+import PayPalButton from "@/components/payments/PayPalButton";
+import { PRICING } from "@/lib/payments/config";
 
 interface ShippingInfo {
   firstName: string;
@@ -195,17 +197,34 @@ const CheckoutPage = () => {
   };
 
   const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
-  
+
+  // Smart-pricing: extra discount when paying online via PayPal/Wallet (8%),
+  // and 5% off the full item price when using Hybrid COD (deposit_20).
+  const getSmartDiscount = () => {
+    if (paymentMethod === "paypal" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
+      return subtotal * PRICING.ONLINE_DISCOUNT_PCT;
+    }
+    if (paymentMethod === "cod" && useAdvancePayment) {
+      return subtotal * PRICING.HYBRID_COD_DISCOUNT_PCT;
+    }
+    return 0;
+  };
+
   const getFinalTotal = () => {
     const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
     let finalTotal = total(isOnline);
     if (useAdvancePayment) {
       finalTotal -= getAdvanceDiscount();
     }
+    finalTotal -= getSmartDiscount();
     return Math.max(0, finalTotal);
   };
 
-  const getAdvanceAmount = () => getFinalTotal() * 0.3;
+  // Hybrid COD: pay 20% advance now, 80% due on delivery.
+  const getAdvanceAmount = () =>
+    paymentMethod === "cod" && useAdvancePayment
+      ? getFinalTotal() * PRICING.HYBRID_COD_DEPOSIT_PCT
+      : getFinalTotal() * 0.3;
   const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
 
   const getWalletCardSplit = () => {
