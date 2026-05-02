@@ -313,6 +313,9 @@ const CheckoutPage = () => {
 
     if (user) {
       try {
+        const isHybridCod = paymentMethod === "cod" && useAdvancePayment;
+        const depositAmount = isHybridCod ? Number(getAdvanceAmount().toFixed(2)) : 0;
+        const dueOnDelivery = isHybridCod ? Number((getFinalTotal() - getAdvanceAmount()).toFixed(2)) : 0;
         await supabase.from("orders").insert({
           user_id: user.id,
           order_id: generatedOrderId,
@@ -320,9 +323,11 @@ const CheckoutPage = () => {
           subtotal: subtotal,
           discount_amount: totalDiscount,
           total: finalTotal,
+          deposit_amount: depositAmount,
+          due_on_delivery: dueOnDelivery,
           payment_method: useAdvancePayment ? `${paymentMethod}_advance` : paymentMethod,
           shipping_info: shippingInfo as unknown as import("@/integrations/supabase/types").Json,
-          status: useAdvancePayment ? "advance_paid" : "pending",
+          status: isHybridCod ? "paid_deposit" : useAdvancePayment ? "advance_paid" : "pending",
         });
       } catch (error) {
         console.error("Failed to save order:", error);
