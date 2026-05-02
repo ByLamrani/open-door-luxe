@@ -563,6 +563,12 @@ const ProfilePage = () => {
                       <p className="font-display text-4xl">${wallet?.balance.toFixed(2) || "0.00"}</p>
                     </div>
 
+                    {/* PayPal Top-up + Verification */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <WalletTopUp />
+                      <VerificationUpload accountType="seller" />
+                    </div>
+
                     {/* Deposit / Withdraw Buttons */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
                       <Button
