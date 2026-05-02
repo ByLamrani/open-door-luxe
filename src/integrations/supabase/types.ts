@@ -92,45 +92,66 @@ export type Database = {
       orders: {
         Row: {
           created_at: string
+          deposit_amount: number | null
           discount_amount: number | null
+          due_on_delivery: number | null
           id: string
           items: Json
           order_id: string
           payment_method: string
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          platform_fee: number | null
           shipping_info: Json
           status: string
           subtotal: number
           total: number
           updated_at: string
           user_id: string | null
+          vendor_id: string | null
+          vendor_share: number | null
         }
         Insert: {
           created_at?: string
+          deposit_amount?: number | null
           discount_amount?: number | null
+          due_on_delivery?: number | null
           id?: string
           items: Json
           order_id: string
           payment_method: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          platform_fee?: number | null
           shipping_info: Json
           status?: string
           subtotal: number
           total: number
           updated_at?: string
           user_id?: string | null
+          vendor_id?: string | null
+          vendor_share?: number | null
         }
         Update: {
           created_at?: string
+          deposit_amount?: number | null
           discount_amount?: number | null
+          due_on_delivery?: number | null
           id?: string
           items?: Json
           order_id?: string
           payment_method?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          platform_fee?: number | null
           shipping_info?: Json
           status?: string
           subtotal?: number
           total?: number
           updated_at?: string
           user_id?: string | null
+          vendor_id?: string | null
+          vendor_share?: number | null
         }
         Relationships: []
       }
@@ -512,6 +533,42 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_topups: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
@@ -633,6 +690,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      credit_wallet_from_topup: {
+        Args: { _amount: number; _topup_id: string; _user: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -652,6 +713,15 @@ export type Database = {
           product_name: string
           similarity: number
         }[]
+      }
+      wallet_pay_vendor: {
+        Args: {
+          _amount: number
+          _buyer: string
+          _order_id: string
+          _vendor: string
+        }
+        Returns: Json
       }
     }
     Enums: {
