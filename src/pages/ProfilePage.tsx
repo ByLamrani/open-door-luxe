@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import DepositModal from "@/components/DepositModal";
 import SavedCardSection from "@/components/SavedCardSection";
 import { getProductById } from "@/data/products";
+import WalletTopUp from "@/components/wallet/WalletTopUp";
+import VerificationUpload from "@/components/verification/VerificationUpload";
 
 interface Profile {
   full_name: string;
@@ -561,6 +563,12 @@ const ProfilePage = () => {
                     <div className="bg-gradient-to-br from-gold-light to-gold rounded-xl p-6 text-primary-foreground mb-6">
                       <p className="text-sm opacity-90 mb-1">Current Balance</p>
                       <p className="font-display text-4xl">${wallet?.balance.toFixed(2) || "0.00"}</p>
+                    </div>
+
+                    {/* PayPal Top-up + Verification */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                      <WalletTopUp />
+                      <VerificationUpload accountType="seller" />
                     </div>
 
                     {/* Deposit / Withdraw Buttons */}

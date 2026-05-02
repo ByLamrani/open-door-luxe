@@ -13,6 +13,8 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
+import PayPalButton from "@/components/payments/PayPalButton";
+import { PRICING } from "@/lib/payments/config";
 
 interface ShippingInfo {
   firstName: string;
@@ -195,17 +197,34 @@ const CheckoutPage = () => {
   };
 
   const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
-  
+
+  // Smart-pricing: extra discount when paying online via PayPal/Wallet (8%),
+  // and 5% off the full item price when using Hybrid COD (deposit_20).
+  const getSmartDiscount = () => {
+    if (paymentMethod === "paypal" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
+      return subtotal * PRICING.ONLINE_DISCOUNT_PCT;
+    }
+    if (paymentMethod === "cod" && useAdvancePayment) {
+      return subtotal * PRICING.HYBRID_COD_DISCOUNT_PCT;
+    }
+    return 0;
+  };
+
   const getFinalTotal = () => {
     const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
     let finalTotal = total(isOnline);
     if (useAdvancePayment) {
       finalTotal -= getAdvanceDiscount();
     }
+    finalTotal -= getSmartDiscount();
     return Math.max(0, finalTotal);
   };
 
-  const getAdvanceAmount = () => getFinalTotal() * 0.3;
+  // Hybrid COD: pay 20% advance now, 80% due on delivery.
+  const getAdvanceAmount = () =>
+    paymentMethod === "cod" && useAdvancePayment
+      ? getFinalTotal() * PRICING.HYBRID_COD_DEPOSIT_PCT
+      : getFinalTotal() * 0.3;
   const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
 
   const getWalletCardSplit = () => {
@@ -294,6 +313,9 @@ const CheckoutPage = () => {
 
     if (user) {
       try {
+        const isHybridCod = paymentMethod === "cod" && useAdvancePayment;
+        const depositAmount = isHybridCod ? Number(getAdvanceAmount().toFixed(2)) : 0;
+        const dueOnDelivery = isHybridCod ? Number((getFinalTotal() - getAdvanceAmount()).toFixed(2)) : 0;
         await supabase.from("orders").insert({
           user_id: user.id,
           order_id: generatedOrderId,
@@ -301,9 +323,11 @@ const CheckoutPage = () => {
           subtotal: subtotal,
           discount_amount: totalDiscount,
           total: finalTotal,
+          deposit_amount: depositAmount,
+          due_on_delivery: dueOnDelivery,
           payment_method: useAdvancePayment ? `${paymentMethod}_advance` : paymentMethod,
           shipping_info: shippingInfo as unknown as import("@/integrations/supabase/types").Json,
-          status: useAdvancePayment ? "advance_paid" : "pending",
+          status: isHybridCod ? "paid_deposit" : useAdvancePayment ? "advance_paid" : "pending",
         });
       } catch (error) {
         console.error("Failed to save order:", error);
@@ -972,18 +996,71 @@ const CheckoutPage = () => {
                     </div>
                   )}
 
-                  <Button
-                    variant="gold"
-                    size="lg"
-                    className="w-full"
-                    onClick={handleProceedToVerification}
-                  >
-                    {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
-                      ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}` 
-                      : paymentMethod === "paypal"
-                      ? "Pay with PayPal"
-                      : `Place Order - $${getFinalTotal().toFixed(2)}`}
-                  </Button>
+                  {paymentMethod === "paypal" ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        You'll pay <span className="text-foreground font-semibold">${getFinalTotal().toFixed(2)}</span> via PayPal.
+                        90% goes to the vendor, 10% platform fee — split automatically.
+                      </p>
+                      <PayPalButton
+                        buildOrderInput={() => ({
+                          orderId: `ALE-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+                          currency: "USD",
+                          items: items.map((i) => ({ name: i.name, amount: i.price, quantity: i.quantity })),
+                          totalAmount: Number(getFinalTotal().toFixed(2)),
+                          mode: "full",
+                        })}
+                        onApproved={async (r) => {
+                          if (r.status === "COMPLETED") {
+                            await handlePlaceOrder();
+                          } else {
+                            toast({ title: "Payment pending", description: "We'll update your order once confirmed." });
+                          }
+                        }}
+                        onError={(e) =>
+                          toast({
+                            title: "PayPal error",
+                            description: String((e as any)?.message || e),
+                            variant: "destructive",
+                          })
+                        }
+                      />
+                    </div>
+                  ) : paymentMethod === "cod" && useAdvancePayment ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        Hybrid COD — pay <span className="text-foreground font-semibold">${getAdvanceAmount().toFixed(2)}</span> now (20% deposit).
+                        Remaining <span className="text-foreground font-semibold">${(getFinalTotal() - getAdvanceAmount()).toFixed(2)}</span> due on delivery.
+                      </p>
+                      <PayPalButton
+                        buildOrderInput={() => ({
+                          orderId: `ALE-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+                          currency: "USD",
+                          items: items.map((i) => ({ name: i.name, amount: i.price, quantity: i.quantity })),
+                          totalAmount: Number(getAdvanceAmount().toFixed(2)),
+                          fullPrice: Number(getFinalTotal().toFixed(2)),
+                          mode: "deposit_20",
+                        })}
+                        onApproved={async (r) => {
+                          if (r.status === "COMPLETED") await handlePlaceOrder();
+                        }}
+                        onError={(e) =>
+                          toast({ title: "PayPal error", description: String((e as any)?.message || e), variant: "destructive" })
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <Button
+                      variant="gold"
+                      size="lg"
+                      className="w-full"
+                      onClick={handleProceedToVerification}
+                    >
+                      {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
+                        ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}`
+                        : `Place Order - $${getFinalTotal().toFixed(2)}`}
+                    </Button>
+                  )}
                 </motion.div>
               )}
 
