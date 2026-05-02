@@ -14,6 +14,8 @@ import { supabase } from "@/integrations/supabase/client";
 import DepositModal from "@/components/DepositModal";
 import SavedCardSection from "@/components/SavedCardSection";
 import { getProductById } from "@/data/products";
+import WalletTopUp from "@/components/wallet/WalletTopUp";
+import VerificationUpload from "@/components/verification/VerificationUpload";
 
 interface Profile {
   full_name: string;
