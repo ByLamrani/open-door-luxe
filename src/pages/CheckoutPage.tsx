@@ -991,18 +991,71 @@ const CheckoutPage = () => {
                     </div>
                   )}
 
-                  <Button
-                    variant="gold"
-                    size="lg"
-                    className="w-full"
-                    onClick={handleProceedToVerification}
-                  >
-                    {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
-                      ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}` 
-                      : paymentMethod === "paypal"
-                      ? "Pay with PayPal"
-                      : `Place Order - $${getFinalTotal().toFixed(2)}`}
-                  </Button>
+                  {paymentMethod === "paypal" ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        You'll pay <span className="text-foreground font-semibold">${getFinalTotal().toFixed(2)}</span> via PayPal.
+                        90% goes to the vendor, 10% platform fee — split automatically.
+                      </p>
+                      <PayPalButton
+                        buildOrderInput={() => ({
+                          orderId: `ALE-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+                          currency: "USD",
+                          items: items.map((i) => ({ name: i.name, amount: i.price, quantity: i.quantity })),
+                          totalAmount: Number(getFinalTotal().toFixed(2)),
+                          mode: "full",
+                        })}
+                        onApproved={async (r) => {
+                          if (r.status === "COMPLETED") {
+                            await handlePlaceOrder();
+                          } else {
+                            toast({ title: "Payment pending", description: "We'll update your order once confirmed." });
+                          }
+                        }}
+                        onError={(e) =>
+                          toast({
+                            title: "PayPal error",
+                            description: String((e as any)?.message || e),
+                            variant: "destructive",
+                          })
+                        }
+                      />
+                    </div>
+                  ) : paymentMethod === "cod" && useAdvancePayment ? (
+                    <div className="space-y-2">
+                      <p className="text-xs text-muted-foreground">
+                        Hybrid COD — pay <span className="text-foreground font-semibold">${getAdvanceAmount().toFixed(2)}</span> now (20% deposit).
+                        Remaining <span className="text-foreground font-semibold">${(getFinalTotal() - getAdvanceAmount()).toFixed(2)}</span> due on delivery.
+                      </p>
+                      <PayPalButton
+                        buildOrderInput={() => ({
+                          orderId: `ALE-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`,
+                          currency: "USD",
+                          items: items.map((i) => ({ name: i.name, amount: i.price, quantity: i.quantity })),
+                          totalAmount: Number(getAdvanceAmount().toFixed(2)),
+                          fullPrice: Number(getFinalTotal().toFixed(2)),
+                          mode: "deposit_20",
+                        })}
+                        onApproved={async (r) => {
+                          if (r.status === "COMPLETED") await handlePlaceOrder();
+                        }}
+                        onError={(e) =>
+                          toast({ title: "PayPal error", description: String((e as any)?.message || e), variant: "destructive" })
+                        }
+                      />
+                    </div>
+                  ) : (
+                    <Button
+                      variant="gold"
+                      size="lg"
+                      className="w-full"
+                      onClick={handleProceedToVerification}
+                    >
+                      {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
+                        ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}`
+                        : `Place Order - $${getFinalTotal().toFixed(2)}`}
+                    </Button>
+                  )}
                 </motion.div>
               )}
 
