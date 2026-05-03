@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import logo from "@/assets/vanta-logo.png";
+import SubscriptionPlans from "@/components/SubscriptionPlans";
 
 const countries = [
   "Morocco", "United States", "United Kingdom", "France", "Spain", "Germany", 
@@ -33,6 +34,8 @@ const AuthPage = () => {
   
   // Account type selection
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  // 2-step signup: step 1 = info form, step 2 = subscription plan
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
 
   // Form state
   const [email, setEmail] = useState("");
@@ -175,8 +178,8 @@ const AuthPage = () => {
             toast({ title: "Sign Up Failed", description: error.message, variant: "destructive" });
           }
         } else {
-          toast({ title: "Account Created! 🎉", description: "Please check your email to verify your account before signing in." });
-          setIsLogin(true);
+          toast({ title: "Step 1 Complete ✓", description: "Now choose your subscription plan." });
+          setSignupStep(2);
         }
       }
     } catch (error: any) {
@@ -200,12 +203,25 @@ const AuthPage = () => {
               <img src={logo} alt="VANTA by Lamrani" className="h-12 w-auto mx-auto mb-4 rounded-md" />
             </Link>
             <h1 className="font-display text-2xl text-foreground mb-2">
-              {isLogin ? "Welcome Back" : "Create Account"}
+              {isLogin ? "Welcome Back" : signupStep === 2 ? "Step 2: Pick a Plan" : "Create Account"}
             </h1>
             <p className="font-body text-sm text-muted-foreground">
-              {isLogin ? "Sign in to access your account" : "Join VANTA for exclusive offers"}
+              {isLogin ? "Sign in to access your account" : signupStep === 2 ? "Free or unlock AI features" : "Step 1 of 2 — Your information"}
             </p>
           </div>
+
+          {!isLogin && signupStep === 2 ? (
+            <SubscriptionPlans
+              accountType={(accountType || "buyer") as any}
+              showSkip
+              onSelected={() => {
+                toast({ title: "Welcome to VANTA 🎉", description: "Please verify your email, then sign in." });
+                setSignupStep(1);
+                setIsLogin(true);
+              }}
+            />
+          ) : (
+          <>
 
           {/* Social Login Buttons */}
           <div className="space-y-3 mb-6">
@@ -438,6 +454,8 @@ const AuthPage = () => {
               <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>
           </div>
+          </>
+          )}
         </motion.div>
       </div>
     </div>

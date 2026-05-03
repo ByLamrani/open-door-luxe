@@ -159,7 +159,17 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            {menuItems.map((item) => (
+            {menuItems.map((item) => {
+              const renderDashboardBefore = item.name === "Track Order" && user && accountType === "seller";
+              return (
+              <>
+              {renderDashboardBefore && (
+                <div key="seller-dash" className="relative flex-shrink-0">
+                  <Link to="/seller/dashboard" className={`px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap ${isActive("/seller/dashboard") ? "text-gold" : "text-gold/90 hover:text-gold"}`}>
+                    <BarChart3 className="w-3 h-3" /> Dashboard
+                  </Link>
+                </div>
+              )}
               <div
                 key={item.name}
                 className="relative flex-shrink-0"
@@ -187,7 +197,9 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
-            ))}
+              </>
+              );
+            })}
           </div>
 
           {/* Right side */}
@@ -198,13 +210,7 @@ const Navbar = () => {
 
             <ThemeToggle />
 
-            {/* Seller Dashboard Link */}
-            {user && accountType === "seller" && (
-              <Link to="/seller/dashboard" className="hidden sm:flex items-center gap-1 px-2 py-1.5 text-xs font-body text-gold border border-gold/30 rounded-lg hover:bg-gold/10 transition-colors">
-                <BarChart3 className="w-3.5 h-3.5" />
-                Dashboard
-              </Link>
-            )}
+            {/* Seller Dashboard now lives inline in nav next to Track Order */}
 
             {/* Auth Button */}
             {user ? (

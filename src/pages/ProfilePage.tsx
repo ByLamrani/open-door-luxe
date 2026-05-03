@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2 } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles } from "lucide-react";
+import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
 import Navbar from "@/components/Navbar";
@@ -28,6 +29,9 @@ interface Profile {
   instagram_url: string | null;
   facebook_url: string | null;
   twitter_url: string | null;
+  account_type: string;
+  subscription_tier?: string;
+  subscription_expires_at?: string | null;
 }
 
 interface WalletData {
@@ -99,7 +103,14 @@ const ProfilePage = () => {
     instagram_url: null,
     facebook_url: null,
     twitter_url: null,
+    account_type: "buyer",
+    subscription_tier: "free",
+    subscription_expires_at: null,
   });
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeBusinessName, setUpgradeBusinessName] = useState("");
+  const [upgrading, setUpgrading] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -171,6 +182,9 @@ const ProfilePage = () => {
         instagram_url: data.instagram_url || null,
         facebook_url: data.facebook_url || null,
         twitter_url: data.twitter_url || null,
+        account_type: (data as any).account_type || "buyer",
+        subscription_tier: (data as any).subscription_tier || "free",
+        subscription_expires_at: (data as any).subscription_expires_at || null,
       });
     }
   };
@@ -548,6 +562,67 @@ const ProfilePage = () => {
                           ))}
                         </select>
                       </div>
+                    </div>
+
+                    {/* Account Type & Subscription */}
+                    <div className="border border-border rounded-xl p-5 mb-6 bg-muted/30">
+                      <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
+                        <div>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Account Type</p>
+                          <p className="font-display text-lg capitalize text-gold">{profile.account_type.replace("_", " ")}</p>
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Plan</p>
+                          <p className="font-display text-lg capitalize">
+                            {profile.subscription_tier === "free" ? "Free" : profile.subscription_tier === "seller_pro" ? "Vanta Connect Pro" : "Vanta Connect"}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {profile.account_type === "buyer" && (
+                          <Button variant="gold" size="sm" onClick={() => setShowUpgrade(!showUpgrade)}>
+                            <Store className="w-4 h-4 mr-2" /> Become a Seller
+                          </Button>
+                        )}
+                        <Button variant="outline" size="sm" onClick={() => setShowPlans(!showPlans)}>
+                          <Sparkles className="w-4 h-4 mr-2" /> {profile.subscription_tier === "free" ? "Upgrade Plan" : "Manage Plan"}
+                        </Button>
+                      </div>
+
+                      {showUpgrade && profile.account_type === "buyer" && (
+                        <div className="mt-4 space-y-2">
+                          <Label>Business Name (optional)</Label>
+                          <Input value={upgradeBusinessName} onChange={(e) => setUpgradeBusinessName(e.target.value)} placeholder="Your brand or business" />
+                          <Button
+                            variant="gold"
+                            size="sm"
+                            disabled={upgrading}
+                            onClick={async () => {
+                              setUpgrading(true);
+                              const { error } = await supabase.rpc("upgrade_to_seller" as any, { _business_name: upgradeBusinessName || null });
+                              setUpgrading(false);
+                              if (error) {
+                                toast({ title: "Upgrade failed", description: error.message, variant: "destructive" });
+                              } else {
+                                toast({ title: "You're now a Seller 🎉", description: "Your dashboard is unlocked." });
+                                setShowUpgrade(false);
+                                fetchProfile();
+                              }
+                            }}
+                          >
+                            {upgrading ? "Upgrading..." : "Confirm Upgrade"}
+                          </Button>
+                        </div>
+                      )}
+
+                      {showPlans && (
+                        <div className="mt-4">
+                          <SubscriptionPlans
+                            accountType={profile.account_type as any}
+                            onSelected={() => { setShowPlans(false); fetchProfile(); }}
+                          />
+                        </div>
+                      )}
                     </div>
 
                     {/* Saved Card Section */}
