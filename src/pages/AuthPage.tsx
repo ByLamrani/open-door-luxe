@@ -454,6 +454,8 @@ const AuthPage = () => {
               <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>
           </div>
+          </>
+          )}
         </motion.div>
       </div>
     </div>
