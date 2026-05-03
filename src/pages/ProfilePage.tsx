@@ -458,7 +458,17 @@ const ProfilePage = () => {
                       )}
                     </button>
                   </div>
-                  <h3 className="font-display text-lg text-foreground mt-3">{profile.full_name}</h3>
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <h3 className="font-display text-lg text-foreground">{profile.full_name}</h3>
+                    {profile.is_verified && (
+                      <span
+                        title="Verified account"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
+                      >
+                        <BadgeCheck className="w-3 h-3" /> Verified
+                      </span>
+                    )}
+                  </div>
                   <p className="font-body text-sm text-muted-foreground">{profile.email}</p>
                 </div>
 
