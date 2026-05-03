@@ -96,7 +96,6 @@ const AdminPanel = () => {
       })
       .eq("id", doc.id);
     if (!error && decision === "approved") {
-      // Mark account as verified
       const table =
         doc.account_type === "shipping_company"
           ? "shipping_company_profiles"
@@ -104,6 +103,11 @@ const AdminPanel = () => {
       await supabase
         .from(table as any)
         .update({ is_verified: true, verification_status: "approved" })
+        .eq("user_id", doc.user_id);
+      // Flip the unified profile verification flag for the blue badge
+      await supabase
+        .from("profiles")
+        .update({ is_verified: true, verified_at: new Date().toISOString() } as any)
         .eq("user_id", doc.user_id);
     }
     setBusy(null);

@@ -207,12 +207,14 @@ export type Database = {
           home_address: string | null
           id: string
           instagram_url: string | null
+          is_verified: boolean
           phone: string | null
           subscription_expires_at: string | null
           subscription_tier: string
           twitter_url: string | null
           updated_at: string
           user_id: string
+          verified_at: string | null
         }
         Insert: {
           account_type?: string
@@ -226,12 +228,14 @@ export type Database = {
           home_address?: string | null
           id?: string
           instagram_url?: string | null
+          is_verified?: boolean
           phone?: string | null
           subscription_expires_at?: string | null
           subscription_tier?: string
           twitter_url?: string | null
           updated_at?: string
           user_id: string
+          verified_at?: string | null
         }
         Update: {
           account_type?: string
@@ -245,12 +249,14 @@ export type Database = {
           home_address?: string | null
           id?: string
           instagram_url?: string | null
+          is_verified?: boolean
           phone?: string | null
           subscription_expires_at?: string | null
           subscription_tier?: string
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
+          verified_at?: string | null
         }
         Relationships: []
       }

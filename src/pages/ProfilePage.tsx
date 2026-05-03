@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck } from "lucide-react";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
@@ -32,6 +32,7 @@ interface Profile {
   account_type: string;
   subscription_tier?: string;
   subscription_expires_at?: string | null;
+  is_verified?: boolean;
 }
 
 interface WalletData {
@@ -185,6 +186,7 @@ const ProfilePage = () => {
         account_type: (data as any).account_type || "buyer",
         subscription_tier: (data as any).subscription_tier || "free",
         subscription_expires_at: (data as any).subscription_expires_at || null,
+        is_verified: (data as any).is_verified || false,
       });
     }
   };
@@ -456,7 +458,17 @@ const ProfilePage = () => {
                       )}
                     </button>
                   </div>
-                  <h3 className="font-display text-lg text-foreground mt-3">{profile.full_name}</h3>
+                  <div className="flex items-center justify-center gap-2 mt-3">
+                    <h3 className="font-display text-lg text-foreground">{profile.full_name}</h3>
+                    {profile.is_verified && (
+                      <span
+                        title="Verified account"
+                        className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-primary text-primary-foreground text-[10px] font-semibold shadow-[0_0_12px_hsl(var(--primary)/0.6)]"
+                      >
+                        <BadgeCheck className="w-3 h-3" /> Verified
+                      </span>
+                    )}
+                  </div>
                   <p className="font-body text-sm text-muted-foreground">{profile.email}</p>
                 </div>
 
