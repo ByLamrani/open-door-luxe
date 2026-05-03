@@ -32,6 +32,7 @@ interface Profile {
   account_type: string;
   subscription_tier?: string;
   subscription_expires_at?: string | null;
+  is_verified?: boolean;
 }
 
 interface WalletData {
