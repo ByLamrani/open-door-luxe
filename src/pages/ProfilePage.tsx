@@ -186,6 +186,7 @@ const ProfilePage = () => {
         account_type: (data as any).account_type || "buyer",
         subscription_tier: (data as any).subscription_tier || "free",
         subscription_expires_at: (data as any).subscription_expires_at || null,
+        is_verified: (data as any).is_verified || false,
       });
     }
   };
