@@ -203,12 +203,25 @@ const AuthPage = () => {
               <img src={logo} alt="VANTA by Lamrani" className="h-12 w-auto mx-auto mb-4 rounded-md" />
             </Link>
             <h1 className="font-display text-2xl text-foreground mb-2">
-              {isLogin ? "Welcome Back" : "Create Account"}
+              {isLogin ? "Welcome Back" : signupStep === 2 ? "Step 2: Pick a Plan" : "Create Account"}
             </h1>
             <p className="font-body text-sm text-muted-foreground">
-              {isLogin ? "Sign in to access your account" : "Join VANTA for exclusive offers"}
+              {isLogin ? "Sign in to access your account" : signupStep === 2 ? "Free or unlock AI features" : "Step 1 of 2 — Your information"}
             </p>
           </div>
+
+          {!isLogin && signupStep === 2 ? (
+            <SubscriptionPlans
+              accountType={(accountType || "buyer") as any}
+              showSkip
+              onSelected={() => {
+                toast({ title: "Welcome to VANTA 🎉", description: "Please verify your email, then sign in." });
+                setSignupStep(1);
+                setIsLogin(true);
+              }}
+            />
+          ) : (
+          <>
 
           {/* Social Login Buttons */}
           <div className="space-y-3 mb-6">
