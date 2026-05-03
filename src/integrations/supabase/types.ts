@@ -208,6 +208,8 @@ export type Database = {
           id: string
           instagram_url: string | null
           phone: string | null
+          subscription_expires_at: string | null
+          subscription_tier: string
           twitter_url: string | null
           updated_at: string
           user_id: string
@@ -225,6 +227,8 @@ export type Database = {
           id?: string
           instagram_url?: string | null
           phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_tier?: string
           twitter_url?: string | null
           updated_at?: string
           user_id: string
@@ -242,6 +246,8 @@ export type Database = {
           id?: string
           instagram_url?: string | null
           phone?: string | null
+          subscription_expires_at?: string | null
+          subscription_tier?: string
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
@@ -473,6 +479,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          expires_at: string | null
+          id: string
+          paypal_capture_id: string | null
+          paypal_order_id: string | null
+          status: string
+          tier: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: string
+          tier: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          paypal_capture_id?: string | null
+          paypal_order_id?: string | null
+          status?: string
+          tier?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -690,6 +735,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_subscription: {
+        Args: { _months?: number; _tier: string }
+        Returns: Json
+      }
       credit_wallet_from_topup: {
         Args: { _amount: number; _topup_id: string; _user: string }
         Returns: undefined
@@ -714,6 +763,7 @@ export type Database = {
           similarity: number
         }[]
       }
+      upgrade_to_seller: { Args: { _business_name?: string }; Returns: Json }
       wallet_pay_vendor: {
         Args: {
           _amount: number
