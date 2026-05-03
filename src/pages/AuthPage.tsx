@@ -10,6 +10,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
 import logo from "@/assets/vanta-logo.png";
+import SubscriptionPlans from "@/components/SubscriptionPlans";
 
 const countries = [
   "Morocco", "United States", "United Kingdom", "France", "Spain", "Germany", 
@@ -33,6 +34,8 @@ const AuthPage = () => {
   
   // Account type selection
   const [accountType, setAccountType] = useState<AccountType | null>(null);
+  // 2-step signup: step 1 = info form, step 2 = subscription plan
+  const [signupStep, setSignupStep] = useState<1 | 2>(1);
 
   // Form state
   const [email, setEmail] = useState("");
@@ -175,8 +178,8 @@ const AuthPage = () => {
             toast({ title: "Sign Up Failed", description: error.message, variant: "destructive" });
           }
         } else {
-          toast({ title: "Account Created! 🎉", description: "Please check your email to verify your account before signing in." });
-          setIsLogin(true);
+          toast({ title: "Step 1 Complete ✓", description: "Now choose your subscription plan." });
+          setSignupStep(2);
         }
       }
     } catch (error: any) {
