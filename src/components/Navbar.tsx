@@ -197,7 +197,8 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Right side */}
@@ -208,13 +209,7 @@ const Navbar = () => {
 
             <ThemeToggle />
 
-            {/* Seller Dashboard Link */}
-            {user && accountType === "seller" && (
-              <Link to="/seller/dashboard" className="hidden sm:flex items-center gap-1 px-2 py-1.5 text-xs font-body text-gold border border-gold/30 rounded-lg hover:bg-gold/10 transition-colors">
-                <BarChart3 className="w-3.5 h-3.5" />
-                Dashboard
-              </Link>
-            )}
+            {/* Seller Dashboard now lives inline in nav next to Track Order */}
 
             {/* Auth Button */}
             {user ? (
