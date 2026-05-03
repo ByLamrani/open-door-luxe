@@ -28,6 +28,9 @@ interface Profile {
   instagram_url: string | null;
   facebook_url: string | null;
   twitter_url: string | null;
+  account_type: string;
+  subscription_tier?: string;
+  subscription_expires_at?: string | null;
 }
 
 interface WalletData {
@@ -99,7 +102,14 @@ const ProfilePage = () => {
     instagram_url: null,
     facebook_url: null,
     twitter_url: null,
+    account_type: "buyer",
+    subscription_tier: "free",
+    subscription_expires_at: null,
   });
+  const [showUpgrade, setShowUpgrade] = useState(false);
+  const [upgradeBusinessName, setUpgradeBusinessName] = useState("");
+  const [upgrading, setUpgrading] = useState(false);
+  const [showPlans, setShowPlans] = useState(false);
 
   const [wallet, setWallet] = useState<WalletData | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -171,6 +181,9 @@ const ProfilePage = () => {
         instagram_url: data.instagram_url || null,
         facebook_url: data.facebook_url || null,
         twitter_url: data.twitter_url || null,
+        account_type: (data as any).account_type || "buyer",
+        subscription_tier: (data as any).subscription_tier || "free",
+        subscription_expires_at: (data as any).subscription_expires_at || null,
       });
     }
   };
