@@ -9,7 +9,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { type, metrics, inventory } = await req.json();
+    const { type, metrics, inventory, prompt: customPrompt } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -20,6 +20,7 @@ serve(async (req) => {
       restock: `You are an inventory intelligence AI for VANTA. Analyze: ${JSON.stringify(inventory)}. Identify items that need restocking urgently. Predict seasonal demand spikes (Ramadan, Summer, Holidays). Give specific restock recommendations.`,
       discount_impact: `You are a discount strategy AI for VANTA. Current metrics: Revenue ${metrics?.totalRevenue}, Conversion ${metrics?.conversionRate}%, AOV ${metrics?.avgOrderValue}. Predict the impact of running a 10% discount this weekend. Give specific predictions.`,
       ad_roi: `You are an advertising ROI analyst for VANTA. With ${metrics?.totalViews} views and ${metrics?.conversionRate}% conversion, calculate theoretical ROI for featured placement. The AI advertising fee is 3%. Give specific recommendations.`,
+      custom: `Seller asks: "${customPrompt}". Context: metrics=${JSON.stringify(metrics)}, inventory=${JSON.stringify(inventory?.slice(0,5))}. Reply concisely with actionable advice.`,
     };
 
     const prompt = prompts[type] || "Provide general seller insights for a luxury marketplace.";

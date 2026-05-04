@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { 
-  BarChart3, DollarSign, TrendingUp, Package, AlertTriangle, 
+import {
+  BarChart3, DollarSign, TrendingUp, Package, AlertTriangle,
   ShoppingCart, Users, ArrowLeft, Wallet, History, Brain,
-  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2
+  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2, Lock
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -13,16 +13,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrency, CURRENCIES } from "@/context/CurrencyContext";
+import SellerListings from "@/components/seller/SellerListings";
+import AIInsightCommand from "@/components/seller/AIInsightCommand";
 
-const currencies = [
-  { code: "USD", symbol: "$", name: "US Dollar" },
-  { code: "EUR", symbol: "€", name: "Euro" },
-  { code: "MAD", symbol: "MAD", name: "Moroccan Dirham" },
-  { code: "GBP", symbol: "£", name: "British Pound" },
-  { code: "AED", symbol: "AED", name: "UAE Dirham" },
-  { code: "SAR", symbol: "SAR", name: "Saudi Riyal" },
-  { code: "CAD", symbol: "C$", name: "Canadian Dollar" },
-];
+// (currency list now sourced from CurrencyContext.CURRENCIES)
+const currencies = CURRENCIES;
 
 const feeStructure = {
   normal: { label: "Standard", listingFee: 0.10 },

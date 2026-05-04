@@ -14,6 +14,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_insights: {
+        Row: {
+          content: Json | null
+          created_at: string | null
+          id: string
+          insight_type: string | null
+          user_id: string | null
+        }
+        Insert: {
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          insight_type?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          content?: Json | null
+          created_at?: string | null
+          id?: string
+          insight_type?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      currency_rates: {
+        Row: {
+          id: string
+          rate: number
+          updated_at: string | null
+        }
+        Insert: {
+          id: string
+          rate: number
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          rate?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       escrow_transactions: {
         Row: {
           buyer_id: string | null
@@ -201,6 +251,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string
+          document_url: string | null
           email: string
           facebook_url: string | null
           full_name: string
@@ -214,6 +265,7 @@ export type Database = {
           twitter_url: string | null
           updated_at: string
           user_id: string
+          verification_status: string | null
           verified_at: string | null
         }
         Insert: {
@@ -222,6 +274,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          document_url?: string | null
           email: string
           facebook_url?: string | null
           full_name: string
@@ -235,6 +288,7 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           user_id: string
+          verification_status?: string | null
           verified_at?: string | null
         }
         Update: {
@@ -243,6 +297,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string
+          document_url?: string | null
           email?: string
           facebook_url?: string | null
           full_name?: string
@@ -256,6 +311,7 @@ export type Database = {
           twitter_url?: string | null
           updated_at?: string
           user_id?: string
+          verification_status?: string | null
           verified_at?: string | null
         }
         Relationships: []
@@ -323,32 +379,47 @@ export type Database = {
       seller_listings: {
         Row: {
           created_at: string
+          description: string | null
+          expires_at: string
           id: string
+          image_url: string | null
           listing_fee: number
           listing_type: string
+          price: number | null
           product_id: string | null
           seller_id: string
           status: string
+          title: string | null
           updated_at: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
+          expires_at?: string
           id?: string
+          image_url?: string | null
           listing_fee?: number
           listing_type?: string
+          price?: number | null
           product_id?: string | null
           seller_id: string
           status?: string
+          title?: string | null
           updated_at?: string
         }
         Update: {
           created_at?: string
+          description?: string | null
+          expires_at?: string
           id?: string
+          image_url?: string | null
           listing_fee?: number
           listing_type?: string
+          price?: number | null
           product_id?: string | null
           seller_id?: string
           status?: string
+          title?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -545,6 +616,7 @@ export type Database = {
       verification_documents: {
         Row: {
           account_type: string
+          admin_notes: string | null
           created_at: string
           document_type: string
           document_url: string
@@ -558,6 +630,7 @@ export type Database = {
         }
         Insert: {
           account_type: string
+          admin_notes?: string | null
           created_at?: string
           document_type: string
           document_url: string
@@ -571,6 +644,7 @@ export type Database = {
         }
         Update: {
           account_type?: string
+          admin_notes?: string | null
           created_at?: string
           document_type?: string
           document_url?: string
@@ -749,6 +823,7 @@ export type Database = {
         Args: { _amount: number; _topup_id: string; _user: string }
         Returns: undefined
       }
+      expire_old_listings: { Args: never; Returns: undefined }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export interface SavedCard {
   id: string;
@@ -23,45 +24,50 @@ interface SavedCardSectionProps {
 
 const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  // Per-user storage keys to prevent cards leaking across accounts on the same device
+  const cardKey = user ? `savedCard:${user.id}` : "savedCard:guest";
+  const enabledKey = user ? `savedCardEnabled:${user.id}` : "savedCardEnabled:guest";
+
   const [isEnabled, setIsEnabled] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | null>(null);
-  const [storedCard, setStoredCard] = useState<SavedCard | null>(null); // Persisted card data
+  const [storedCard, setStoredCard] = useState<SavedCard | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [cardDetails, setCardDetails] = useState({
-    name: "",
-    number: "",
-    expiry: "",
-    cvv: "",
-  });
+  const [cardDetails, setCardDetails] = useState({ name: "", number: "", expiry: "", cvv: "" });
 
-  // Load saved card and enabled state from localStorage
+  // One-time migration: clear legacy global keys so cards from another account don't appear
   useEffect(() => {
-    const stored = localStorage.getItem("savedCard");
-    const enabled = localStorage.getItem("savedCardEnabled");
-    
-    if (stored) {
-      const parsedCard = JSON.parse(stored);
-      setStoredCard(parsedCard);
-      
-      // Only show as active if enabled
-      if (enabled === "true") {
-        setSavedCard(parsedCard);
-        setIsEnabled(true);
-      }
+    if (localStorage.getItem("savedCard") || localStorage.getItem("savedCardEnabled")) {
+      localStorage.removeItem("savedCard");
+      localStorage.removeItem("savedCardEnabled");
     }
   }, []);
 
+  useEffect(() => {
+    const stored = localStorage.getItem(cardKey);
+    const enabled = localStorage.getItem(enabledKey);
+    if (stored) {
+      const parsedCard = JSON.parse(stored);
+      setStoredCard(parsedCard);
+      if (enabled === "true") {
+        setSavedCard(parsedCard);
+        setIsEnabled(true);
+      } else {
+        setSavedCard(null);
+        setIsEnabled(false);
+      }
+    } else {
+      setStoredCard(null);
+      setSavedCard(null);
+      setIsEnabled(false);
+    }
+  }, [cardKey, enabledKey]);
+
   const handleToggle = (checked: boolean) => {
     setIsEnabled(checked);
-    localStorage.setItem("savedCardEnabled", checked.toString());
-    
-    if (checked && storedCard) {
-      // Reactivate stored card without needing to re-enter info
-      setSavedCard(storedCard);
-    } else if (!checked) {
-      // Deactivate but keep stored card data
-      setSavedCard(null);
-    }
+    localStorage.setItem(enabledKey, checked.toString());
+    if (checked && storedCard) setSavedCard(storedCard);
+    else if (!checked) setSavedCard(null);
   };
 
   const formatCardNumber = (value: string) => {
@@ -69,17 +75,13 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
     const matches = v.match(/\d{4,16}/g);
     const match = (matches && matches[0]) || "";
     const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
+    for (let i = 0, len = match.length; i < len; i += 4) parts.push(match.substring(i, i + 4));
     return parts.length ? parts.join(" ") : value;
   };
 
   const formatExpiry = (value: string) => {
     const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    if (v.length >= 2) {
-      return v.substring(0, 2) + "/" + v.substring(2, 4);
-    }
+    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4);
     return v;
   };
 
@@ -116,7 +118,7 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
 
     setSavedCard(newCard);
     setStoredCard(newCard);
-    localStorage.setItem("savedCard", JSON.stringify(newCard));
+    localStorage.setItem(cardKey, JSON.stringify(newCard));
     setIsEditing(false);
     setCardDetails({ name: "", number: "", expiry: "", cvv: "" });
     toast({ title: "Card Saved", description: "Your card has been saved securely" });
@@ -126,7 +128,9 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
   const handleDelete = () => {
     setSavedCard(null);
     setStoredCard(null);
-    localStorage.removeItem("savedCard");
+    localStorage.removeItem(cardKey);
+    localStorage.removeItem(enabledKey);
+    setIsEnabled(false);
     toast({ title: "Card Removed" });
   };
 
@@ -282,20 +286,20 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
   );
 };
 
-// Helper to get saved card for checkout
-export const getSavedCardForCheckout = (): SavedCard | null => {
-  const enabled = localStorage.getItem("savedCardEnabled");
-  const stored = localStorage.getItem("savedCard");
-  
-  if (enabled === "true" && stored) {
-    return JSON.parse(stored);
-  }
+// Helper to get saved card for checkout (per-user scoped via active session)
+export const getSavedCardForCheckout = (userId?: string | null): SavedCard | null => {
+  const key = userId ? `savedCard:${userId}` : "savedCard:guest";
+  const enabledKey = userId ? `savedCardEnabled:${userId}` : "savedCardEnabled:guest";
+  const enabled = localStorage.getItem(enabledKey);
+  const stored = localStorage.getItem(key);
+  if (enabled === "true" && stored) return JSON.parse(stored);
   return null;
 };
 
-// Helper to check if saved card is enabled
-export const isSavedCardEnabled = (): boolean => {
-  return localStorage.getItem("savedCardEnabled") === "true" && !!localStorage.getItem("savedCard");
+export const isSavedCardEnabled = (userId?: string | null): boolean => {
+  const key = userId ? `savedCard:${userId}` : "savedCard:guest";
+  const enabledKey = userId ? `savedCardEnabled:${userId}` : "savedCardEnabled:guest";
+  return localStorage.getItem(enabledKey) === "true" && !!localStorage.getItem(key);
 };
 
 export default SavedCardSection;

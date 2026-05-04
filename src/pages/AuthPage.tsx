@@ -214,10 +214,19 @@ const AuthPage = () => {
             <SubscriptionPlans
               accountType={(accountType || "buyer") as any}
               showSkip
-              onSelected={() => {
-                toast({ title: "Welcome to VANTA 🎉", description: "Please verify your email, then sign in." });
-                setSignupStep(1);
-                setIsLogin(true);
+              onSelected={async () => {
+                // Try auto sign-in so user lands directly in their workspace
+                const { error: siErr } = await signIn(email, password);
+                if (siErr) {
+                  toast({ title: "Almost done", description: "Please verify your email then sign in." });
+                  setSignupStep(1);
+                  setIsLogin(true);
+                  return;
+                }
+                toast({ title: "Welcome to VANTA 🎉" });
+                if (accountType === "seller") navigate("/seller/dashboard");
+                else if (accountType === "shipping_company") navigate("/profile");
+                else navigate("/");
               }}
             />
           ) : (
