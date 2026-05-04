@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
 import { CartProvider } from "@/context/CartContext";
 import { AuthProvider } from "@/context/AuthContext";
+import { CurrencyProvider } from "@/context/CurrencyContext";
 import Index from "./pages/Index";
 import CategoryPage from "./pages/CategoryPage";
 import ProductDetailPage from "./pages/ProductDetailPage";
@@ -29,6 +30,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
       <AuthProvider>
+        <CurrencyProvider>
         <CartProvider>
           <TooltipProvider>
             <Toaster />
@@ -66,6 +68,7 @@ const App = () => (
             </BrowserRouter>
           </TooltipProvider>
         </CartProvider>
+        </CurrencyProvider>
       </AuthProvider>
     </ThemeProvider>
   </QueryClientProvider>
