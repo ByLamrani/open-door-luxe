@@ -70,11 +70,18 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
     else if (!checked) setSavedCard(null);
   };
 
+  const formatCardNumber = (value: string) => {
+    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
+    const matches = v.match(/\d{4,16}/g);
+    const match = (matches && matches[0]) || "";
+    const parts = [];
+    for (let i = 0, len = match.length; i < len; i += 4) parts.push(match.substring(i, i + 4));
+    return parts.length ? parts.join(" ") : value;
+  };
+
   const formatExpiry = (value: string) => {
     const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    if (v.length >= 2) {
-      return v.substring(0, 2) + "/" + v.substring(2, 4);
-    }
+    if (v.length >= 2) return v.substring(0, 2) + "/" + v.substring(2, 4);
     return v;
   };
 
@@ -111,7 +118,7 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
 
     setSavedCard(newCard);
     setStoredCard(newCard);
-    localStorage.setItem("savedCard", JSON.stringify(newCard));
+    localStorage.setItem(cardKey, JSON.stringify(newCard));
     setIsEditing(false);
     setCardDetails({ name: "", number: "", expiry: "", cvv: "" });
     toast({ title: "Card Saved", description: "Your card has been saved securely" });
@@ -121,7 +128,9 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
   const handleDelete = () => {
     setSavedCard(null);
     setStoredCard(null);
-    localStorage.removeItem("savedCard");
+    localStorage.removeItem(cardKey);
+    localStorage.removeItem(enabledKey);
+    setIsEnabled(false);
     toast({ title: "Card Removed" });
   };
 
@@ -277,20 +286,20 @@ const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps
   );
 };
 
-// Helper to get saved card for checkout
-export const getSavedCardForCheckout = (): SavedCard | null => {
-  const enabled = localStorage.getItem("savedCardEnabled");
-  const stored = localStorage.getItem("savedCard");
-  
-  if (enabled === "true" && stored) {
-    return JSON.parse(stored);
-  }
+// Helper to get saved card for checkout (per-user scoped via active session)
+export const getSavedCardForCheckout = (userId?: string | null): SavedCard | null => {
+  const key = userId ? `savedCard:${userId}` : "savedCard:guest";
+  const enabledKey = userId ? `savedCardEnabled:${userId}` : "savedCardEnabled:guest";
+  const enabled = localStorage.getItem(enabledKey);
+  const stored = localStorage.getItem(key);
+  if (enabled === "true" && stored) return JSON.parse(stored);
   return null;
 };
 
-// Helper to check if saved card is enabled
-export const isSavedCardEnabled = (): boolean => {
-  return localStorage.getItem("savedCardEnabled") === "true" && !!localStorage.getItem("savedCard");
+export const isSavedCardEnabled = (userId?: string | null): boolean => {
+  const key = userId ? `savedCard:${userId}` : "savedCard:guest";
+  const enabledKey = userId ? `savedCardEnabled:${userId}` : "savedCardEnabled:guest";
+  return localStorage.getItem(enabledKey) === "true" && !!localStorage.getItem(key);
 };
 
 export default SavedCardSection;
