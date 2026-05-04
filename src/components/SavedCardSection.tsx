@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/context/AuthContext";
 
 export interface SavedCard {
   id: string;
@@ -23,56 +24,50 @@ interface SavedCardSectionProps {
 
 const SavedCardSection = ({ onCardSave, compact = false }: SavedCardSectionProps) => {
   const { toast } = useToast();
+  const { user } = useAuth();
+  // Per-user storage keys to prevent cards leaking across accounts on the same device
+  const cardKey = user ? `savedCard:${user.id}` : "savedCard:guest";
+  const enabledKey = user ? `savedCardEnabled:${user.id}` : "savedCardEnabled:guest";
+
   const [isEnabled, setIsEnabled] = useState(false);
   const [savedCard, setSavedCard] = useState<SavedCard | null>(null);
-  const [storedCard, setStoredCard] = useState<SavedCard | null>(null); // Persisted card data
+  const [storedCard, setStoredCard] = useState<SavedCard | null>(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [cardDetails, setCardDetails] = useState({
-    name: "",
-    number: "",
-    expiry: "",
-    cvv: "",
-  });
+  const [cardDetails, setCardDetails] = useState({ name: "", number: "", expiry: "", cvv: "" });
 
-  // Load saved card and enabled state from localStorage
+  // One-time migration: clear legacy global keys so cards from another account don't appear
   useEffect(() => {
-    const stored = localStorage.getItem("savedCard");
-    const enabled = localStorage.getItem("savedCardEnabled");
-    
-    if (stored) {
-      const parsedCard = JSON.parse(stored);
-      setStoredCard(parsedCard);
-      
-      // Only show as active if enabled
-      if (enabled === "true") {
-        setSavedCard(parsedCard);
-        setIsEnabled(true);
-      }
+    if (localStorage.getItem("savedCard") || localStorage.getItem("savedCardEnabled")) {
+      localStorage.removeItem("savedCard");
+      localStorage.removeItem("savedCardEnabled");
     }
   }, []);
 
+  useEffect(() => {
+    const stored = localStorage.getItem(cardKey);
+    const enabled = localStorage.getItem(enabledKey);
+    if (stored) {
+      const parsedCard = JSON.parse(stored);
+      setStoredCard(parsedCard);
+      if (enabled === "true") {
+        setSavedCard(parsedCard);
+        setIsEnabled(true);
+      } else {
+        setSavedCard(null);
+        setIsEnabled(false);
+      }
+    } else {
+      setStoredCard(null);
+      setSavedCard(null);
+      setIsEnabled(false);
+    }
+  }, [cardKey, enabledKey]);
+
   const handleToggle = (checked: boolean) => {
     setIsEnabled(checked);
-    localStorage.setItem("savedCardEnabled", checked.toString());
-    
-    if (checked && storedCard) {
-      // Reactivate stored card without needing to re-enter info
-      setSavedCard(storedCard);
-    } else if (!checked) {
-      // Deactivate but keep stored card data
-      setSavedCard(null);
-    }
-  };
-
-  const formatCardNumber = (value: string) => {
-    const v = value.replace(/\s+/g, "").replace(/[^0-9]/gi, "");
-    const matches = v.match(/\d{4,16}/g);
-    const match = (matches && matches[0]) || "";
-    const parts = [];
-    for (let i = 0, len = match.length; i < len; i += 4) {
-      parts.push(match.substring(i, i + 4));
-    }
-    return parts.length ? parts.join(" ") : value;
+    localStorage.setItem(enabledKey, checked.toString());
+    if (checked && storedCard) setSavedCard(storedCard);
+    else if (!checked) setSavedCard(null);
   };
 
   const formatExpiry = (value: string) => {
