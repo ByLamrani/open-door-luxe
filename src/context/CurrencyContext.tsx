@@ -80,7 +80,7 @@ export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const convert = (usd: number) => usd * rate;
   const format = (usd: number) => {
     const v = convert(usd);
-    const num = currency === "JPY" || currency === "KRW" ? v.toFixed(0) : v.toFixed(2);
+    const num = currency === "JPY" ? v.toFixed(0) : v.toFixed(2);
     return meta.suffix ? `${num} ${meta.symbol}` : `${meta.symbol}${num}`;
   };
 
