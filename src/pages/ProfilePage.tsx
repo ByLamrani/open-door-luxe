@@ -470,6 +470,16 @@ const ProfilePage = () => {
                     )}
                   </div>
                   <p className="font-body text-sm text-muted-foreground">{profile.email}</p>
+                  {!profile.is_verified && (
+                    <Button
+                      variant="gold"
+                      size="sm"
+                      className="mt-3 w-full"
+                      onClick={() => handleTabChange("wallet")}
+                    >
+                      <BadgeCheck className="w-4 h-4 mr-2" /> Verify Now
+                    </Button>
+                  )}
                 </div>
 
                 {/* Navigation Tabs */}
