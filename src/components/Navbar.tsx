@@ -8,6 +8,8 @@ import { useAuth } from "@/context/AuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 import ScentSentimentSearch from "@/components/ScentSentimentSearch";
 import { supabase } from "@/integrations/supabase/client";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
+import CurrencySwitcher from "@/components/CurrencySwitcher";
 
 interface SubMenuItem {
   name: string;
@@ -208,6 +210,8 @@ const Navbar = () => {
               <ScentSentimentSearch />
             </div>
 
+            <CurrencySwitcher />
+            <LanguageSwitcher />
             <ThemeToggle />
 
             {/* Seller Dashboard now lives inline in nav next to Track Order */}
