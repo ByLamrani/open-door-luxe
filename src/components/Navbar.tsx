@@ -38,6 +38,7 @@ const exploreCategories = [
     items: [
       { name: "Smart Accessories", path: "/watches" },
       { name: "Horology & Time", path: "/watches/men" },
+      { name: "Home Electronics", path: "/home-electronics" },
     ],
   },
   {
@@ -52,6 +53,25 @@ const exploreCategories = [
     cluster: "Art & Living",
     items: [
       { name: "Atmospheric Living", path: "/air-diffusers" },
+      { name: "Home Decor", path: "/home-decor" },
+      { name: "Lighting & Ambience", path: "/lighting" },
+    ],
+  },
+  {
+    cluster: "Home & Living",
+    items: [
+      { name: "Housing Furniture", path: "/housing-furniture" },
+      { name: "Kitchen Tools", path: "/kitchen-tools" },
+      { name: "Bedroom Essentials", path: "/bedroom" },
+      { name: "Bath & Linen", path: "/bath-linen" },
+    ],
+  },
+  {
+    cluster: "Fashion & Accessories",
+    items: [
+      { name: "Bags & Leather", path: "/bags" },
+      { name: "Jewelry", path: "/jewelry" },
+      { name: "Eyewear", path: "/eyewear" },
     ],
   },
 ];
