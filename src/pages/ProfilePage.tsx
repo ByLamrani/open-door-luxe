@@ -476,7 +476,7 @@ const ProfilePage = () => {
                       variant="gold"
                       size="sm"
                       className="mt-3 w-full"
-                      onClick={() => handleTabChange("wallet")}
+                      onClick={() => handleTabChange("verification")}
                     >
                       <BadgeCheck className="w-4 h-4 mr-2" /> Verify Now
                     </Button>
