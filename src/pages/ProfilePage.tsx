@@ -149,7 +149,8 @@ const ProfilePage = () => {
   };
 
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard") => {
+    if (tab === "dashboard") { navigate("/seller/dashboard"); return; }
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
