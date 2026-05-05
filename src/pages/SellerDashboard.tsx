@@ -549,6 +549,7 @@ const SellerDashboard = () => {
           )}
         </div>
       </main>
+      <AIInsightCommand metrics={metrics} inventory={inventory} unlocked={aiUnlocked} onUpgrade={handleUpgrade} />
       <Footer />
     </div>
   );
