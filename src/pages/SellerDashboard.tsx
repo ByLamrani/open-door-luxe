@@ -54,6 +54,8 @@ const SellerDashboard = () => {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string>("buyer");
   const [verificationStatus, setVerificationStatus] = useState("pending");
+  const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
+  const [isVerified, setIsVerified] = useState(false);
 
   // Mock metrics (in production, these come from real data)
   const [metrics] = useState<SellerMetrics>({
@@ -87,11 +89,18 @@ const SellerDashboard = () => {
     // Check account type
     const { data: profile } = await supabase
       .from("profiles")
-      .select("account_type")
+      .select("account_type, subscription_tier, subscription_expires_at, is_verified")
       .eq("user_id", user.id)
       .single();
     
-    if (profile) setAccountType(profile.account_type || "buyer");
+    if (profile) {
+      setAccountType(profile.account_type || "buyer");
+      const tier = (profile as any).subscription_tier || "free";
+      const exp = (profile as any).subscription_expires_at;
+      const active = tier !== "free" && (!exp || new Date(exp).getTime() > Date.now());
+      setSubscriptionTier(active ? tier : "free");
+      setIsVerified(!!(profile as any).is_verified);
+    }
 
     // Fetch wallet
     const { data: walletData } = await supabase
@@ -132,6 +141,10 @@ const SellerDashboard = () => {
   };
 
   const getAIInsight = async (type: string) => {
+    if (subscriptionTier === "free") {
+      toast({ title: "AI is locked", description: "Upgrade to Vanta Connect Pro to unlock AI features." });
+      return;
+    }
     setIsLoadingAI(true);
     try {
       const { data, error } = await supabase.functions.invoke("seller-ai", {
@@ -156,6 +169,9 @@ const SellerDashboard = () => {
   });
 
   if (!user) return null;
+
+  const aiUnlocked = subscriptionTier !== "free";
+  const handleUpgrade = () => navigate("/profile", { state: { tab: "profile" } });
 
   const tabs = [
     { id: "overview", label: "Performance", icon: BarChart3 },
@@ -405,7 +421,24 @@ const SellerDashboard = () => {
                 <p className="text-sm text-muted-foreground">Get AI-powered insights to optimize your store</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {!aiUnlocked && (
+                <Card className="border-gold/40 bg-gold/5">
+                  <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-6 h-6 text-gold" />
+                      <div>
+                        <p className="font-display text-lg text-foreground">AI Command Center is locked</p>
+                        <p className="text-sm text-muted-foreground">Unlock all AI features with Vanta Connect Pro — $20/mo.</p>
+                      </div>
+                    </div>
+                    <Button variant="gold" onClick={handleUpgrade}>
+                      <Sparkles className="w-4 h-4 mr-2" /> Upgrade Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!aiUnlocked ? "opacity-50 pointer-events-none select-none" : ""}`}>
                 {[
                   { type: "price_optimizer", label: "AI Price Optimizer", desc: "Scan market to find the sweet spot price", icon: DollarSign },
                   { type: "revenue_forecast", label: "Revenue Forecast", desc: "Predict next 30 days based on trends", icon: TrendingUp },
@@ -414,7 +447,7 @@ const SellerDashboard = () => {
                   { type: "discount_impact", label: "Discount Predictor", desc: "Predict impact of running a sale", icon: Sparkles },
                   { type: "ad_roi", label: "Ad-Spend ROI", desc: "Track returns on featured placement", icon: Eye },
                 ].map((tool) => (
-                  <Card key={tool.type} className="hover-lift cursor-pointer" onClick={() => getAIInsight(tool.type)}>
+                  <Card key={tool.type} className="hover-lift cursor-pointer" onClick={() => aiUnlocked ? getAIInsight(tool.type) : handleUpgrade()}>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 rounded-lg bg-gold/10">
@@ -516,6 +549,7 @@ const SellerDashboard = () => {
           )}
         </div>
       </main>
+      <AIInsightCommand metrics={metrics} inventory={inventory} unlocked={aiUnlocked} onUpgrade={handleUpgrade} />
       <Footer />
     </div>
   );

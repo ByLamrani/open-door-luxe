@@ -38,6 +38,7 @@ const exploreCategories = [
     items: [
       { name: "Smart Accessories", path: "/watches" },
       { name: "Horology & Time", path: "/watches/men" },
+      { name: "Home Electronics", path: "/home-electronics" },
     ],
   },
   {
@@ -52,6 +53,25 @@ const exploreCategories = [
     cluster: "Art & Living",
     items: [
       { name: "Atmospheric Living", path: "/air-diffusers" },
+      { name: "Home Decor", path: "/home-decor" },
+      { name: "Lighting & Ambience", path: "/lighting" },
+    ],
+  },
+  {
+    cluster: "Home & Living",
+    items: [
+      { name: "Housing Furniture", path: "/housing-furniture" },
+      { name: "Kitchen Tools", path: "/kitchen-tools" },
+      { name: "Bedroom Essentials", path: "/bedroom" },
+      { name: "Bath & Linen", path: "/bath-linen" },
+    ],
+  },
+  {
+    cluster: "Fashion & Accessories",
+    items: [
+      { name: "Bags & Leather", path: "/bags" },
+      { name: "Jewelry", path: "/jewelry" },
+      { name: "Eyewear", path: "/eyewear" },
     ],
   },
 ];
@@ -136,9 +156,9 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[480px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+                    className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[680px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
                   >
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       {exploreCategories.map((cat) => (
                         <div key={cat.cluster}>
                           <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{cat.cluster}</p>
@@ -161,17 +181,7 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            {menuItems.map((item) => {
-              const renderDashboardBefore = item.name === "Track Order" && user && accountType === "seller";
-              return (
-              <>
-              {renderDashboardBefore && (
-                <div key="seller-dash" className="relative flex-shrink-0">
-                  <Link to="/seller/dashboard" className={`px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap ${isActive("/seller/dashboard") ? "text-gold" : "text-gold/90 hover:text-gold"}`}>
-                    <BarChart3 className="w-3 h-3" /> Dashboard
-                  </Link>
-                </div>
-              )}
+            {menuItems.map((item) => (
               <div
                 key={item.name}
                 className="relative flex-shrink-0"
@@ -199,9 +209,7 @@ const Navbar = () => {
                   )}
                 </AnimatePresence>
               </div>
-              </>
-              );
-            })}
+            ))}
           </div>
 
           {/* Right side */}
@@ -263,11 +271,7 @@ const Navbar = () => {
                 </Link>
               )}
 
-              {user && accountType === "seller" && (
-                <Link to="/seller/dashboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-sm font-body text-gold flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" /> Seller Dashboard
-                </Link>
-              )}
+
 
               {/* Explore section in mobile */}
               <div className="px-4 py-2">

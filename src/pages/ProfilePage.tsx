@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck, BarChart3 } from "lucide-react";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
@@ -84,8 +84,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -149,7 +149,8 @@ const ProfilePage = () => {
   };
 
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard") => {
+    if (tab === "dashboard") { navigate("/seller/dashboard"); return; }
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
@@ -382,7 +383,11 @@ const ProfilePage = () => {
 
   const tabs = [
     { id: "profile", label: "Account", icon: User },
+    ...(profile.account_type === "seller" || profile.account_type === "shipping_company"
+      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }]
+      : []),
     { id: "wallet", label: "E-Wallet", icon: Wallet },
+    { id: "verification", label: "Verification", icon: BadgeCheck },
     { id: "purchases", label: "Purchases", icon: ShoppingBag },
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
@@ -475,7 +480,7 @@ const ProfilePage = () => {
                       variant="gold"
                       size="sm"
                       className="mt-3 w-full"
-                      onClick={() => handleTabChange("wallet")}
+                      onClick={() => handleTabChange("verification")}
                     >
                       <BadgeCheck className="w-4 h-4 mr-2" /> Verify Now
                     </Button>
@@ -662,10 +667,9 @@ const ProfilePage = () => {
                       <p className="font-display text-4xl">${wallet?.balance.toFixed(2) || "0.00"}</p>
                     </div>
 
-                    {/* PayPal Top-up + Verification */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/* PayPal Top-up */}
+                    <div className="mb-6">
                       <WalletTopUp />
-                      <VerificationUpload accountType="seller" />
                     </div>
 
                     {/* Deposit / Withdraw Buttons */}
@@ -683,12 +687,26 @@ const ProfilePage = () => {
                         variant="outline"
                         size="lg"
                         className="w-full"
-                        onClick={() => setShowWithdrawModal(true)}
+                        disabled={!profile.is_verified}
+                        title={!profile.is_verified ? "Complete identity verification to withdraw" : undefined}
+                        onClick={() => {
+                          if (!profile.is_verified) {
+                            toast({ title: "Verification required", description: "Please verify your identity before withdrawing funds.", variant: "destructive" });
+                            handleTabChange("verification");
+                            return;
+                          }
+                          setShowWithdrawModal(true);
+                        }}
                       >
                         <Minus className="w-5 h-5 mr-2" />
-                        Withdraw Funds
+                        Withdraw Funds {!profile.is_verified && "🔒"}
                       </Button>
                     </div>
+                    {!profile.is_verified && (
+                      <p className="text-xs text-yellow-500 mb-6 -mt-4">
+                        Withdrawals are locked until your identity verification is approved.
+                      </p>
+                    )}
 
                     {/* Transactions History */}
                     <h3 className="font-display text-lg mb-4 flex items-center gap-2">
@@ -714,6 +732,16 @@ const ProfilePage = () => {
                         ))}
                       </div>
                     )}
+                  </>
+                )}
+
+                {activeTab === "verification" && (
+                  <>
+                    <h2 className="font-display text-xl text-foreground mb-2">Identity Verification</h2>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Verify your identity to unlock withdrawals and earn the blue verified badge on your profile.
+                    </p>
+                    <VerificationUpload accountType={(profile.account_type === "shipping_company" ? "shipping_company" : "seller") as any} />
                   </>
                 )}
 
