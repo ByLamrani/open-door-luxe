@@ -141,6 +141,10 @@ const SellerDashboard = () => {
   };
 
   const getAIInsight = async (type: string) => {
+    if (subscriptionTier === "free") {
+      toast({ title: "AI is locked", description: "Upgrade to Vanta Connect Pro to unlock AI features." });
+      return;
+    }
     setIsLoadingAI(true);
     try {
       const { data, error } = await supabase.functions.invoke("seller-ai", {
