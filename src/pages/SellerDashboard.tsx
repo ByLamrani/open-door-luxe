@@ -54,6 +54,8 @@ const SellerDashboard = () => {
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [accountType, setAccountType] = useState<string>("buyer");
   const [verificationStatus, setVerificationStatus] = useState("pending");
+  const [subscriptionTier, setSubscriptionTier] = useState<string>("free");
+  const [isVerified, setIsVerified] = useState(false);
 
   // Mock metrics (in production, these come from real data)
   const [metrics] = useState<SellerMetrics>({
