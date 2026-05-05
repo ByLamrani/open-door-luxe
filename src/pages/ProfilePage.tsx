@@ -667,10 +667,9 @@ const ProfilePage = () => {
                       <p className="font-display text-4xl">${wallet?.balance.toFixed(2) || "0.00"}</p>
                     </div>
 
-                    {/* PayPal Top-up + Verification */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {/* PayPal Top-up */}
+                    <div className="mb-6">
                       <WalletTopUp />
-                      <VerificationUpload accountType="seller" />
                     </div>
 
                     {/* Deposit / Withdraw Buttons */}
@@ -688,12 +687,26 @@ const ProfilePage = () => {
                         variant="outline"
                         size="lg"
                         className="w-full"
-                        onClick={() => setShowWithdrawModal(true)}
+                        disabled={!profile.is_verified}
+                        title={!profile.is_verified ? "Complete identity verification to withdraw" : undefined}
+                        onClick={() => {
+                          if (!profile.is_verified) {
+                            toast({ title: "Verification required", description: "Please verify your identity before withdrawing funds.", variant: "destructive" });
+                            handleTabChange("verification");
+                            return;
+                          }
+                          setShowWithdrawModal(true);
+                        }}
                       >
                         <Minus className="w-5 h-5 mr-2" />
-                        Withdraw Funds
+                        Withdraw Funds {!profile.is_verified && "🔒"}
                       </Button>
                     </div>
+                    {!profile.is_verified && (
+                      <p className="text-xs text-yellow-500 mb-6 -mt-4">
+                        Withdrawals are locked until your identity verification is approved.
+                      </p>
+                    )}
 
                     {/* Transactions History */}
                     <h3 className="font-display text-lg mb-4 flex items-center gap-2">
@@ -719,6 +732,16 @@ const ProfilePage = () => {
                         ))}
                       </div>
                     )}
+                  </>
+                )}
+
+                {activeTab === "verification" && (
+                  <>
+                    <h2 className="font-display text-xl text-foreground mb-2">Identity Verification</h2>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Verify your identity to unlock withdrawals and earn the blue verified badge on your profile.
+                    </p>
+                    <VerificationUpload accountType={(profile.account_type === "shipping_company" ? "shipping_company" : "seller") as any} />
                   </>
                 )}
 
