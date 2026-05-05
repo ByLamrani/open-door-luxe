@@ -166,6 +166,9 @@ const SellerDashboard = () => {
 
   if (!user) return null;
 
+  const aiUnlocked = subscriptionTier !== "free";
+  const handleUpgrade = () => navigate("/profile", { state: { tab: "profile" } });
+
   const tabs = [
     { id: "overview", label: "Performance", icon: BarChart3 },
     { id: "inventory", label: "Inventory", icon: Package },
