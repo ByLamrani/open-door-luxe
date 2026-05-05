@@ -417,7 +417,24 @@ const SellerDashboard = () => {
                 <p className="text-sm text-muted-foreground">Get AI-powered insights to optimize your store</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {!aiUnlocked && (
+                <Card className="border-gold/40 bg-gold/5">
+                  <CardContent className="p-6 flex items-center justify-between gap-4 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <Lock className="w-6 h-6 text-gold" />
+                      <div>
+                        <p className="font-display text-lg text-foreground">AI Command Center is locked</p>
+                        <p className="text-sm text-muted-foreground">Unlock all AI features with Vanta Connect Pro — $20/mo.</p>
+                      </div>
+                    </div>
+                    <Button variant="gold" onClick={handleUpgrade}>
+                      <Sparkles className="w-4 h-4 mr-2" /> Upgrade Now
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+
+              <div className={`grid grid-cols-1 md:grid-cols-2 gap-4 ${!aiUnlocked ? "opacity-50 pointer-events-none select-none" : ""}`}>
                 {[
                   { type: "price_optimizer", label: "AI Price Optimizer", desc: "Scan market to find the sweet spot price", icon: DollarSign },
                   { type: "revenue_forecast", label: "Revenue Forecast", desc: "Predict next 30 days based on trends", icon: TrendingUp },
@@ -426,7 +443,7 @@ const SellerDashboard = () => {
                   { type: "discount_impact", label: "Discount Predictor", desc: "Predict impact of running a sale", icon: Sparkles },
                   { type: "ad_roi", label: "Ad-Spend ROI", desc: "Track returns on featured placement", icon: Eye },
                 ].map((tool) => (
-                  <Card key={tool.type} className="hover-lift cursor-pointer" onClick={() => getAIInsight(tool.type)}>
+                  <Card key={tool.type} className="hover-lift cursor-pointer" onClick={() => aiUnlocked ? getAIInsight(tool.type) : handleUpgrade()}>
                     <CardContent className="p-6">
                       <div className="flex items-center gap-3 mb-2">
                         <div className="p-2 rounded-lg bg-gold/10">
