@@ -89,11 +89,18 @@ const SellerDashboard = () => {
     // Check account type
     const { data: profile } = await supabase
       .from("profiles")
-      .select("account_type")
+      .select("account_type, subscription_tier, subscription_expires_at, is_verified")
       .eq("user_id", user.id)
       .single();
     
-    if (profile) setAccountType(profile.account_type || "buyer");
+    if (profile) {
+      setAccountType(profile.account_type || "buyer");
+      const tier = (profile as any).subscription_tier || "free";
+      const exp = (profile as any).subscription_expires_at;
+      const active = tier !== "free" && (!exp || new Date(exp).getTime() > Date.now());
+      setSubscriptionTier(active ? tier : "free");
+      setIsVerified(!!(profile as any).is_verified);
+    }
 
     // Fetch wallet
     const { data: walletData } = await supabase
