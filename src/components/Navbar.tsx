@@ -271,11 +271,7 @@ const Navbar = () => {
                 </Link>
               )}
 
-              {user && accountType === "seller" && (
-                <Link to="/seller/dashboard" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-sm font-body text-gold flex items-center gap-2">
-                  <BarChart3 className="w-4 h-4" /> Seller Dashboard
-                </Link>
-              )}
+
 
               {/* Explore section in mobile */}
               <div className="px-4 py-2">
