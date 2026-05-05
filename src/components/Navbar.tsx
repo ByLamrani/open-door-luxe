@@ -156,9 +156,9 @@ const Navbar = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: 10 }}
                     transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[480px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
+                    className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[680px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
                   >
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-3 gap-4">
                       {exploreCategories.map((cat) => (
                         <div key={cat.cluster}>
                           <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{cat.cluster}</p>
