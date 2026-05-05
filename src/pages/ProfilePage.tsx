@@ -383,7 +383,11 @@ const ProfilePage = () => {
 
   const tabs = [
     { id: "profile", label: "Account", icon: User },
+    ...(profile.account_type === "seller" || profile.account_type === "shipping_company"
+      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }]
+      : []),
     { id: "wallet", label: "E-Wallet", icon: Wallet },
+    { id: "verification", label: "Verification", icon: BadgeCheck },
     { id: "purchases", label: "Purchases", icon: ShoppingBag },
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
