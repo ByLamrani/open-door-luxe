@@ -10,12 +10,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrency, CURRENCIES } from "@/context/CurrencyContext";
 import SellerListings from "@/components/seller/SellerListings";
 import AIInsightCommand from "@/components/seller/AIInsightCommand";
+import SubscriptionPlans from "@/components/SubscriptionPlans";
 
 // (currency list now sourced from CurrencyContext.CURRENCIES)
 const currencies = CURRENCIES;
@@ -24,7 +26,7 @@ const feeStructure = {
   normal: { label: "Standard", listingFee: 0.10 },
   premium: { label: "Premium", listingFee: 10.00 },
   elite: { label: "Elite", listingFee: 15.00 },
-  transactionFee: 0.05,
+  transactionFee: 0.01,
   processingFee: 0.02,
   processingFixed: 0.15,
   aiFee: 0.03,
@@ -43,8 +45,10 @@ const SellerDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
+  const { setCurrency, format } = useCurrency();
   const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "finances" | "ai" | "settings">("overview");
   const [selectedCurrency, setSelectedCurrency] = useState("USD");
+  const [showPlans, setShowPlans] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [depositBalance, setDepositBalance] = useState(0);
   const [earningsBalance, setEarningsBalance] = useState(0);
@@ -136,7 +140,9 @@ const SellerDashboard = () => {
 
     if (sellerProfile) {
       setVerificationStatus((sellerProfile as any).verification_status || "pending");
-      setSelectedCurrency((sellerProfile as any).preferred_currency || "USD");
+      const preferredCurrency = (sellerProfile as any).preferred_currency || "USD";
+      setSelectedCurrency(preferredCurrency);
+      setCurrency(preferredCurrency as any);
     }
   };
 
@@ -160,8 +166,6 @@ const SellerDashboard = () => {
     }
   };
 
-  const currencySymbol = currencies.find(c => c.code === selectedCurrency)?.symbol || "$";
-
   const filteredTransactions = transactions.filter(tx => {
     if (walletFilter === "selling") return tx.transaction_type === "earning" || tx.transaction_type === "sale";
     if (walletFilter === "deposit") return tx.transaction_type === "deposit";
@@ -171,7 +175,7 @@ const SellerDashboard = () => {
   if (!user) return null;
 
   const aiUnlocked = subscriptionTier !== "free";
-  const handleUpgrade = () => navigate("/profile", { state: { tab: "profile" } });
+  const handleUpgrade = () => setShowPlans(true);
 
   const tabs = [
     { id: "overview", label: "Performance", icon: BarChart3 },
@@ -230,10 +234,10 @@ const SellerDashboard = () => {
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[
-                  { label: "Total Revenue", value: `${currencySymbol}${metrics.totalRevenue.toLocaleString()}`, icon: DollarSign, color: "text-green-500" },
-                  { label: "Net Profit", value: `${currencySymbol}${metrics.netProfit.toLocaleString()}`, icon: TrendingUp, color: "text-gold" },
+                  { label: "Total Revenue", value: format(metrics.totalRevenue), icon: DollarSign, color: "text-green-500" },
+                  { label: "Net Profit", value: format(metrics.netProfit), icon: TrendingUp, color: "text-gold" },
                   { label: "Conversion Rate", value: `${metrics.conversionRate}%`, icon: ShoppingCart, color: "text-blue-500" },
-                  { label: "Avg. Order Value", value: `${currencySymbol}${metrics.avgOrderValue}`, icon: BarChart3, color: "text-purple-500" },
+                  { label: "Avg. Order Value", value: format(metrics.avgOrderValue), icon: BarChart3, color: "text-purple-500" },
                 ].map((metric, i) => (
                   <motion.div key={i} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}>
                     <Card className="hover-lift">
@@ -257,7 +261,7 @@ const SellerDashboard = () => {
                     <div className="space-y-3">
                       <div className="flex justify-between"><span className="text-muted-foreground">Total Orders</span><span className="font-display">{metrics.totalOrders}</span></div>
                       <div className="flex justify-between"><span className="text-muted-foreground">Total Views</span><span className="font-display">{metrics.totalViews}</span></div>
-                      <div className="flex justify-between"><span className="text-muted-foreground">Fee Structure</span><span className="text-gold text-sm">5% + 2% + $0.15</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Fee Structure</span><span className="text-gold text-sm">1% sales fee + 2% + $0.15</span></div>
                     </div>
                   </CardContent>
                 </Card>
@@ -268,6 +272,7 @@ const SellerDashboard = () => {
                       <div className="flex justify-between"><span className="text-muted-foreground">Standard Listing</span><span>$0.10</span></div>
                       <div className="flex justify-between"><span className="text-muted-foreground">Premium Listing</span><span className="text-gold">$10.00</span></div>
                       <div className="flex justify-between"><span className="text-muted-foreground">Elite Listing</span><span className="text-purple-400">$15.00</span></div>
+                      <div className="flex justify-between"><span className="text-muted-foreground">Sales Fee</span><span>1%</span></div>
                       <div className="flex justify-between"><span className="text-muted-foreground">AI Advertising Fee</span><span>3%</span></div>
                     </div>
                   </CardContent>
@@ -351,19 +356,19 @@ const SellerDashboard = () => {
                 <Card className="bg-gradient-to-br from-gold/20 to-gold/5 border-gold/30">
                   <CardContent className="p-6">
                     <p className="text-sm text-muted-foreground mb-1">Total Balance</p>
-                    <p className="font-display text-3xl text-foreground">{currencySymbol}{walletBalance.toFixed(2)}</p>
+                    <p className="font-display text-3xl text-foreground">{format(walletBalance)}</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-6">
                     <p className="text-sm text-muted-foreground mb-1">From Deposits</p>
-                    <p className="font-display text-2xl text-blue-400">{currencySymbol}{depositBalance.toFixed(2)}</p>
+                    <p className="font-display text-2xl text-blue-400">{format(depositBalance)}</p>
                   </CardContent>
                 </Card>
                 <Card>
                   <CardContent className="p-6">
                     <p className="text-sm text-muted-foreground mb-1">Earnings</p>
-                    <p className="font-display text-2xl text-green-500">{currencySymbol}{earningsBalance.toFixed(2)}</p>
+                    <p className="font-display text-2xl text-green-500">{format(earningsBalance)}</p>
                   </CardContent>
                 </Card>
               </div>
@@ -401,7 +406,7 @@ const SellerDashboard = () => {
                             <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()} • {tx.description || ""}</p>
                           </div>
                           <span className={`font-display text-lg ${tx.amount > 0 ? "text-green-500" : "text-red-500"}`}>
-                            {tx.amount > 0 ? "+" : ""}{currencySymbol}{Math.abs(tx.amount).toFixed(2)}
+                            {tx.amount > 0 ? "+" : ""}{format(Math.abs(tx.amount))}
                           </span>
                         </div>
                       ))}
@@ -493,6 +498,7 @@ const SellerDashboard = () => {
                         key={c.code}
                         onClick={async () => {
                           setSelectedCurrency(c.code);
+                          setCurrency(c.code as any);
                           await supabase.from("seller_profiles" as any).update({ preferred_currency: c.code } as any).eq("user_id", user.id);
                           toast({ title: "Currency Updated", description: `Display currency set to ${c.name}` });
                         }}
@@ -539,7 +545,7 @@ const SellerDashboard = () => {
                     <div className="flex justify-between p-2 bg-muted rounded"><span>Normal Listing Fee</span><span>$0.10 / listing</span></div>
                     <div className="flex justify-between p-2 bg-muted rounded"><span>Premium Listing</span><span>$10.00 / listing</span></div>
                     <div className="flex justify-between p-2 bg-muted rounded"><span>Elite Listing</span><span>$15.00 / listing</span></div>
-                    <div className="flex justify-between p-2 bg-muted rounded"><span>Transaction Fee</span><span>5% per sale</span></div>
+                    <div className="flex justify-between p-2 bg-muted rounded"><span>Sales Fee</span><span>1% per item sold</span></div>
                     <div className="flex justify-between p-2 bg-muted rounded"><span>Payment Processing</span><span>2% + $0.15</span></div>
                     <div className="flex justify-between p-2 bg-muted rounded"><span>AI-Driven Advertising</span><span>3%</span></div>
                   </div>
@@ -550,6 +556,14 @@ const SellerDashboard = () => {
         </div>
       </main>
       <AIInsightCommand metrics={metrics} inventory={inventory} unlocked={aiUnlocked} onUpgrade={handleUpgrade} />
+      <Dialog open={showPlans} onOpenChange={setShowPlans}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Upgrade your plan</DialogTitle>
+          </DialogHeader>
+          <SubscriptionPlans accountType="seller" onSelected={() => setShowPlans(false)} />
+        </DialogContent>
+      </Dialog>
       <Footer />
     </div>
   );
