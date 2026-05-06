@@ -6,7 +6,8 @@ import { LANGUAGES } from "@/lib/i18n";
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
   const [open, setOpen] = useState(false);
-  const current = LANGUAGES.find((l) => l.code === i18n.language) ?? LANGUAGES[0];
+  const activeCode = i18n.resolvedLanguage || i18n.language;
+  const current = LANGUAGES.find((l) => activeCode?.startsWith(l.code)) ?? LANGUAGES[0];
 
   return (
     <div className="relative">
@@ -26,11 +27,11 @@ const LanguageSwitcher = () => {
               key={l.code}
               onMouseDown={(e) => { e.preventDefault(); i18n.changeLanguage(l.code); setOpen(false); }}
               className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-muted ${
-                l.code === i18n.language ? "text-gold" : "text-foreground/80"
+                activeCode?.startsWith(l.code) ? "text-gold" : "text-foreground/80"
               }`}
             >
               <span>{l.flag} {l.label}</span>
-              {l.code === i18n.language && <Check className="w-3.5 h-3.5" />}
+              {activeCode?.startsWith(l.code) && <Check className="w-3.5 h-3.5" />}
             </button>
           ))}
         </div>
