@@ -5,6 +5,7 @@ import { ShoppingBag, Menu, X, ChevronDown, User, Zap, BarChart3 } from "lucide-
 import logo from "@/assets/vanta-logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
+import { useTranslation } from "react-i18next";
 import ThemeToggle from "@/components/ThemeToggle";
 import ScentSentimentSearch from "@/components/ScentSentimentSearch";
 import { supabase } from "@/integrations/supabase/client";
@@ -110,6 +111,7 @@ const menuItems: MenuItem[] = [
 ];
 
 const Navbar = () => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [showExplore, setShowExplore] = useState(false);
@@ -127,6 +129,17 @@ const Navbar = () => {
   }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
+  const translatedMenuItems = menuItems.map((item) => ({
+    ...item,
+    name:
+      item.path === "/"
+        ? t("nav.home")
+        : item.path === "/track-order"
+        ? t("nav.trackOrder")
+        : item.path === "/contact"
+        ? t("nav.contact")
+        : item.name,
+  }));
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
@@ -181,7 +194,7 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            {menuItems.map((item) => (
+            {translatedMenuItems.map((item) => (
               <div
                 key={item.name}
                 className="relative flex-shrink-0"
@@ -235,12 +248,12 @@ const Navbar = () => {
                   )}
                 </Link>
                 <button onClick={() => signOut()} className="text-xs text-muted-foreground hover:text-gold transition-colors">
-                  Sign Out
+                   {t("nav.signOut")}
                 </button>
               </div>
             ) : (
               <Link to="/auth" className="hidden sm:flex items-center gap-1 px-3 py-1.5 text-sm font-body text-gold border border-gold/50 rounded-full hover:bg-gold/10 transition-colors">
-                <User className="w-4 h-4" /> Sign In
+                 <User className="w-4 h-4" /> {t("nav.signIn")}
               </Link>
             )}
 
@@ -267,7 +280,7 @@ const Navbar = () => {
             <div className="px-4 py-4 space-y-1">
               {!user && (
                 <Link to="/auth" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-sm font-body text-gold">
-                  Sign In / Sign Up
+                  {t("nav.signIn")}
                 </Link>
               )}
 
@@ -288,7 +301,7 @@ const Navbar = () => {
                 ))}
               </div>
 
-              {menuItems.map((item) => (
+              {translatedMenuItems.map((item) => (
                 <div key={item.name}>
                   <Link to={item.path} onClick={() => !item.submenu && setIsOpen(false)} className={`block px-4 py-3 text-sm font-body tracking-wide transition-colors ${isActive(item.path) ? "text-gold" : "text-foreground/80 hover:text-gold"}`}>
                     {item.name}
@@ -307,7 +320,7 @@ const Navbar = () => {
 
               {user && (
                 <button onClick={() => { signOut(); setIsOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-body text-muted-foreground hover:text-gold">
-                  Sign Out
+                  {t("nav.signOut")}
                 </button>
               )}
             </div>
