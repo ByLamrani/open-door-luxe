@@ -378,6 +378,7 @@ export type Database = {
       }
       seller_listings: {
         Row: {
+          bundle_price: number | null
           created_at: string
           description: string | null
           expires_at: string
@@ -385,14 +386,17 @@ export type Database = {
           image_url: string | null
           listing_fee: number
           listing_type: string
+          parent_listing_id: string | null
           price: number | null
           product_id: string | null
           seller_id: string
+          sort_order: number
           status: string
           title: string | null
           updated_at: string
         }
         Insert: {
+          bundle_price?: number | null
           created_at?: string
           description?: string | null
           expires_at?: string
@@ -400,14 +404,17 @@ export type Database = {
           image_url?: string | null
           listing_fee?: number
           listing_type?: string
+          parent_listing_id?: string | null
           price?: number | null
           product_id?: string | null
           seller_id: string
+          sort_order?: number
           status?: string
           title?: string | null
           updated_at?: string
         }
         Update: {
+          bundle_price?: number | null
           created_at?: string
           description?: string | null
           expires_at?: string
@@ -415,14 +422,24 @@ export type Database = {
           image_url?: string | null
           listing_fee?: number
           listing_type?: string
+          parent_listing_id?: string | null
           price?: number | null
           product_id?: string | null
           seller_id?: string
+          sort_order?: number
           status?: string
           title?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "seller_listings_parent_listing_id_fkey"
+            columns: ["parent_listing_id"]
+            isOneToOne: false
+            referencedRelation: "seller_listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       seller_profiles: {
         Row: {
