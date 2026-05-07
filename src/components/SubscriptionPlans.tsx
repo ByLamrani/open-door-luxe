@@ -17,6 +17,9 @@ interface Props {
 const SubscriptionPlans = ({ accountType, onSelected, showSkip }: Props) => {
   const { toast } = useToast();
   const [loading, setLoading] = useState<SubscriptionTier | null>(null);
+  const [payOpen, setPayOpen] = useState(false);
+  const [payTier, setPayTier] = useState<"buyer_pro" | "seller_pro">("buyer_pro");
+  const [payAmount, setPayAmount] = useState(0);
 
   const isSellerLike = accountType === "seller" || accountType === "shipping_company";
 
