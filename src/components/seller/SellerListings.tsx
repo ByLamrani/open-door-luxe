@@ -22,6 +22,8 @@ interface Listing {
   price: number | null;
   expires_at: string;
   listing_fee: number;
+  parent_listing_id?: string | null;
+  bundle_price?: number | null;
 }
 
 const SellerListings = () => {
@@ -33,8 +35,14 @@ const SellerListings = () => {
   const [type, setType] = useState<ListingType>("normal");
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState<number>(0);
+  const [bundlePrice, setBundlePrice] = useState<number>(0);
   const [description, setDescription] = useState("");
   const [busy, setBusy] = useState(false);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [addItemFor, setAddItemFor] = useState<Listing | null>(null);
+  const [childTitle, setChildTitle] = useState("");
+  const [childPrice, setChildPrice] = useState(0);
+  const [childDesc, setChildDesc] = useState("");
 
   const refresh = async () => {
     if (!user) return;
