@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck, BarChart3 } from "lucide-react";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck, BarChart3, Plug } from "lucide-react";
+import IntegrationsPanel from "@/components/integrations/IntegrationsPanel";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
@@ -84,8 +85,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard" | "apis">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard" | "apis">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -384,7 +385,7 @@ const ProfilePage = () => {
   const tabs = [
     { id: "profile", label: "Account", icon: User },
     ...(profile.account_type === "seller" || profile.account_type === "shipping_company"
-      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }]
+      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }, { id: "apis", label: "APIs", icon: Plug }]
       : []),
     { id: "wallet", label: "E-Wallet", icon: Wallet },
     { id: "verification", label: "Verification", icon: BadgeCheck },
@@ -742,6 +743,13 @@ const ProfilePage = () => {
                       Verify your identity to unlock withdrawals and earn the blue verified badge on your profile.
                     </p>
                     <VerificationUpload accountType={(profile.account_type === "shipping_company" ? "shipping_company" : "seller") as any} />
+                  </>
+                )}
+
+                {activeTab === "apis" && (
+                  <>
+                    <h2 className="font-display text-xl text-foreground mb-6">APIs & Integrations</h2>
+                    <IntegrationsPanel />
                   </>
                 )}
 

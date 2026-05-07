@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   BarChart3, DollarSign, TrendingUp, Package, AlertTriangle,
   ShoppingCart, Users, ArrowLeft, Wallet, History, Brain,
-  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2, Lock
+  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2, Lock, Plug, Truck, ClipboardList
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -18,6 +18,10 @@ import { useCurrency, CURRENCIES } from "@/context/CurrencyContext";
 import SellerListings from "@/components/seller/SellerListings";
 import AIInsightCommand from "@/components/seller/AIInsightCommand";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
+import SellerOrdersDashboard from "@/components/seller/SellerOrdersDashboard";
+import ShippingJobsDashboard from "@/components/shipping/ShippingJobsDashboard";
+import IntegrationsPanel from "@/components/integrations/IntegrationsPanel";
+import { AIDocumentAnalyzer, AIProductGenerator } from "@/components/seller/AIStudio";
 
 // (currency list now sourced from CurrencyContext.CURRENCIES)
 const currencies = CURRENCIES;
@@ -46,7 +50,7 @@ const SellerDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { setCurrency, format } = useCurrency();
-  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "finances" | "ai" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "shipping" | "finances" | "ai" | "apis" | "settings">("overview");
   const [selectedCurrency, setSelectedCurrency] = useState("USD");
   const [showPlans, setShowPlans] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
@@ -177,11 +181,15 @@ const SellerDashboard = () => {
   const aiUnlocked = subscriptionTier !== "free";
   const handleUpgrade = () => setShowPlans(true);
 
+  const isShipping = accountType === "shipping_company";
   const tabs = [
     { id: "overview", label: "Performance", icon: BarChart3 },
     { id: "inventory", label: "Inventory", icon: Package },
+    { id: "orders", label: "Orders", icon: ClipboardList },
+    ...(isShipping ? [{ id: "shipping", label: "Shipping", icon: Truck }] : []),
     { id: "finances", label: "Finances", icon: Wallet },
     { id: "ai", label: "AI Command", icon: Brain },
+    { id: "apis", label: "APIs", icon: Plug },
     { id: "settings", label: "Settings", icon: Globe },
   ];
 
@@ -345,8 +353,14 @@ const SellerDashboard = () => {
                   </div>
                 </CardContent>
               </Card>
+              <SellerListings />
             </div>
           )}
+
+          {activeTab === "orders" && <SellerOrdersDashboard />}
+          {activeTab === "shipping" && isShipping && <ShippingJobsDashboard />}
+          {activeTab === "apis" && <IntegrationsPanel />}
+
 
           {/* Financial Logistics */}
           {activeTab === "finances" && (
@@ -482,6 +496,13 @@ const SellerDashboard = () => {
                     )}
                   </CardContent>
                 </Card>
+              )}
+
+              {aiUnlocked && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                  <AIDocumentAnalyzer />
+                  <AIProductGenerator />
+                </div>
               )}
             </div>
           )}

@@ -139,6 +139,42 @@ export type Database = {
         }
         Relationships: []
       }
+      integration_keys: {
+        Row: {
+          api_key: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string | null
+          meta: Json
+          provider: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          api_key: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          meta?: Json
+          provider: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          api_key?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          meta?: Json
+          provider?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           created_at: string
@@ -570,6 +606,57 @@ export type Database = {
           updated_at?: string
           user_id?: string
           verification_status?: string
+        }
+        Relationships: []
+      }
+      shipping_jobs: {
+        Row: {
+          buyer_name: string | null
+          created_at: string
+          delivered_at: string | null
+          destination: string | null
+          id: string
+          notes: string | null
+          order_id: string | null
+          received_at: string | null
+          return_reason: string | null
+          returned_at: string | null
+          sent_at: string | null
+          shipper_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_name?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          destination?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          received_at?: string | null
+          return_reason?: string | null
+          returned_at?: string | null
+          sent_at?: string | null
+          shipper_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_name?: string | null
+          created_at?: string
+          delivered_at?: string | null
+          destination?: string | null
+          id?: string
+          notes?: string | null
+          order_id?: string | null
+          received_at?: string | null
+          return_reason?: string | null
+          returned_at?: string | null
+          sent_at?: string | null
+          shipper_id?: string
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
