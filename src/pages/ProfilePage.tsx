@@ -746,6 +746,13 @@ const ProfilePage = () => {
                   </>
                 )}
 
+                {activeTab === "apis" && (
+                  <>
+                    <h2 className="font-display text-xl text-foreground mb-6">APIs & Integrations</h2>
+                    <IntegrationsPanel />
+                  </>
+                )}
+
                 {activeTab === "purchases" && (
                   <>
                     <h2 className="font-display text-xl text-foreground mb-6">Purchase History</h2>
