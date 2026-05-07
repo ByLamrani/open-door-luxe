@@ -85,7 +85,7 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">(initialTab);
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard" | "apis">(initialTab);
   const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
