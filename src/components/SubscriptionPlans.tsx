@@ -74,31 +74,14 @@ const SubscriptionPlans = ({ accountType, onSelected, showSkip }: Props) => {
       onSelected?.(tier);
       return;
     }
-    setLoading(tier);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast({ title: "Please sign in first", variant: "destructive" });
-        return;
-      }
-      // Record pending subscription payment, activation happens after PayPal capture
-      const { error } = await supabase.from("subscription_payments" as any).insert({
-        user_id: user.id,
-        tier,
-        amount: price,
-        status: "pending",
-      });
-      if (error) throw error;
-      // For now, immediately activate (PayPal flow can be wired identically to wallet top-up)
-      const { error: actErr } = await supabase.rpc("activate_subscription" as any, { _tier: tier, _months: 1 });
-      if (actErr) throw actErr;
-      toast({ title: "Subscription activated 🎉", description: `${tier === "seller_pro" ? "Vanta Connect Pro" : "Vanta Connect"} is now active.` });
-      onSelected?.(tier);
-    } catch (err: any) {
-      toast({ title: "Error", description: err.message, variant: "destructive" });
-    } finally {
-      setLoading(null);
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      toast({ title: "Please sign in first", variant: "destructive" });
+      return;
     }
+    setPayTier(tier as any);
+    setPayAmount(price);
+    setPayOpen(true);
   };
 
   return (
