@@ -148,6 +148,13 @@ const SubscriptionPlans = ({ accountType, onSelected, showSkip }: Props) => {
           Skip for now — I'll choose later
         </button>
       )}
+      <UpgradePaymentDialog
+        open={payOpen}
+        onOpenChange={setPayOpen}
+        tier={payTier}
+        amount={payAmount}
+        onActivated={() => onSelected?.(payTier)}
+      />
     </div>
   );
 };
