@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import {
   BarChart3, DollarSign, TrendingUp, Package, AlertTriangle,
   ShoppingCart, Users, ArrowLeft, Wallet, History, Brain,
-  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2, Lock
+  Sparkles, Globe, RefreshCw, Bell, Eye, Loader2, Lock, Plug, Truck, ClipboardList
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -18,6 +18,10 @@ import { useCurrency, CURRENCIES } from "@/context/CurrencyContext";
 import SellerListings from "@/components/seller/SellerListings";
 import AIInsightCommand from "@/components/seller/AIInsightCommand";
 import SubscriptionPlans from "@/components/SubscriptionPlans";
+import SellerOrdersDashboard from "@/components/seller/SellerOrdersDashboard";
+import ShippingJobsDashboard from "@/components/shipping/ShippingJobsDashboard";
+import IntegrationsPanel from "@/components/integrations/IntegrationsPanel";
+import { AIDocumentAnalyzer, AIProductGenerator } from "@/components/seller/AIStudio";
 
 // (currency list now sourced from CurrencyContext.CURRENCIES)
 const currencies = CURRENCIES;
