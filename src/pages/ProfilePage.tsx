@@ -385,7 +385,7 @@ const ProfilePage = () => {
   const tabs = [
     { id: "profile", label: "Account", icon: User },
     ...(profile.account_type === "seller" || profile.account_type === "shipping_company"
-      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }]
+      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }, { id: "apis", label: "APIs", icon: Plug }]
       : []),
     { id: "wallet", label: "E-Wallet", icon: Wallet },
     { id: "verification", label: "Verification", icon: BadgeCheck },
