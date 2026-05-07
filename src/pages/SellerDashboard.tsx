@@ -50,7 +50,7 @@ const SellerDashboard = () => {
   const { user } = useAuth();
   const { toast } = useToast();
   const { setCurrency, format } = useCurrency();
-  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "finances" | "ai" | "settings">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "inventory" | "orders" | "shipping" | "finances" | "ai" | "apis" | "settings">("overview");
   const [selectedCurrency, setSelectedCurrency] = useState("USD");
   const [showPlans, setShowPlans] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
