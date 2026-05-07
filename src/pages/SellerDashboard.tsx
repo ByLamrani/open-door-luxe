@@ -181,11 +181,15 @@ const SellerDashboard = () => {
   const aiUnlocked = subscriptionTier !== "free";
   const handleUpgrade = () => setShowPlans(true);
 
+  const isShipping = accountType === "shipping_company";
   const tabs = [
     { id: "overview", label: "Performance", icon: BarChart3 },
     { id: "inventory", label: "Inventory", icon: Package },
+    { id: "orders", label: "Orders", icon: ClipboardList },
+    ...(isShipping ? [{ id: "shipping", label: "Shipping", icon: Truck }] : []),
     { id: "finances", label: "Finances", icon: Wallet },
     { id: "ai", label: "AI Command", icon: Brain },
+    { id: "apis", label: "APIs", icon: Plug },
     { id: "settings", label: "Settings", icon: Globe },
   ];
 
