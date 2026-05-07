@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Package, Plus, Layers, Trash2, Clock } from "lucide-react";
+import { Package, Plus, Layers, Trash2, Clock, ChevronDown, ChevronRight } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
