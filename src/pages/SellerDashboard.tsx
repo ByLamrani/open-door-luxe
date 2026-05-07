@@ -354,7 +354,16 @@ const SellerDashboard = () => {
                 </CardContent>
               </Card>
             </div>
+              <SellerListings />
+            </div>
           )}
+
+          {activeTab === "orders" && <SellerOrdersDashboard />}
+          {activeTab === "shipping" && isShipping && <ShippingJobsDashboard />}
+          {activeTab === "apis" && <IntegrationsPanel />}
+
+          {false && (
+            <div>
 
           {/* Financial Logistics */}
           {activeTab === "finances" && (
