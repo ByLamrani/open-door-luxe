@@ -4,6 +4,7 @@ import { Check, Sparkles, Bot, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import UpgradePaymentDialog from "@/components/UpgradePaymentDialog";
 
 export type SubscriptionTier = "free" | "seller_pro" | "buyer_pro";
 
