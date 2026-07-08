@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, ChevronDown, User, Zap, BarChart3 } from "lucide-react";
-import logo from "@/assets/vanta-logo.png";
+import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
+import logo from "@/assets/lamralux-logo.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -11,77 +11,27 @@ import ScentSentimentSearch from "@/components/ScentSentimentSearch";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
+import { exploreCategories } from "@/data/exploreCategories";
 
 interface SubMenuItem {
   name: string;
   path: string;
+  tKey?: string;
 }
 
 interface MenuItem {
   name: string;
   path: string;
+  tKey?: string;
   submenu?: SubMenuItem[];
 }
 
-// Explore mega-menu clusters
-const exploreCategories = [
-  {
-    cluster: "Luxury & Lifestyle",
-    items: [
-      { name: "Fragrance Vault", path: "/fragrances" },
-      { name: "Wellness Rituals", path: "/self-care/spa" },
-      { name: "Executive Gift Sets", path: "/collections" },
-      { name: "Limited Drops", path: "/new" },
-    ],
-  },
-  {
-    cluster: "Tech & Gear",
-    items: [
-      { name: "Smart Accessories", path: "/watches" },
-      { name: "Horology & Time", path: "/watches/men" },
-      { name: "Home Electronics", path: "/home-electronics" },
-    ],
-  },
-  {
-    cluster: "Wellness & Beauty",
-    items: [
-      { name: "The Grooming Suite", path: "/self-care/tondeuse" },
-      { name: "Organic Apothecary", path: "/self-care/massage" },
-      { name: "Personalized Self-Care", path: "/self-care" },
-    ],
-  },
-  {
-    cluster: "Art & Living",
-    items: [
-      { name: "Atmospheric Living", path: "/air-diffusers" },
-      { name: "Home Decor", path: "/home-decor" },
-      { name: "Lighting & Ambience", path: "/lighting" },
-    ],
-  },
-  {
-    cluster: "Home & Living",
-    items: [
-      { name: "Housing Furniture", path: "/housing-furniture" },
-      { name: "Kitchen Tools", path: "/kitchen-tools" },
-      { name: "Bedroom Essentials", path: "/bedroom" },
-      { name: "Bath & Linen", path: "/bath-linen" },
-    ],
-  },
-  {
-    cluster: "Fashion & Accessories",
-    items: [
-      { name: "Bags & Leather", path: "/bags" },
-      { name: "Jewelry", path: "/jewelry" },
-      { name: "Eyewear", path: "/eyewear" },
-    ],
-  },
-];
-
 const menuItems: MenuItem[] = [
-  { name: "Home", path: "/" },
+  { name: "Home", path: "/", tKey: "nav.home" },
   {
     name: "Self-Care",
     path: "/self-care",
+    tKey: "nav.selfCare",
     submenu: [
       { name: "Tondeuse", path: "/self-care/tondeuse" },
       { name: "Pack de Soin/SPA", path: "/self-care/spa" },
@@ -91,23 +41,25 @@ const menuItems: MenuItem[] = [
   {
     name: "Fragrances",
     path: "/fragrances",
+    tKey: "nav.fragrances",
     submenu: [
       { name: "For Men", path: "/fragrances/men" },
       { name: "For Women", path: "/fragrances/women" },
     ],
   },
-  { name: "Air Diffusers", path: "/air-diffusers" },
+  { name: "Air Diffusers", path: "/air-diffusers", tKey: "nav.airDiffusers" },
   {
     name: "Watches",
     path: "/watches",
+    tKey: "nav.watches",
     submenu: [
       { name: "For Men", path: "/watches/men" },
       { name: "For Women", path: "/watches/women" },
     ],
   },
-  { name: "Track Order", path: "/track-order" },
-  { name: "Why Us", path: "/why-us" },
-  { name: "Contact", path: "/contact" },
+  { name: "Track Order", path: "/track-order", tKey: "nav.trackOrder" },
+  { name: "Why Us", path: "/why-us", tKey: "nav.whyUs" },
+  { name: "Contact", path: "/contact", tKey: "nav.contact" },
 ];
 
 const Navbar = () => {
@@ -115,7 +67,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [showExplore, setShowExplore] = useState(false);
-  const [accountType, setAccountType] = useState<string>("buyer");
+  const [, setAccountType] = useState<string>("buyer");
   const location = useLocation();
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
@@ -129,17 +81,6 @@ const Navbar = () => {
   }, [user]);
 
   const isActive = (path: string) => location.pathname === path;
-  const translatedMenuItems = menuItems.map((item) => ({
-    ...item,
-    name:
-      item.path === "/"
-        ? t("nav.home")
-        : item.path === "/track-order"
-        ? t("nav.trackOrder")
-        : item.path === "/contact"
-        ? t("nav.contact")
-        : item.name,
-  }));
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
@@ -147,7 +88,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <motion.img src={logo} alt="VANTA by Lamrani" className="h-14 w-auto rounded-md" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} />
+            <motion.img src={logo} alt="LamraLux by Lamrani" className="h-14 w-auto" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} />
           </Link>
 
           {/* Desktop Navigation */}
@@ -159,7 +100,7 @@ const Navbar = () => {
               onMouseLeave={() => setShowExplore(false)}
             >
               <button className="px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap text-gold hover:text-gold/80 font-semibold">
-                ✦ Explore
+                ✦ {t("nav.explore")}
                 <ChevronDown className="w-3 h-3" />
               </button>
               <AnimatePresence>
@@ -174,7 +115,7 @@ const Navbar = () => {
                     <div className="grid grid-cols-3 gap-4">
                       {exploreCategories.map((cat) => (
                         <div key={cat.cluster}>
-                          <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{cat.cluster}</p>
+                          <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{t(cat.translationKey)}</p>
                           <div className="space-y-1">
                             {cat.items.map((item) => (
                               <Link
@@ -182,7 +123,7 @@ const Navbar = () => {
                                 to={item.path}
                                 className="block px-3 py-1.5 text-sm font-body text-foreground/80 hover:text-gold hover:bg-gold/5 rounded transition-colors"
                               >
-                                {item.name}
+                                {item.translationKey ? t(item.translationKey) : item.name}
                               </Link>
                             ))}
                           </div>
@@ -194,7 +135,7 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            {translatedMenuItems.map((item) => (
+            {menuItems.map((item) => (
               <div
                 key={item.name}
                 className="relative flex-shrink-0"
@@ -207,7 +148,7 @@ const Navbar = () => {
                     isActive(item.path) ? "text-gold" : "text-foreground/80 hover:text-gold"
                   }`}
                 >
-                  {item.name}
+                  {item.tKey ? t(item.tKey) : item.name}
                   {item.submenu && <ChevronDown className="w-3 h-3" />}
                 </Link>
                 <AnimatePresence>
@@ -235,9 +176,6 @@ const Navbar = () => {
             <LanguageSwitcher />
             <ThemeToggle />
 
-            {/* Seller Dashboard now lives inline in nav next to Track Order */}
-
-            {/* Auth Button */}
             {user ? (
               <div className="hidden sm:flex items-center gap-2">
                 <Link to="/profile" className="p-2 text-foreground/80 hover:text-gold transition-colors">
@@ -284,27 +222,24 @@ const Navbar = () => {
                 </Link>
               )}
 
-
-
-              {/* Explore section in mobile */}
               <div className="px-4 py-2">
-                <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-2">✦ Explore</p>
+                <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-2">✦ {t("nav.explore")}</p>
                 {exploreCategories.map((cat) => (
                   <div key={cat.cluster} className="ml-2 mb-2">
-                    <p className="text-xs text-muted-foreground mb-1">{cat.cluster}</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t(cat.translationKey)}</p>
                     {cat.items.map((item) => (
                       <Link key={item.name} to={item.path} onClick={() => setIsOpen(false)} className="block px-3 py-1 text-sm text-foreground/80 hover:text-gold">
-                        {item.name}
+                        {item.translationKey ? t(item.translationKey) : item.name}
                       </Link>
                     ))}
                   </div>
                 ))}
               </div>
 
-              {translatedMenuItems.map((item) => (
+              {menuItems.map((item) => (
                 <div key={item.name}>
                   <Link to={item.path} onClick={() => !item.submenu && setIsOpen(false)} className={`block px-4 py-3 text-sm font-body tracking-wide transition-colors ${isActive(item.path) ? "text-gold" : "text-foreground/80 hover:text-gold"}`}>
-                    {item.name}
+                    {item.tKey ? t(item.tKey) : item.name}
                   </Link>
                   {item.submenu && (
                     <div className="ml-4 border-l border-border">

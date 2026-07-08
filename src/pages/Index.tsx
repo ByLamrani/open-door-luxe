@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import DoorEntry from "@/components/DoorEntry";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -10,15 +11,17 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts } from "@/data/products";
-import vantaLogo from "@/assets/vanta-logo.png";
-import blueLamrani from "@/assets/blue-lamrani.png";
+import lamraluxLogo from "@/assets/lamralux-logo.png";
+import { exploreCategories } from "@/data/exploreCategories";
 
 const Index = () => {
+  const { t } = useTranslation();
   const [hasEntered, setHasEntered] = useState(false);
   const [showContent, setShowContent] = useState(false);
 
   const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
+  const heroItems = diverseProducts.slice(0, 4);
 
   useEffect(() => {
     const entered = sessionStorage.getItem("aleLifestyleEntered");
@@ -50,29 +53,27 @@ const Index = () => {
           <Navbar />
 
           {/* Hero Section */}
-          <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
-            {/* Background Effects */}
+          <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-background to-card" />
-            <div 
+            <div
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
               style={{ background: "var(--gradient-radial-gold)" }}
             />
 
             <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-              {/* Lamrani Logo Image - Large Golden with Glow Effect */}
+              {/* LamraLux Logo */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.8, delay: 0.2 }}
-                className="mb-4"
+                className="mb-6"
               >
-                <img 
-                  src={vantaLogo}
-                  alt="VANTA by Lamrani"
-                  className="w-[280px] sm:w-[380px] md:w-[460px] lg:w-[540px] mx-auto select-none rounded-xl"
+                <img
+                  src={lamraluxLogo}
+                  alt="LamraLux by Lamrani"
+                  className="w-[300px] sm:w-[420px] md:w-[520px] lg:w-[600px] mx-auto select-none"
                   style={{
-                    filter: "drop-shadow(0 0 40px hsl(197 100% 50% / 0.5)) drop-shadow(0 0 80px hsl(197 100% 50% / 0.3))",
-                    background: "transparent",
+                    filter: "drop-shadow(0 0 40px hsl(197 100% 50% / 0.45)) drop-shadow(0 0 80px hsl(197 100% 50% / 0.25))",
                   }}
                 />
               </motion.div>
@@ -83,7 +84,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.4 }}
                 className="font-display text-4xl md:text-6xl lg:text-7xl text-foreground mb-4"
               >
-                Elevate Your <span className="text-gradient-gold italic">LifeStyle</span>
+                {t("hero.title1")} <span className="text-gradient-gold italic">{t("hero.titleAccent")}</span>
               </motion.h1>
 
               <motion.p
@@ -92,8 +93,7 @@ const Index = () => {
                 transition={{ duration: 0.8, delay: 0.6 }}
                 className="font-body text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
               >
-                Discover our curated collection of premium self-care products, 
-                exquisite fragrances, and luxury accessories.
+                {t("hero.subtitle")}
               </motion.p>
 
               <motion.div
@@ -104,27 +104,91 @@ const Index = () => {
               >
                 <Button variant="gold" size="lg" asChild>
                   <Link to="/self-care">
-                    Explore Collection
+                    {t("hero.exploreCollection")}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" asChild>
-                  <Link to="/why-us">Why Choose Us</Link>
+                  <Link to="/why-us">{t("hero.whyChoose")}</Link>
                 </Button>
               </motion.div>
 
-              {/* Payment Info Badge */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="mt-12 inline-flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-full"
+                className="mt-8 inline-flex items-center gap-2 px-4 py-2 bg-gold/10 border border-gold/30 rounded-full"
               >
                 <Sparkles className="w-4 h-4 text-gold" />
                 <span className="font-body text-sm text-gold">
-                  Up to 8% OFF on Online Payments
+                  {t("hero.discountBadge")}
                 </span>
               </motion.div>
+
+              {/* Hero featured items strip */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.8 }}
+                className="mt-14"
+              >
+                <p className="text-xs uppercase tracking-[0.3em] text-gold mb-6">
+                  ✦ {t("hero.featured")}
+                </p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+                  {heroItems.map((product) => (
+                    <ProductCard key={product.id} {...product} />
+                  ))}
+                </div>
+              </motion.div>
+            </div>
+          </section>
+
+          {/* Explore mega-section */}
+          <section className="py-20 bg-card border-y border-border">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="text-center mb-12"
+              >
+                <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
+                  ✦ <span className="text-gradient-gold">{t("nav.explore")}</span>
+                </h2>
+                <p className="font-body text-muted-foreground max-w-xl mx-auto">
+                  {t("footer.discoverExplore")}
+                </p>
+              </motion.div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
+                {exploreCategories.map((cat, i) => (
+                  <motion.div
+                    key={cat.cluster}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.05 }}
+                    className="p-5 rounded-xl bg-background/50 border border-border hover:border-gold/40 transition-colors"
+                  >
+                    <p className="text-xs font-semibold text-gold uppercase tracking-wider mb-3">
+                      {t(cat.translationKey)}
+                    </p>
+                    <ul className="space-y-2">
+                      {cat.items.map((item) => (
+                        <li key={item.name}>
+                          <Link
+                            to={item.path}
+                            className="block text-sm font-body text-foreground/80 hover:text-gold transition-colors"
+                          >
+                            {item.translationKey ? t(item.translationKey) : item.name}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </section>
 
@@ -136,10 +200,10 @@ const Index = () => {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
                 {[
-                  { icon: CreditCard, text: "Up to 8% OFF Online" },
-                  { icon: Truck, text: "Cash on Delivery" },
-                  { icon: Shield, text: "Secure Shopping" },
-                  { icon: Sparkles, text: "Premium Quality" },
+                  { icon: CreditCard, text: t("features.onlineDiscount") },
+                  { icon: Truck, text: t("features.cod") },
+                  { icon: Shield, text: t("features.secure") },
+                  { icon: Sparkles, text: t("features.premium") },
                 ].map((feature, i) => (
                   <motion.div
                     key={i}
@@ -169,10 +233,10 @@ const Index = () => {
                 className="text-center mb-12"
               >
                 <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                  Explore <span className="text-gradient-gold">Collection</span>
+                  {t("section.exploreCollection").split(" ")[0]} <span className="text-gradient-gold">{t("section.exploreCollection").split(" ").slice(1).join(" ")}</span>
                 </h2>
                 <p className="font-body text-muted-foreground max-w-xl mx-auto">
-                  Discover our diverse range of premium products across all categories.
+                  {t("section.exploreDesc")}
                 </p>
               </motion.div>
 
@@ -194,21 +258,21 @@ const Index = () => {
                 className="text-center mb-12"
               >
                 <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                  Shop by <span className="text-gradient-gold">Category</span>
+                  <span className="text-gradient-gold">{t("section.shopByCategory")}</span>
                 </h2>
               </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {[
-                  { name: "Self-Care", path: "/self-care", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600" },
-                  { name: "Fragrances", path: "/fragrances", image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=600" },
-                  { name: "Air Diffusers", path: "/air-diffusers", image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600" },
+                  { name: t("nav.selfCare"), path: "/self-care", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600" },
+                  { name: t("nav.fragrances"), path: "/fragrances", image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=600" },
+                  { name: t("nav.airDiffusers"), path: "/air-diffusers", image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600" },
                   { name: "Men's Watches", path: "/watches/men", image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600" },
                   { name: "Women's Watches", path: "/watches/women", image: "https://images.unsplash.com/photo-1549972574-8e3e1ed6a347?w=600" },
-                  { name: "New Arrivals", path: "/new", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
+                  { name: t("section.newArrivals"), path: "/new", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
                 ].map((category, i) => (
                   <motion.div
-                    key={category.name}
+                    key={i}
                     initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
@@ -226,7 +290,7 @@ const Index = () => {
                           {category.name}
                         </h3>
                         <span className="font-body text-sm text-gold/80 flex items-center gap-1 mt-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                          Shop Now <ArrowRight className="w-4 h-4" />
+                          {t("section.shopNow")} <ArrowRight className="w-4 h-4" />
                         </span>
                       </div>
                     </Link>
@@ -246,10 +310,10 @@ const Index = () => {
                 className="text-center mb-12"
               >
                 <h2 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                  New <span className="text-gradient-gold">Arrivals</span>
+                  <span className="text-gradient-gold">{t("section.newArrivals")}</span>
                 </h2>
                 <p className="font-body text-muted-foreground max-w-xl mx-auto">
-                  Be the first to discover our latest additions.
+                  {t("section.newArrivalsDesc")}
                 </p>
               </motion.div>
 
@@ -263,7 +327,7 @@ const Index = () => {
 
           {/* CTA Section */}
           <section className="py-20 bg-card relative overflow-hidden">
-            <div 
+            <div
               className="absolute inset-0 opacity-20"
               style={{ background: "var(--gradient-radial-gold)" }}
             />
@@ -274,20 +338,20 @@ const Index = () => {
                 viewport={{ once: true }}
               >
                 <h2 className="font-display text-3xl md:text-4xl text-foreground mb-6">
-                  Ready to <span className="text-gradient-gold">Elevate</span> Your Lifestyle?
+                  <span className="text-gradient-gold">{t("section.readyElevate")}</span>
                 </h2>
                 <p className="font-body text-muted-foreground mb-8">
-                  Join thousands of satisfied customers who have discovered the art of refined living.
+                  {t("section.readyDesc")}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Button variant="gold" size="lg" asChild>
                     <Link to="/self-care">
-                      Start Shopping
+                      {t("section.startShopping")}
                       <ArrowRight className="ml-2 w-5 h-5" />
                     </Link>
                   </Button>
                   <Button variant="outline" size="lg" asChild>
-                    <Link to="/contact">Contact Us</Link>
+                    <Link to="/contact">{t("section.contactUs")}</Link>
                   </Button>
                 </div>
               </motion.div>
@@ -295,8 +359,6 @@ const Index = () => {
           </section>
 
           <Footer />
-          
-          {/* AI Chatbot */}
           <AIChatbot />
         </motion.div>
       )}
