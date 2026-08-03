@@ -209,9 +209,9 @@
   .animate-shimmer {
     background: linear-gradient(
       90deg,
-      hsl(197 100% 50% / 0) 0%,
-      hsl(197 100% 70% / 0.3) 50%,
-      hsl(197 100% 50% / 0) 100%
+      hsl(0 0% 0% / 0) 0%,
+      hsl(0 0% 0% / 0.12) 50%,
+      hsl(0 0% 0% / 0) 100%
     );
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
@@ -232,10 +232,10 @@
 
   @keyframes pulseGold {
     0%, 100% {
-      box-shadow: 0 0 20px hsl(197 100% 50% / 0.2);
+      box-shadow: 0 0 20px hsl(var(--foreground) / 0.15);
     }
     50% {
-      box-shadow: 0 0 40px hsl(197 100% 50% / 0.4);
+      box-shadow: 0 0 40px hsl(var(--foreground) / 0.3);
     }
   }
 }
