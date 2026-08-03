@@ -151,7 +151,6 @@ const ProfilePage = () => {
 
   // Track tab changes for back navigation
   const handleTabChange = (tab: "profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard") => {
-    if (tab === "dashboard") { navigate("/seller/dashboard"); return; }
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
@@ -384,11 +383,7 @@ const ProfilePage = () => {
 
   const tabs = [
     { id: "profile", label: "Account", icon: User },
-    ...(profile.account_type === "seller" || profile.account_type === "shipping_company"
-      ? [{ id: "dashboard", label: "Dashboard", icon: BarChart3 }, { id: "apis", label: "APIs", icon: Plug }]
-      : []),
     { id: "wallet", label: "E-Wallet", icon: Wallet },
-    { id: "verification", label: "Verification", icon: BadgeCheck },
     { id: "purchases", label: "Purchases", icon: ShoppingBag },
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
@@ -592,67 +587,6 @@ const ProfilePage = () => {
                       </div>
                     </div>
 
-                    {/* Account Type & Subscription */}
-                    <div className="border border-border rounded-xl p-5 mb-6 bg-muted/30">
-                      <div className="flex items-center justify-between flex-wrap gap-3 mb-3">
-                        <div>
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Account Type</p>
-                          <p className="font-display text-lg capitalize text-gold">{profile.account_type.replace("_", " ")}</p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground uppercase tracking-wider">Plan</p>
-                          <p className="font-display text-lg capitalize">
-                            {profile.subscription_tier === "free" ? "Free" : profile.subscription_tier === "seller_pro" ? "Vanta Connect Pro" : "Vanta Connect"}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        {profile.account_type === "buyer" && (
-                          <Button variant="gold" size="sm" onClick={() => setShowUpgrade(!showUpgrade)}>
-                            <Store className="w-4 h-4 mr-2" /> Become a Seller
-                          </Button>
-                        )}
-                        <Button variant="outline" size="sm" onClick={() => setShowPlans(!showPlans)}>
-                          <Sparkles className="w-4 h-4 mr-2" /> {profile.subscription_tier === "free" ? "Upgrade Plan" : "Manage Plan"}
-                        </Button>
-                      </div>
-
-                      {showUpgrade && profile.account_type === "buyer" && (
-                        <div className="mt-4 space-y-2">
-                          <Label>Business Name (optional)</Label>
-                          <Input value={upgradeBusinessName} onChange={(e) => setUpgradeBusinessName(e.target.value)} placeholder="Your brand or business" />
-                          <Button
-                            variant="gold"
-                            size="sm"
-                            disabled={upgrading}
-                            onClick={async () => {
-                              setUpgrading(true);
-                              const { error } = await supabase.rpc("upgrade_to_seller" as any, { _business_name: upgradeBusinessName || null });
-                              setUpgrading(false);
-                              if (error) {
-                                toast({ title: "Upgrade failed", description: error.message, variant: "destructive" });
-                              } else {
-                                toast({ title: "You're now a Seller 🎉", description: "Your dashboard is unlocked." });
-                                setShowUpgrade(false);
-                                fetchProfile();
-                              }
-                            }}
-                          >
-                            {upgrading ? "Upgrading..." : "Confirm Upgrade"}
-                          </Button>
-                        </div>
-                      )}
-
-                      {showPlans && (
-                        <div className="mt-4">
-                          <SubscriptionPlans
-                            accountType={profile.account_type as any}
-                            onSelected={() => { setShowPlans(false); fetchProfile(); }}
-                          />
-                        </div>
-                      )}
-                    </div>
-
                     {/* Saved Card Section */}
                     <SavedCardSection />
                   </>
@@ -688,26 +622,12 @@ const ProfilePage = () => {
                         variant="outline"
                         size="lg"
                         className="w-full"
-                        disabled={!profile.is_verified}
-                        title={!profile.is_verified ? "Complete identity verification to withdraw" : undefined}
-                        onClick={() => {
-                          if (!profile.is_verified) {
-                            toast({ title: "Verification required", description: "Please verify your identity before withdrawing funds.", variant: "destructive" });
-                            handleTabChange("verification");
-                            return;
-                          }
-                          setShowWithdrawModal(true);
-                        }}
+                        onClick={() => setShowWithdrawModal(true)}
                       >
                         <Minus className="w-5 h-5 mr-2" />
-                        Withdraw Funds {!profile.is_verified && "🔒"}
+                        Withdraw Funds
                       </Button>
                     </div>
-                    {!profile.is_verified && (
-                      <p className="text-xs text-yellow-500 mb-6 -mt-4">
-                        Withdrawals are locked until your identity verification is approved.
-                      </p>
-                    )}
 
                     {/* Transactions History */}
                     <h3 className="font-display text-lg mb-4 flex items-center gap-2">
@@ -733,23 +653,6 @@ const ProfilePage = () => {
                         ))}
                       </div>
                     )}
-                  </>
-                )}
-
-                {activeTab === "verification" && (
-                  <>
-                    <h2 className="font-display text-xl text-foreground mb-2">Identity Verification</h2>
-                    <p className="text-sm text-muted-foreground mb-6">
-                      Verify your identity to unlock withdrawals and earn the blue verified badge on your profile.
-                    </p>
-                    <VerificationUpload accountType={(profile.account_type === "shipping_company" ? "shipping_company" : "seller") as any} />
-                  </>
-                )}
-
-                {activeTab === "apis" && (
-                  <>
-                    <h2 className="font-display text-xl text-foreground mb-6">APIs & Integrations</h2>
-                    <IntegrationsPanel />
                   </>
                 )}
 
