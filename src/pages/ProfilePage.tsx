@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, Store, Sparkles, BadgeCheck, BarChart3, Plug } from "lucide-react";
-import IntegrationsPanel from "@/components/integrations/IntegrationsPanel";
-import SubscriptionPlans from "@/components/SubscriptionPlans";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, BadgeCheck } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
 import Navbar from "@/components/Navbar";
@@ -17,7 +15,6 @@ import DepositModal from "@/components/DepositModal";
 import SavedCardSection from "@/components/SavedCardSection";
 import { getProductById } from "@/data/products";
 import WalletTopUp from "@/components/wallet/WalletTopUp";
-import VerificationUpload from "@/components/verification/VerificationUpload";
 
 interface Profile {
   full_name: string;
@@ -85,8 +82,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard" | "apis">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard" | "apis">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -150,7 +147,7 @@ const ProfilePage = () => {
   };
 
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "verification" | "purchases" | "favorites" | "media" | "reminders" | "dashboard") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
@@ -471,16 +468,6 @@ const ProfilePage = () => {
                     )}
                   </div>
                   <p className="font-body text-sm text-muted-foreground">{profile.email}</p>
-                  {!profile.is_verified && (
-                    <Button
-                      variant="gold"
-                      size="sm"
-                      className="mt-3 w-full"
-                      onClick={() => handleTabChange("verification")}
-                    >
-                      <BadgeCheck className="w-4 h-4 mr-2" /> Verify Now
-                    </Button>
-                  )}
                 </div>
 
                 {/* Navigation Tabs */}
