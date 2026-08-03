@@ -266,33 +266,6 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
-                {/* Account Type Selection */}
-                <div className="space-y-2">
-                  <Label>Account Type *</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { type: "buyer" as AccountType, label: "Buyer", icon: User, desc: "Shop & buy" },
-                      { type: "seller" as AccountType, label: "Seller", icon: Store, desc: "Sell products" },
-                      { type: "shipping_company" as AccountType, label: "Shipping", icon: TruckIcon, desc: "Deliver orders" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.type}
-                        type="button"
-                        onClick={() => setAccountType(opt.type)}
-                        className={`p-3 rounded-lg border text-center transition-all ${
-                          accountType === opt.type
-                            ? "border-gold bg-gold/10 text-gold"
-                            : "border-border hover:border-gold/50 text-muted-foreground"
-                        }`}
-                      >
-                        <opt.icon className="w-5 h-5 mx-auto mb-1" />
-                        <p className="text-xs font-medium">{opt.label}</p>
-                        <p className="text-[10px] opacity-70">{opt.desc}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name *</Label>
                   <div className="relative">
@@ -301,53 +274,7 @@ const AuthPage = () => {
                   </div>
                 </div>
 
-                {/* Seller: Business Name */}
-                {accountType === "seller" && (
-                  <div className="space-y-2">
-                    <Label>Business Name</Label>
-                    <div className="relative">
-                      <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your Brand Name" className="pl-10" />
-                    </div>
-                  </div>
-                )}
 
-                {/* Shipping Company: Country-specific legal fields */}
-                {accountType === "shipping_company" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label>Company Name *</Label>
-                      <div className="relative">
-                        <TruckIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Shipping Co." className="pl-10" required />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Country of Origin *</Label>
-                      <select
-                        value={countryOfOrigin}
-                        onChange={(e) => setCountryOfOrigin(e.target.value)}
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                      >
-                        {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{getMoroccoLegalLabel()} *</Label>
-                      <Input value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} placeholder={countryOfOrigin === "Morocco" ? "RC-XXXXX" : "REG-XXXXX"} />
-                    </div>
-                    {showSiegeSocial && (
-                      <div className="space-y-2">
-                        <Label>Siège Social *</Label>
-                        <Input value={siegeSocial} onChange={(e) => setSiegeSocial(e.target.value)} placeholder="Company headquarters address" />
-                      </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label>Legal Address</Label>
-                      <Input value={legalAddress} onChange={(e) => setLegalAddress(e.target.value)} placeholder="Legal business address" />
-                    </div>
-                  </>
-                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="phone">Phone Number</Label>
