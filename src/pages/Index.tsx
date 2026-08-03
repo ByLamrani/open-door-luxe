@@ -59,7 +59,7 @@ const Index = () => {
 
           {/* Hero Section */}
           <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-background to-card" />
+            <div className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background" />
             <div
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
               style={{ background: "var(--gradient-radial-gold)" }}
@@ -298,7 +298,7 @@ const Index = () => {
                         alt={category.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/30 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-6">
                         <h3 className="font-display text-2xl text-foreground group-hover:text-gold transition-colors">
                           {category.name}
