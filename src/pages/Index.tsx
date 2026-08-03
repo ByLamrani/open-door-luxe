@@ -10,8 +10,8 @@ import AIChatbot from "@/components/AIChatbot";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getDiverseProducts, getNewProducts } from "@/data/products";
-import lamraluxLogo from "@/assets/lamralux-logo.png";
+import { getDiverseProducts, getNewProducts, getProductsByCategory } from "@/data/products";
+import lamraluxLogo from "@/assets/lamralux-mark.png";
 import { exploreCategories } from "@/data/exploreCategories";
 
 const Index = () => {
@@ -21,7 +21,12 @@ const Index = () => {
 
   const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
-  const heroItems = diverseProducts.slice(0, 4);
+  const heroCategories = [
+    { name: "Self-Care", path: "/self-care", items: getProductsByCategory("Self-Care").slice(0, 4) },
+    { name: "Fragrances", path: "/fragrances", items: getProductsByCategory("Fragrances").slice(0, 4) },
+    { name: "Watches", path: "/watches", items: getProductsByCategory("Watches").slice(0, 4) },
+    { name: "Air Diffusers", path: "/air-diffusers", items: getProductsByCategory("Air Diffusers").slice(0, 4) },
+  ].filter((c) => c.items.length > 0);
 
   useEffect(() => {
     const entered = sessionStorage.getItem("aleLifestyleEntered");
@@ -70,11 +75,8 @@ const Index = () => {
               >
                 <img
                   src={lamraluxLogo}
-                  alt="LamraLux by Lamrani"
-                  className="w-[300px] sm:w-[420px] md:w-[520px] lg:w-[600px] mx-auto select-none"
-                  style={{
-                    filter: "drop-shadow(0 0 40px hsl(197 100% 50% / 0.45)) drop-shadow(0 0 80px hsl(197 100% 50% / 0.25))",
-                  }}
+                  alt="Lamra Lux"
+                  className="w-[260px] sm:w-[340px] md:w-[420px] lg:w-[480px] mx-auto select-none dark:invert"
                 />
               </motion.div>
 
