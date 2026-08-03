@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Globe, Building, ArrowLeft, Store, Truck as TruckIcon } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, MapPin, Globe, Building, ArrowLeft } from "lucide-react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,15 +9,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { lovable } from "@/integrations/lovable/index";
-import logo from "@/assets/vanta-logo.png";
-import SubscriptionPlans from "@/components/SubscriptionPlans";
+import logo from "@/assets/lamralux-mark.png";
 
 const countries = [
   "Morocco", "United States", "United Kingdom", "France", "Spain", "Germany", 
   "Italy", "Canada", "Australia", "UAE", "Saudi Arabia", "Qatar", "Other"
 ];
-
-type AccountType = "buyer" | "seller" | "shipping_company";
 
 const AuthPage = () => {
   const navigate = useNavigate();
@@ -32,10 +29,6 @@ const AuthPage = () => {
   const [captchaCode, setCaptchaCode] = useState("");
   const [generatedCaptcha, setGeneratedCaptcha] = useState("");
   
-  // Account type selection
-  const [accountType, setAccountType] = useState<AccountType | null>(null);
-  // 2-step signup: step 1 = info form, step 2 = subscription plan
-  const [signupStep, setSignupStep] = useState<1 | 2>(1);
 
   // Form state
   const [email, setEmail] = useState("");
@@ -47,15 +40,6 @@ const AuthPage = () => {
   const [city, setCity] = useState("");
   const [country, setCountry] = useState("Morocco");
 
-  // Seller fields
-  const [businessName, setBusinessName] = useState("");
-
-  // Shipping company fields
-  const [companyName, setCompanyName] = useState("");
-  const [countryOfOrigin, setCountryOfOrigin] = useState("Morocco");
-  const [registrationNumber, setRegistrationNumber] = useState("");
-  const [legalAddress, setLegalAddress] = useState("");
-  const [siegeSocial, setSiegeSocial] = useState("");
 
   useEffect(() => {
     generateCaptcha();
@@ -104,9 +88,6 @@ const AuthPage = () => {
     }
   };
 
-  const getMoroccoLegalLabel = () => countryOfOrigin === "Morocco" ? "RC (Registre de Commerce)" : "Business Registration Number";
-  const showSiegeSocial = countryOfOrigin === "Morocco" || countryOfOrigin === "France";
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -121,11 +102,6 @@ const AuthPage = () => {
           navigate("/");
         }
       } else {
-        if (!accountType) {
-          toast({ title: "Select Account Type", description: "Please choose Buyer, Seller, or Shipping Company", variant: "destructive" });
-          setIsLoading(false);
-          return;
-        }
         if (!fullName.trim()) {
           toast({ title: "Missing Information", description: "Please enter your full name", variant: "destructive" });
           setIsLoading(false);
@@ -158,16 +134,8 @@ const AuthPage = () => {
           home_address: homeAddress,
           city,
           country,
-          account_type: accountType,
+          account_type: "buyer",
         };
-
-        if (accountType === "seller") {
-          metadata.business_name = businessName;
-        }
-        if (accountType === "shipping_company") {
-          metadata.company_name = companyName;
-          metadata.country_of_origin = countryOfOrigin;
-        }
 
         const { error } = await signUp(email, password, metadata as any);
 
@@ -178,8 +146,13 @@ const AuthPage = () => {
             toast({ title: "Sign Up Failed", description: error.message, variant: "destructive" });
           }
         } else {
-          toast({ title: "Step 1 Complete ✓", description: "Now choose your subscription plan." });
-          setSignupStep(2);
+          toast({ title: "Account created ✓", description: "Welcome to Lamra Lux." });
+          const { error: siErr } = await signIn(email, password);
+          if (siErr) {
+            setIsLogin(true);
+          } else {
+            navigate("/");
+          }
         }
       }
     } catch (error: any) {
@@ -200,37 +173,16 @@ const AuthPage = () => {
           {/* Header */}
           <div className="text-center mb-6">
             <Link to="/">
-              <img src={logo} alt="VANTA by Lamrani" className="h-12 w-auto mx-auto mb-4 rounded-md" />
+              <img src={logo} alt="Lamra Lux" className="h-12 w-auto mx-auto mb-4 rounded-md" />
             </Link>
             <h1 className="font-display text-2xl text-foreground mb-2">
-              {isLogin ? "Welcome Back" : signupStep === 2 ? "Step 2: Pick a Plan" : "Create Account"}
+              {isLogin ? "Welcome Back" : "Create Account"}
             </h1>
             <p className="font-body text-sm text-muted-foreground">
-              {isLogin ? "Sign in to access your account" : signupStep === 2 ? "Free or unlock AI features" : "Step 1 of 2 — Your information"}
+              {isLogin ? "Sign in to access your account" : "Join Lamra Lux"}
             </p>
           </div>
 
-          {!isLogin && signupStep === 2 ? (
-            <SubscriptionPlans
-              accountType={(accountType || "buyer") as any}
-              showSkip
-              onSelected={async () => {
-                // Try auto sign-in so user lands directly in their workspace
-                const { error: siErr } = await signIn(email, password);
-                if (siErr) {
-                  toast({ title: "Almost done", description: "Please verify your email then sign in." });
-                  setSignupStep(1);
-                  setIsLogin(true);
-                  return;
-                }
-                toast({ title: "Welcome to VANTA 🎉" });
-                if (accountType === "seller") navigate("/seller/dashboard");
-                else if (accountType === "shipping_company") navigate("/profile");
-                else navigate("/");
-              }}
-            />
-          ) : (
-          <>
 
           {/* Social Login Buttons */}
           <div className="space-y-3 mb-6">
@@ -266,33 +218,6 @@ const AuthPage = () => {
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <>
-                {/* Account Type Selection */}
-                <div className="space-y-2">
-                  <Label>Account Type *</Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { type: "buyer" as AccountType, label: "Buyer", icon: User, desc: "Shop & buy" },
-                      { type: "seller" as AccountType, label: "Seller", icon: Store, desc: "Sell products" },
-                      { type: "shipping_company" as AccountType, label: "Shipping", icon: TruckIcon, desc: "Deliver orders" },
-                    ].map((opt) => (
-                      <button
-                        key={opt.type}
-                        type="button"
-                        onClick={() => setAccountType(opt.type)}
-                        className={`p-3 rounded-lg border text-center transition-all ${
-                          accountType === opt.type
-                            ? "border-gold bg-gold/10 text-gold"
-                            : "border-border hover:border-gold/50 text-muted-foreground"
-                        }`}
-                      >
-                        <opt.icon className="w-5 h-5 mx-auto mb-1" />
-                        <p className="text-xs font-medium">{opt.label}</p>
-                        <p className="text-[10px] opacity-70">{opt.desc}</p>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name *</Label>
                   <div className="relative">
@@ -301,92 +226,42 @@ const AuthPage = () => {
                   </div>
                 </div>
 
-                {/* Seller: Business Name */}
-                {accountType === "seller" && (
+
+
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+212 6XX XXX XXX" className="pl-10" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="homeAddress">Home Address</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="homeAddress" value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} placeholder="123 Street Name" className="pl-10" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label>Business Name</Label>
+                    <Label>City</Label>
                     <div className="relative">
-                      <Store className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                      <Input value={businessName} onChange={(e) => setBusinessName(e.target.value)} placeholder="Your Brand Name" className="pl-10" />
+                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca" className="pl-10" />
                     </div>
                   </div>
-                )}
-
-                {/* Shipping Company: Country-specific legal fields */}
-                {accountType === "shipping_company" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label>Company Name *</Label>
-                      <div className="relative">
-                        <TruckIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Shipping Co." className="pl-10" required />
-                      </div>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Country of Origin *</Label>
-                      <select
-                        value={countryOfOrigin}
-                        onChange={(e) => setCountryOfOrigin(e.target.value)}
-                        className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
-                      >
-                        {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                      </select>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>{getMoroccoLegalLabel()} *</Label>
-                      <Input value={registrationNumber} onChange={(e) => setRegistrationNumber(e.target.value)} placeholder={countryOfOrigin === "Morocco" ? "RC-XXXXX" : "REG-XXXXX"} />
-                    </div>
-                    {showSiegeSocial && (
-                      <div className="space-y-2">
-                        <Label>Siège Social *</Label>
-                        <Input value={siegeSocial} onChange={(e) => setSiegeSocial(e.target.value)} placeholder="Company headquarters address" />
-                      </div>
-                    )}
-                    <div className="space-y-2">
-                      <Label>Legal Address</Label>
-                      <Input value={legalAddress} onChange={(e) => setLegalAddress(e.target.value)} placeholder="Legal business address" />
-                    </div>
-                  </>
-                )}
-
-                {/* Common fields for buyer */}
-                {accountType !== "shipping_company" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+212 6XX XXX XXX" className="pl-10" />
-                      </div>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="homeAddress">Home Address</Label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input id="homeAddress" value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} placeholder="123 Street Name" className="pl-10" />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>City</Label>
-                        <div className="relative">
-                          <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca" className="pl-10" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Country</Label>
-                        <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-                          {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </div>
-                    </div>
-                  </>
-                )}
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                      {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
               </>
             )}
+
 
             <div className="space-y-2">
               <Label htmlFor="email">Email Address *</Label>
@@ -452,7 +327,7 @@ const AuthPage = () => {
           <div className="mt-6 text-center">
             <p className="font-body text-sm text-muted-foreground">
               {isLogin ? "Don't have an account?" : "Already have an account?"}
-              <button type="button" onClick={() => { setIsLogin(!isLogin); setAccountType(null); }} className="ml-2 text-gold hover:underline font-medium">
+              <button type="button" onClick={() => setIsLogin(!isLogin)} className="ml-2 text-gold hover:underline font-medium">
                 {isLogin ? "Sign Up" : "Sign In"}
               </button>
             </p>
@@ -463,8 +338,6 @@ const AuthPage = () => {
               <ArrowLeft className="w-4 h-4" /> Back to Home
             </Link>
           </div>
-          </>
-          )}
         </motion.div>
       </div>
     </div>

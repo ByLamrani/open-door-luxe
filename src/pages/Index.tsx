@@ -10,8 +10,8 @@ import AIChatbot from "@/components/AIChatbot";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
-import { getDiverseProducts, getNewProducts } from "@/data/products";
-import lamraluxLogo from "@/assets/lamralux-logo.png";
+import { getDiverseProducts, getNewProducts, getProductsByCategory } from "@/data/products";
+import lamraluxLogo from "@/assets/lamralux-mark.png";
 import { exploreCategories } from "@/data/exploreCategories";
 
 const Index = () => {
@@ -21,7 +21,12 @@ const Index = () => {
 
   const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
-  const heroItems = diverseProducts.slice(0, 4);
+  const heroCategories = [
+    { name: "Self-Care", path: "/self-care", items: getProductsByCategory("Self-Care").slice(0, 4) },
+    { name: "Fragrances", path: "/fragrances", items: getProductsByCategory("Fragrances").slice(0, 4) },
+    { name: "Watches", path: "/watches", items: getProductsByCategory("Watches").slice(0, 4) },
+    { name: "Air Diffusers", path: "/air-diffusers", items: getProductsByCategory("Air Diffusers").slice(0, 4) },
+  ].filter((c) => c.items.length > 0);
 
   useEffect(() => {
     const entered = sessionStorage.getItem("aleLifestyleEntered");
@@ -54,7 +59,7 @@ const Index = () => {
 
           {/* Hero Section */}
           <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-charcoal via-background to-card" />
+            <div className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background" />
             <div
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
               style={{ background: "var(--gradient-radial-gold)" }}
@@ -70,11 +75,8 @@ const Index = () => {
               >
                 <img
                   src={lamraluxLogo}
-                  alt="LamraLux by Lamrani"
-                  className="w-[300px] sm:w-[420px] md:w-[520px] lg:w-[600px] mx-auto select-none"
-                  style={{
-                    filter: "drop-shadow(0 0 40px hsl(197 100% 50% / 0.45)) drop-shadow(0 0 80px hsl(197 100% 50% / 0.25))",
-                  }}
+                  alt="Lamra Lux"
+                  className="w-[260px] sm:w-[340px] md:w-[420px] lg:w-[480px] mx-auto select-none dark:invert"
                 />
               </motion.div>
 
@@ -125,22 +127,34 @@ const Index = () => {
                 </span>
               </motion.div>
 
-              {/* Hero featured items strip */}
+              {/* Hero featured items grouped by category */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.8 }}
-                className="mt-14"
+                className="mt-14 space-y-12"
               >
-                <p className="text-xs uppercase tracking-[0.3em] text-gold mb-6">
-                  ✦ {t("hero.featured")}
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
-                  {heroItems.map((product) => (
-                    <ProductCard key={product.id} {...product} />
-                  ))}
-                </div>
+                {heroCategories.map((cat) => (
+                  <div key={cat.name}>
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <span className="h-px w-10 bg-border" />
+                      <Link
+                        to={cat.path}
+                        className="text-xs uppercase tracking-[0.3em] text-foreground hover:opacity-70 transition-opacity"
+                      >
+                        {cat.name}
+                      </Link>
+                      <span className="h-px w-10 bg-border" />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+                      {cat.items.map((product) => (
+                        <ProductCard key={product.id} {...product} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </motion.div>
+
             </div>
           </section>
 
@@ -284,7 +298,7 @@ const Index = () => {
                         alt={category.name}
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/30 to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 via-foreground/20 to-transparent" />
                       <div className="absolute bottom-0 left-0 right-0 p-6">
                         <h3 className="font-display text-2xl text-foreground group-hover:text-gold transition-colors">
                           {category.name}

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
-import logo from "@/assets/lamralux-logo.png";
+import logo from "@/assets/lamralux-mark.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
@@ -88,7 +88,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
-            <motion.img src={logo} alt="LamraLux by Lamrani" className="h-14 w-auto" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} />
+            <motion.img src={logo} alt="Lamra Lux" className="h-14 w-auto dark:invert" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} />
           </Link>
 
           {/* Desktop Navigation */}

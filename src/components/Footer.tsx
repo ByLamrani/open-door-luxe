@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Instagram, Facebook, Twitter } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import logo from "@/assets/lamralux-logo.png";
+import logo from "@/assets/lamralux-mark.png";
 import { exploreCategories } from "@/data/exploreCategories";
 
 const Footer = () => {
@@ -40,7 +40,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 pt-10 border-t border-border">
           {/* Brand */}
           <div className="space-y-6">
-            <img src={logo} alt="LamraLux by Lamrani" className="h-16 w-auto" />
+            <img src={logo} alt="Lamra Lux" className="h-16 w-auto dark:invert" />
             <p className="text-muted-foreground font-body text-sm leading-relaxed">
               {t("footer.brandTagline")}
             </p>
