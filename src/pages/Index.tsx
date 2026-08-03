@@ -125,22 +125,34 @@ const Index = () => {
                 </span>
               </motion.div>
 
-              {/* Hero featured items strip */}
+              {/* Hero featured items grouped by category */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1.4, duration: 0.8 }}
-                className="mt-14"
+                className="mt-14 space-y-12"
               >
-                <p className="text-xs uppercase tracking-[0.3em] text-gold mb-6">
-                  ✦ {t("hero.featured")}
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
-                  {heroItems.map((product) => (
-                    <ProductCard key={product.id} {...product} />
-                  ))}
-                </div>
+                {heroCategories.map((cat) => (
+                  <div key={cat.name}>
+                    <div className="flex items-center justify-center gap-4 mb-6">
+                      <span className="h-px w-10 bg-border" />
+                      <Link
+                        to={cat.path}
+                        className="text-xs uppercase tracking-[0.3em] text-foreground hover:opacity-70 transition-opacity"
+                      >
+                        {cat.name}
+                      </Link>
+                      <span className="h-px w-10 bg-border" />
+                    </div>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-5xl mx-auto">
+                      {cat.items.map((product) => (
+                        <ProductCard key={product.id} {...product} />
+                      ))}
+                    </div>
+                  </div>
+                ))}
               </motion.div>
+
             </div>
           </section>
 
