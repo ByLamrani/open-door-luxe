@@ -349,44 +349,40 @@ const AuthPage = () => {
                   </>
                 )}
 
-                {/* Common fields for buyer */}
-                {accountType !== "shipping_company" && (
-                  <>
-                    <div className="space-y-2">
-                      <Label htmlFor="phone">Phone Number</Label>
-                      <div className="relative">
-                        <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+212 6XX XXX XXX" className="pl-10" />
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+212 6XX XXX XXX" className="pl-10" />
+                  </div>
+                </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="homeAddress">Home Address</Label>
-                      <div className="relative">
-                        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                        <Input id="homeAddress" value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} placeholder="123 Street Name" className="pl-10" />
-                      </div>
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="homeAddress">Home Address</Label>
+                  <div className="relative">
+                    <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input id="homeAddress" value={homeAddress} onChange={(e) => setHomeAddress(e.target.value)} placeholder="123 Street Name" className="pl-10" />
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label>City</Label>
-                        <div className="relative">
-                          <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca" className="pl-10" />
-                        </div>
-                      </div>
-                      <div className="space-y-2">
-                        <Label>Country</Label>
-                        <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
-                          {countries.map((c) => <option key={c} value={c}>{c}</option>)}
-                        </select>
-                      </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>City</Label>
+                    <div className="relative">
+                      <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Casablanca" className="pl-10" />
                     </div>
-                  </>
-                )}
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Country</Label>
+                    <select value={country} onChange={(e) => setCountry(e.target.value)} className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm">
+                      {countries.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  </div>
+                </div>
               </>
             )}
+
 
             <div className="space-y-2">
               <Label htmlFor="email">Email Address *</Label>
