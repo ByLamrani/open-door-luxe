@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import logo from "@/assets/vanta-logo.png";
+import logo from "@/assets/lamralux-mark.png";
 import doorLeft from "@/assets/door-left.jpg";
 import doorRight from "@/assets/door-right.jpg";
 
@@ -58,7 +58,7 @@ const DoorEntry = ({ onEnter }: DoorEntryProps) => {
       >
         <img
           src={logo}
-          alt="VANTA by Lamrani"
+          alt="Lamra Lux"
           className="h-20 md:h-28 w-auto object-contain drop-shadow-2xl rounded-md"
         />
       </motion.div>
