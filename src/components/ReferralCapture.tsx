@@ -57,7 +57,7 @@ const ReferralCapture = () => {
 
       await supabase
         .from("profiles")
-        .update({ referred_by: inviter.user_id, referred_product_id: stored.productId ?? null })
+        .update({ referred_by: inviterId as string, referred_product_id: stored.productId ?? null })
         .eq("user_id", user.id);
     };
     attach();
