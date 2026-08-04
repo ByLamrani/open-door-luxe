@@ -287,23 +287,31 @@ const ProfilePage = () => {
   const handleSaveProfile = async () => {
     if (!user) return;
     
-    const { error } = await supabase
+    const payload = {
+      user_id: user.id,
+      email: profile.email || user.email || "",
+      full_name: profile.full_name,
+      phone: profile.phone,
+      home_address: profile.home_address,
+      city: profile.city,
+      country: profile.country,
+    };
+
+    // upsert so the row is created if the signup trigger never made one
+    const { data, error } = await supabase
       .from("profiles")
-      .update({
-        full_name: profile.full_name,
-        phone: profile.phone,
-        home_address: profile.home_address,
-        city: profile.city,
-        country: profile.country,
-      })
-      .eq("user_id", user.id);
+      .upsert(payload, { onConflict: "user_id" })
+      .select()
+      .maybeSingle();
 
     if (error) {
       toast({ title: "Error", description: error.message, variant: "destructive" });
     } else {
+      if (data) setProfile((prev) => ({ ...prev, ...(data as typeof prev) }));
       toast({ title: "Profile Updated", description: "Your profile has been saved successfully" });
       setIsEditing(false);
     }
+
   };
 
   const handleSaveMedia = async () => {
