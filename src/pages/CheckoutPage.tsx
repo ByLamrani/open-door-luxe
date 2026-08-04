@@ -477,16 +477,23 @@ const CheckoutPage = () => {
                 {paymentMethod === "cod" && (
                   <li className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-                    <span>Please have <span className="text-gold font-semibold">${total(false).toFixed(2)}</span> ready for cash payment upon delivery</span>
+                    <span>Please have <span className="text-gold font-semibold">${(useAdvancePayment ? quote.dueOnDelivery : quote.total).toFixed(2)}</span> ready for cash payment upon delivery</span>
                   </li>
                 )}
               </ul>
             </motion.div>
             
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Button variant="gold" onClick={() => navigate("/")} size="lg">
                 Continue Shopping
               </Button>
+              {whatsappUrl && (
+                <Button variant="outline" size="lg" asChild>
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    Get order details on WhatsApp
+                  </a>
+                </Button>
+              )}
               <Button variant="outline" onClick={() => navigate("/track-order")} size="lg">
                 Track Order
               </Button>
