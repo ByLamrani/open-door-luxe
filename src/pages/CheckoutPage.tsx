@@ -48,6 +48,7 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
   const [useAdvancePayment, setUseAdvancePayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
@@ -312,6 +313,29 @@ const CheckoutPage = () => {
       } catch (error) {
         console.error("Failed to save order:", error);
       }
+
+      // Credit whoever invited this buyer ($1 per referred product / per 20 units)
+      try {
+        await supabase.rpc("process_referral_rewards", {
+          _buyer: user.id,
+          _order_id: generatedOrderId,
+          _items: items as unknown as import("@/integrations/supabase/types").Json,
+        });
+      } catch (error) {
+        console.error("Referral rewards failed:", error);
+      }
+    }
+
+    // WhatsApp order confirmation for the buyer
+    const waPhone = shippingInfo.phone.replace(/[^0-9]/g, "");
+    if (waPhone) {
+      const lines = items.map((i) => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`).join("\n");
+      const message =
+        `Lamra Lux — Order Confirmation\n\nOrder ID: ${generatedOrderId}\n\n${lines}\n\n` +
+        `Total: $${finalTotal.toFixed(2)}` +
+        (useAdvancePayment ? `\nPaid now: $${quote.payNow.toFixed(2)}\nDue on delivery: $${quote.dueOnDelivery.toFixed(2)}` : "") +
+        `\n\nTrack your order at ${window.location.origin}/track-order`;
+      setWhatsappUrl(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`);
     }
 
     setCompletedItems(items.map(item => ({ id: item.id, name: item.name })));
