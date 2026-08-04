@@ -317,9 +317,9 @@ const CheckoutPage = () => {
       // Credit whoever invited this buyer ($1 per referred product / per 20 units)
       try {
         await supabase.rpc("process_referral_rewards", {
-          _buyer: user.id,
           _order_id: generatedOrderId,
-          _items: items as unknown as import("@/integrations/supabase/types").Json,
+          _product_ids: items.map((i) => i.id),
+          _unit_count: items.reduce((n, i) => n + i.quantity, 0),
         });
       } catch (error) {
         console.error("Referral rewards failed:", error);
