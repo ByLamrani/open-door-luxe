@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
 import { exploreCategories } from "@/data/exploreCategories";
+import { catalog } from "@/data/catalog";
 
 interface SubMenuItem {
   name: string;
@@ -28,35 +29,13 @@ interface MenuItem {
 
 const menuItems: MenuItem[] = [
   { name: "Home", path: "/", tKey: "nav.home" },
-  {
-    name: "Self-Care",
-    path: "/self-care",
-    tKey: "nav.selfCare",
-    submenu: [
-      { name: "Tondeuse", path: "/self-care/tondeuse" },
-      { name: "Pack de Soin/SPA", path: "/self-care/spa" },
-      { name: "Articles de Massage", path: "/self-care/massage" },
-    ],
-  },
-  {
-    name: "Fragrances",
-    path: "/fragrances",
-    tKey: "nav.fragrances",
-    submenu: [
-      { name: "For Men", path: "/fragrances/men" },
-      { name: "For Women", path: "/fragrances/women" },
-    ],
-  },
-  { name: "Air Diffusers", path: "/air-diffusers", tKey: "nav.airDiffusers" },
-  {
-    name: "Watches",
-    path: "/watches",
-    tKey: "nav.watches",
-    submenu: [
-      { name: "For Men", path: "/watches/men" },
-      { name: "For Women", path: "/watches/women" },
-    ],
-  },
+  // The 6 Explore clusters become the main top-level categories
+  ...catalog.map((c) => ({
+    name: c.cluster,
+    path: c.path,
+    tKey: c.translationKey,
+    submenu: c.items.map((i) => ({ name: i.name, path: i.path })),
+  })),
   { name: "Track Order", path: "/track-order", tKey: "nav.trackOrder" },
   { name: "Why Us", path: "/why-us", tKey: "nav.whyUs" },
   { name: "Contact", path: "/contact", tKey: "nav.contact" },

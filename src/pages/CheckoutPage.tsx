@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
 import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
+import { getQuote, PRICING_RULES, type PayMethod } from "@/lib/pricing";
 
 interface ShippingInfo {
   firstName: string;
@@ -47,6 +48,7 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
   const [useAdvancePayment, setUseAdvancePayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState<string | null>(null);
   const [orderComplete, setOrderComplete] = useState(false);
   const [orderId, setOrderId] = useState<string | null>(null);
   const [verificationCode, setVerificationCode] = useState("");
@@ -196,36 +198,15 @@ const CheckoutPage = () => {
     setStep("payment");
   };
 
-  const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
+  // ---- Single pricing engine (src/lib/pricing.ts) for every method ----
+  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment);
 
-  // Smart-pricing: extra discount when paying online via PayPal/Wallet (8%),
-  // and 5% off the full item price when using Hybrid COD (deposit_20).
-  const getSmartDiscount = () => {
-    if (paymentMethod === "paypal" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
-      return subtotal * PRICING.ONLINE_DISCOUNT_PCT;
-    }
-    if (paymentMethod === "cod" && useAdvancePayment) {
-      return subtotal * PRICING.HYBRID_COD_DISCOUNT_PCT;
-    }
-    return 0;
-  };
-
-  const getFinalTotal = () => {
-    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
-    let finalTotal = total(isOnline);
-    if (useAdvancePayment) {
-      finalTotal -= getAdvanceDiscount();
-    }
-    finalTotal -= getSmartDiscount();
-    return Math.max(0, finalTotal);
-  };
-
-  // Hybrid COD: pay 20% advance now, 80% due on delivery.
-  const getAdvanceAmount = () =>
-    paymentMethod === "cod" && useAdvancePayment
-      ? getFinalTotal() * PRICING.HYBRID_COD_DEPOSIT_PCT
-      : getFinalTotal() * 0.3;
-  const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
+  const getAdvanceDiscount = () => quote.advanceDiscount;
+  const getSmartDiscount = () => quote.onlineDiscount + quote.advanceDiscount;
+  const getFinalTotal = () => quote.total;
+  /** Amount charged now (full total, or the 20% deposit for Hybrid COD) */
+  const getAdvanceAmount = () => quote.payNow;
+  const getRemainingAmount = () => quote.dueOnDelivery;
 
   const getWalletCardSplit = () => {
     const finalTotal = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
@@ -304,12 +285,12 @@ const CheckoutPage = () => {
           wallet_id: walletData.id,
           amount: -walletDeduction,
           transaction_type: "purchase",
-          description: `Order ${generatedOrderId}${useAdvancePayment ? " (30% advance)" : ""}`,
+          description: `Order ${generatedOrderId}${useAdvancePayment ? " (20% advance)" : ""}`,
         });
       }
     }
 
-    const totalDiscount = (isOnline ? onlineDiscount + bulkDiscount : bulkDiscount) + getAdvanceDiscount();
+    const totalDiscount = quote.totalDiscount;
 
     if (user) {
       try {
@@ -332,6 +313,29 @@ const CheckoutPage = () => {
       } catch (error) {
         console.error("Failed to save order:", error);
       }
+
+      // Credit whoever invited this buyer ($1 per referred product / per 20 units)
+      try {
+        await supabase.rpc("process_referral_rewards", {
+          _order_id: generatedOrderId,
+          _product_ids: items.map((i) => i.id),
+          _unit_count: items.reduce((n, i) => n + i.quantity, 0),
+        });
+      } catch (error) {
+        console.error("Referral rewards failed:", error);
+      }
+    }
+
+    // WhatsApp order confirmation for the buyer
+    const waPhone = shippingInfo.phone.replace(/[^0-9]/g, "");
+    if (waPhone) {
+      const lines = items.map((i) => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`).join("\n");
+      const message =
+        `Lamra Lux — Order Confirmation\n\nOrder ID: ${generatedOrderId}\n\n${lines}\n\n` +
+        `Total: $${finalTotal.toFixed(2)}` +
+        (useAdvancePayment ? `\nPaid now: $${quote.payNow.toFixed(2)}\nDue on delivery: $${quote.dueOnDelivery.toFixed(2)}` : "") +
+        `\n\nTrack your order at ${window.location.origin}/track-order`;
+      setWhatsappUrl(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`);
     }
 
     setCompletedItems(items.map(item => ({ id: item.id, name: item.name })));
@@ -473,16 +477,23 @@ const CheckoutPage = () => {
                 {paymentMethod === "cod" && (
                   <li className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-                    <span>Please have <span className="text-gold font-semibold">${total(false).toFixed(2)}</span> ready for cash payment upon delivery</span>
+                    <span>Please have <span className="text-gold font-semibold">${(useAdvancePayment ? quote.dueOnDelivery : quote.total).toFixed(2)}</span> ready for cash payment upon delivery</span>
                   </li>
                 )}
               </ul>
             </motion.div>
             
-            <div className="flex gap-4 justify-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Button variant="gold" onClick={() => navigate("/")} size="lg">
                 Continue Shopping
               </Button>
+              {whatsappUrl && (
+                <Button variant="outline" size="lg" asChild>
+                  <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    Get order details on WhatsApp
+                  </a>
+                </Button>
+              )}
               <Button variant="outline" onClick={() => navigate("/track-order")} size="lg">
                 Track Order
               </Button>
@@ -853,9 +864,9 @@ const CheckoutPage = () => {
                   <div className="bg-card rounded-lg border border-border p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-lg text-foreground">Pay 30% Advance</h3>
+                        <h3 className="font-display text-lg text-foreground">Pay 20% Advance</h3>
                         <p className="font-body text-sm text-muted-foreground">
-                          Pay only 30% now and get <span className="text-gold font-semibold">3% OFF</span> the total price. Pay the remaining 70% on delivery.
+                          Pay only 20% now and get an extra <span className="text-gold font-semibold">5% OFF</span> the total price. The remaining 80% is due on delivery.
                         </p>
                       </div>
                       <button
@@ -1172,13 +1183,13 @@ const CheckoutPage = () => {
                   {isOnlinePayment && (
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-gold">Online Discount (5%)</span>
-                      <span className="text-gold">-${((subtotal >= 700 ? subtotal - bulkDiscount : subtotal) * 0.05).toFixed(2)}</span>
+                      <span className="text-gold">-${quote.onlineDiscount.toFixed(2)}</span>
                     </div>
                   )}
 
                   {useAdvancePayment && (
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Advance Discount (3%)</span>
+                      <span className="text-gold">Advance Discount (5%)</span>
                       <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
                     </div>
                   )}
@@ -1196,15 +1207,21 @@ const CheckoutPage = () => {
                   </div>
 
                   {useAdvancePayment && (
-                    <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
-                      <span className="text-gold font-medium">Pay Now (30%)</span>
-                      <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
-                    </div>
+                    <>
+                      <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
+                        <span className="text-gold font-medium">Pay Now (20%)</span>
+                        <span className="text-gold font-semibold">${quote.payNow.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-body text-sm">
+                        <span className="text-muted-foreground">Due on Delivery</span>
+                        <span className="text-foreground">${quote.dueOnDelivery.toFixed(2)}</span>
+                      </div>
+                    </>
                   )}
 
-                  {subtotal >= 700 && (
+                  {quote.totalDiscount > 0 && (
                     <p className="text-xs text-gold text-center mt-2">
-                      🎉 You're saving ${(bulkDiscount + (useAdvancePayment ? getAdvanceDiscount() : 0)).toFixed(2)} with discounts!
+                      🎉 You save ${quote.totalDiscount.toFixed(2)} on this order
                     </p>
                   )}
                 </div>

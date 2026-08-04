@@ -13,6 +13,7 @@ import { Link } from "react-router-dom";
 import { getDiverseProducts, getNewProducts, getProductsByCategory } from "@/data/products";
 import lamraluxLogo from "@/assets/lamralux-mark.png";
 import { exploreCategories } from "@/data/exploreCategories";
+import { catalog, clusterCategories } from "@/data/catalog";
 
 const Index = () => {
   const { t } = useTranslation();
@@ -21,12 +22,18 @@ const Index = () => {
 
   const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
-  const heroCategories = [
-    { name: "Self-Care", path: "/self-care", items: getProductsByCategory("Self-Care").slice(0, 4) },
-    { name: "Fragrances", path: "/fragrances", items: getProductsByCategory("Fragrances").slice(0, 4) },
-    { name: "Watches", path: "/watches", items: getProductsByCategory("Watches").slice(0, 4) },
-    { name: "Air Diffusers", path: "/air-diffusers", items: getProductsByCategory("Air Diffusers").slice(0, 4) },
-  ].filter((c) => c.items.length > 0);
+  // Hero showcases the 6 Explore clusters with a few products from each
+  const heroCategories = catalog
+    .map((c) => ({
+      name: c.cluster,
+      tKey: c.translationKey,
+      path: c.path,
+      items: clusterCategories(c.path)
+        .flatMap((cat) => getProductsByCategory(cat))
+        .filter((p, i, arr) => arr.findIndex((x) => x.id === p.id) === i)
+        .slice(0, 4),
+    }))
+    .filter((c) => c.items.length > 0);
 
   useEffect(() => {
     const entered = sessionStorage.getItem("aleLifestyleEntered");
@@ -142,7 +149,7 @@ const Index = () => {
                         to={cat.path}
                         className="text-xs uppercase tracking-[0.3em] text-foreground hover:opacity-70 transition-opacity"
                       >
-                        {cat.name}
+                        {t(cat.tKey)}
                       </Link>
                       <span className="h-px w-10 bg-border" />
                     </div>
@@ -277,14 +284,13 @@ const Index = () => {
               </motion.div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {[
-                  { name: t("nav.selfCare"), path: "/self-care", image: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=600" },
-                  { name: t("nav.fragrances"), path: "/fragrances", image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=600" },
-                  { name: t("nav.airDiffusers"), path: "/air-diffusers", image: "https://images.unsplash.com/photo-1608571423902-eed4a5ad8108?w=600" },
-                  { name: "Men's Watches", path: "/watches/men", image: "https://images.unsplash.com/photo-1524592094714-0f0654e20314?w=600" },
-                  { name: "Women's Watches", path: "/watches/women", image: "https://images.unsplash.com/photo-1549972574-8e3e1ed6a347?w=600" },
-                  { name: t("section.newArrivals"), path: "/new", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
-                ].map((category, i) => (
+                {catalog
+                  .map((c) => ({ name: t(c.translationKey), path: c.path, image: c.image }))
+                  .concat([
+                    { name: t("section.newArrivals"), path: "/new", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
+                  ])
+                  .map((category, i) => (
+
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 20 }}

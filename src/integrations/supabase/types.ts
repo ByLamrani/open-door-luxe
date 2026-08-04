@@ -296,6 +296,11 @@ export type Database = {
           instagram_url: string | null
           is_verified: boolean
           phone: string | null
+          referral_code: string | null
+          referral_product_rewarded: boolean
+          referred_by: string | null
+          referred_product_id: string | null
+          referred_units_counter: number
           subscription_expires_at: string | null
           subscription_tier: string
           twitter_url: string | null
@@ -319,6 +324,11 @@ export type Database = {
           instagram_url?: string | null
           is_verified?: boolean
           phone?: string | null
+          referral_code?: string | null
+          referral_product_rewarded?: boolean
+          referred_by?: string | null
+          referred_product_id?: string | null
+          referred_units_counter?: number
           subscription_expires_at?: string | null
           subscription_tier?: string
           twitter_url?: string | null
@@ -342,6 +352,11 @@ export type Database = {
           instagram_url?: string | null
           is_verified?: boolean
           phone?: string | null
+          referral_code?: string | null
+          referral_product_rewarded?: boolean
+          referred_by?: string | null
+          referred_product_id?: string | null
+          referred_units_counter?: number
           subscription_expires_at?: string | null
           subscription_tier?: string
           twitter_url?: string | null
@@ -376,6 +391,36 @@ export type Database = {
           product_id?: string
           recipient_email?: string
           recommender_id?: string
+        }
+        Relationships: []
+      }
+      referral_rewards: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          order_id: string | null
+          referred_user_id: string
+          referrer_id: string
+          reward_type: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          referred_user_id: string
+          referrer_id: string
+          reward_type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          referred_user_id?: string
+          referrer_id?: string
+          reward_type?: string
         }
         Relationships: []
       }
@@ -948,6 +993,11 @@ export type Database = {
           similarity: number
         }[]
       }
+      process_referral_rewards: {
+        Args: { _order_id: string; _product_ids: string[]; _unit_count: number }
+        Returns: Json
+      }
+      resolve_referral_code: { Args: { _code: string }; Returns: string }
       upgrade_to_seller: { Args: { _business_name?: string }; Returns: Json }
       wallet_pay_vendor: {
         Args: {

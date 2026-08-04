@@ -22,7 +22,7 @@ export interface Product {
   isFeatured?: boolean;
 }
 
-export const products: Product[] = [
+const baseProducts: Product[] = [
   // Self-Care - Tondeuse
   {
     id: "tondeuse-1",
@@ -330,6 +330,10 @@ export const products: Product[] = [
     isNew: true,
   },
 ];
+
+import { extraProducts } from "./extraProducts";
+
+export const products: Product[] = [...baseProducts, ...extraProducts];
 
 export const getFeaturedProducts = () => products.filter(p => p.isFeatured);
 export const getNewProducts = () => products.filter(p => p.isNew);

@@ -1,4 +1,4 @@
-import { X, ShoppingBag, Heart, Share2 } from "lucide-react";
+import { ShoppingBag, Zap } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6,6 +6,9 @@ import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import InviteLink from "@/components/InviteLink";
+import { PRICING_RULES } from "@/lib/pricing";
 
 interface ProductQuickViewProps {
   product: Product | null;
@@ -17,12 +20,13 @@ interface ProductQuickViewProps {
 const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQuickViewProps) => {
   const { addItem, isInCart } = useCart();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
 
   if (!product) return null;
 
   const inCart = isInCart(product.id);
-  const discountedPrice = product.price * 0.95;
+  const discountedPrice = product.price * (1 - PRICING_RULES.ONLINE_PCT);
 
   const handleAddToCart = () => {
     if (!user) {
@@ -39,6 +43,25 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
         category: product.category,
       });
     }
+  };
+
+  const handleBuyNow = () => {
+    if (!user) {
+      onClose();
+      onAuthRequired();
+      return;
+    }
+    if (!inCart) {
+      addItem({
+        id: product.id,
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+      });
+    }
+    onClose();
+    navigate("/checkout");
   };
 
   return (
@@ -112,12 +135,12 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
 
             {/* Actions */}
             <div className="space-y-3">
-              <Button
-                variant="gold"
-                size="lg"
-                className="w-full"
-                onClick={handleAddToCart}
-              >
+              <Button variant="gold" size="lg" className="w-full" onClick={handleBuyNow}>
+                <Zap className="w-5 h-5 mr-2" />
+                Buy Now
+              </Button>
+
+              <Button variant="outline" size="lg" className="w-full" onClick={handleAddToCart}>
                 <ShoppingBag className="w-5 h-5 mr-2" />
                 {inCart ? "In Cart" : "Add to Cart"}
               </Button>
@@ -126,6 +149,7 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
                 <Button variant="outline" className="flex-1" asChild>
                   <a href={`/product/${product.id}`}>View Full Details</a>
                 </Button>
+                <InviteLink productId={product.id} className="flex-1" />
               </div>
             </div>
 
