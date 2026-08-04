@@ -50,13 +50,10 @@ const ReferralCapture = () => {
       // Already attributed, or user is trying to use their own code
       if (!me || me.referred_by || me.referral_code === stored.code) return;
 
-      const { data: inviter } = await supabase
-        .from("profiles")
-        .select("user_id")
-        .eq("referral_code", stored.code)
-        .maybeSingle();
+      const { data: inviterId } = await supabase.rpc("resolve_referral_code", { _code: stored.code });
 
-      if (!inviter || inviter.user_id === user.id) return;
+      if (!inviterId || inviterId === user.id) return;
+
 
       await supabase
         .from("profiles")
