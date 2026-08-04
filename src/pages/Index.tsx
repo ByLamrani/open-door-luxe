@@ -288,8 +288,9 @@ const Index = () => {
                   .map((c) => ({ name: t(c.translationKey), path: c.path, image: c.image }))
                   .concat([
                     { name: t("section.newArrivals"), path: "/new", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?w=600" },
-                  ]
-                ].map((category, i) => (
+                  ])
+                  .map((category, i) => (
+
                   <motion.div
                     key={i}
                     initial={{ opacity: 0, y: 20 }}
