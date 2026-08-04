@@ -997,6 +997,7 @@ export type Database = {
         Args: { _order_id: string; _product_ids: string[]; _unit_count: number }
         Returns: Json
       }
+      resolve_referral_code: { Args: { _code: string }; Returns: string }
       upgrade_to_seller: { Args: { _business_name?: string }; Returns: Json }
       wallet_pay_vendor: {
         Args: {
