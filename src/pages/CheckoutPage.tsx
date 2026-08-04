@@ -835,7 +835,7 @@ const CheckoutPage = () => {
                       <div>
                         <h3 className="font-display text-lg text-foreground">Pay 20% Advance</h3>
                         <p className="font-body text-sm text-muted-foreground">
-                          Pay only 30% now and get <span className="text-gold font-semibold">3% OFF</span> the total price. Pay the remaining 70% on delivery.
+                          Pay only 20% now and get an extra <span className="text-gold font-semibold">5% OFF</span> the total price. The remaining 80% is due on delivery.
                         </p>
                       </div>
                       <button
@@ -1152,13 +1152,13 @@ const CheckoutPage = () => {
                   {isOnlinePayment && (
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-gold">Online Discount (5%)</span>
-                      <span className="text-gold">-${((subtotal >= 700 ? subtotal - bulkDiscount : subtotal) * 0.05).toFixed(2)}</span>
+                      <span className="text-gold">-${quote.onlineDiscount.toFixed(2)}</span>
                     </div>
                   )}
 
                   {useAdvancePayment && (
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Advance Discount (3%)</span>
+                      <span className="text-gold">Advance Discount (5%)</span>
                       <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
                     </div>
                   )}
@@ -1176,15 +1176,21 @@ const CheckoutPage = () => {
                   </div>
 
                   {useAdvancePayment && (
-                    <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
-                      <span className="text-gold font-medium">Pay Now (30%)</span>
-                      <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
-                    </div>
+                    <>
+                      <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
+                        <span className="text-gold font-medium">Pay Now (20%)</span>
+                        <span className="text-gold font-semibold">${quote.payNow.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between font-body text-sm">
+                        <span className="text-muted-foreground">Due on Delivery</span>
+                        <span className="text-foreground">${quote.dueOnDelivery.toFixed(2)}</span>
+                      </div>
+                    </>
                   )}
 
-                  {subtotal >= 700 && (
+                  {quote.totalDiscount > 0 && (
                     <p className="text-xs text-gold text-center mt-2">
-                      🎉 You're saving ${(bulkDiscount + (useAdvancePayment ? getAdvanceDiscount() : 0)).toFixed(2)} with discounts!
+                      🎉 You save ${quote.totalDiscount.toFixed(2)} on this order
                     </p>
                   )}
                 </div>
