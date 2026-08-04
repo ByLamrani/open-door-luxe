@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
 import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
+import { getQuote, PRICING_RULES, type PayMethod } from "@/lib/pricing";
 
 interface ShippingInfo {
   firstName: string;
@@ -196,36 +197,15 @@ const CheckoutPage = () => {
     setStep("payment");
   };
 
-  const getAdvanceDiscount = () => useAdvancePayment ? subtotal * 0.03 : 0;
+  // ---- Single pricing engine (src/lib/pricing.ts) for every method ----
+  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment);
 
-  // Smart-pricing: extra discount when paying online via PayPal/Wallet (8%),
-  // and 5% off the full item price when using Hybrid COD (deposit_20).
-  const getSmartDiscount = () => {
-    if (paymentMethod === "paypal" || paymentMethod === "wallet" || paymentMethod === "wallet_card") {
-      return subtotal * PRICING.ONLINE_DISCOUNT_PCT;
-    }
-    if (paymentMethod === "cod" && useAdvancePayment) {
-      return subtotal * PRICING.HYBRID_COD_DISCOUNT_PCT;
-    }
-    return 0;
-  };
-
-  const getFinalTotal = () => {
-    const isOnline = paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "paypal" || paymentMethod === "wallet_card";
-    let finalTotal = total(isOnline);
-    if (useAdvancePayment) {
-      finalTotal -= getAdvanceDiscount();
-    }
-    finalTotal -= getSmartDiscount();
-    return Math.max(0, finalTotal);
-  };
-
-  // Hybrid COD: pay 20% advance now, 80% due on delivery.
-  const getAdvanceAmount = () =>
-    paymentMethod === "cod" && useAdvancePayment
-      ? getFinalTotal() * PRICING.HYBRID_COD_DEPOSIT_PCT
-      : getFinalTotal() * 0.3;
-  const getRemainingAmount = () => getFinalTotal() - getAdvanceAmount();
+  const getAdvanceDiscount = () => quote.advanceDiscount;
+  const getSmartDiscount = () => quote.onlineDiscount + quote.advanceDiscount;
+  const getFinalTotal = () => quote.total;
+  /** Amount charged now (full total, or the 20% deposit for Hybrid COD) */
+  const getAdvanceAmount = () => quote.payNow;
+  const getRemainingAmount = () => quote.dueOnDelivery;
 
   const getWalletCardSplit = () => {
     const finalTotal = useAdvancePayment ? getAdvanceAmount() : getFinalTotal();
@@ -304,12 +284,12 @@ const CheckoutPage = () => {
           wallet_id: walletData.id,
           amount: -walletDeduction,
           transaction_type: "purchase",
-          description: `Order ${generatedOrderId}${useAdvancePayment ? " (30% advance)" : ""}`,
+          description: `Order ${generatedOrderId}${useAdvancePayment ? " (20% advance)" : ""}`,
         });
       }
     }
 
-    const totalDiscount = (isOnline ? onlineDiscount + bulkDiscount : bulkDiscount) + getAdvanceDiscount();
+    const totalDiscount = quote.totalDiscount;
 
     if (user) {
       try {
@@ -853,7 +833,7 @@ const CheckoutPage = () => {
                   <div className="bg-card rounded-lg border border-border p-6">
                     <div className="flex items-center justify-between">
                       <div>
-                        <h3 className="font-display text-lg text-foreground">Pay 30% Advance</h3>
+                        <h3 className="font-display text-lg text-foreground">Pay 20% Advance</h3>
                         <p className="font-body text-sm text-muted-foreground">
                           Pay only 30% now and get <span className="text-gold font-semibold">3% OFF</span> the total price. Pay the remaining 70% on delivery.
                         </p>
