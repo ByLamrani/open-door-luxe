@@ -70,11 +70,11 @@ const Footer = () => {
             <ul className="space-y-3">
               {[
                 { label: t("nav.home"), path: "/" },
-                { label: t("nav.selfCare"), path: "/self-care" },
-                { label: t("nav.fragrances"), path: "/fragrances" },
-                { label: t("nav.watches"), path: "/watches" },
                 { label: t("nav.trackOrder"), path: "/track-order" },
                 { label: t("nav.whyUs"), path: "/why-us" },
+                { label: t("nav.contact"), path: "/contact" },
+                { label: t("footer.terms"), path: "/terms" },
+                { label: t("footer.privacy"), path: "/privacy" },
               ].map((link) => (
                 <li key={link.path}>
                   <Link
@@ -88,29 +88,23 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Categories */}
+          {/* Categories — the 6 Explore clusters */}
           <div>
             <h4 className="font-display text-lg text-foreground mb-6">{t("footer.categories")}</h4>
             <ul className="space-y-3">
-              {[
-                { name: "Tondeuse", path: "/self-care/tondeuse" },
-                { name: "SPA Packs", path: "/self-care/spa" },
-                { name: "Massage Articles", path: "/self-care/massage" },
-                { name: t("nav.airDiffusers"), path: "/air-diffusers" },
-                { name: "Men's Watches", path: "/watches/men" },
-                { name: "Women's Watches", path: "/watches/women" },
-              ].map((cat, i) => (
-                <li key={i}>
+              {exploreCategories.map((cat) => (
+                <li key={cat.path}>
                   <Link
                     to={cat.path}
                     className="text-muted-foreground font-body text-sm hover:text-gold transition-colors"
                   >
-                    {cat.name}
+                    {t(cat.translationKey)}
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
+
 
           {/* Get in Touch */}
           <div>

@@ -24,6 +24,8 @@ interface MenuItem {
   name: string;
   path: string;
   tKey?: string;
+  /** Explore clusters are only shown inline on very wide screens */
+  cluster?: boolean;
   submenu?: SubMenuItem[];
 }
 
@@ -34,6 +36,7 @@ const menuItems: MenuItem[] = [
     name: c.cluster,
     path: c.path,
     tKey: c.translationKey,
+    cluster: true,
     submenu: c.items.map((i) => ({ name: i.name, path: i.path })),
   })),
   { name: "Track Order", path: "/track-order", tKey: "nav.trackOrder" },
@@ -71,7 +74,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center">
             {/* Explore Mega-Menu Trigger */}
             <div
               className="relative flex-shrink-0"
@@ -117,7 +120,7 @@ const Navbar = () => {
             {menuItems.map((item) => (
               <div
                 key={item.name}
-                className="relative flex-shrink-0"
+                className={`relative flex-shrink-0 ${item.cluster ? "hidden 2xl:block" : ""}`}
                 onMouseEnter={() => item.submenu && setActiveSubmenu(item.name)}
                 onMouseLeave={() => setActiveSubmenu(null)}
               >
@@ -146,8 +149,8 @@ const Navbar = () => {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="hidden xl:block">
               <ScentSentimentSearch />
             </div>
 
