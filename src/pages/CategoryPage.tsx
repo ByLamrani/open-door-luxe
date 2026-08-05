@@ -77,8 +77,11 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
   const uniqueDbProducts = dbProducts.filter((p) => !staticIds.has(p.id));
   const products = [...staticProducts, ...uniqueDbProducts];
 
-  const title = cluster ? cluster.cluster : subcategory || category || "";
-  const eyebrow = cluster ? "Explore" : subcategory ? category : "Collection";
+  const title = cluster ? cluster.cluster : currentItem?.name || subcategory || category || "";
+  const eyebrow = cluster ? "Explore" : parentCluster ? parentCluster.cluster : subcategory ? category : "Collection";
+  const blurb =
+    (cluster ? cluster.blurb : currentItem?.blurb) ||
+    `Discover our curated selection of premium ${title.toLowerCase()} pieces.`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -89,23 +92,30 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
             <p className="font-body text-sm text-gold uppercase tracking-widest mb-2">{eyebrow}</p>
             <h1 className="font-display text-4xl md:text-5xl text-foreground">{title}</h1>
-            <p className="font-body text-muted-foreground mt-4 max-w-xl mx-auto">
-              Discover our curated selection of premium {title.toLowerCase()} pieces.
-            </p>
+            <p className="font-body text-muted-foreground mt-4 max-w-xl mx-auto">{blurb}</p>
 
-            {cluster && (
+            {parentCluster && (
               <div className="flex flex-wrap justify-center gap-2 mt-6">
-                {cluster.items.map((i) => (
-                  <Link
-                    key={i.path}
-                    to={i.path}
-                    className="px-4 py-1.5 rounded-full border border-border text-xs font-body text-foreground/80 hover:border-gold hover:text-gold transition-colors"
-                  >
-                    {i.name}
-                  </Link>
-                ))}
+                {parentCluster.items.map((i) => {
+                  const active = i.path === location.pathname;
+                  return (
+                    <Link
+                      key={i.path}
+                      to={i.path}
+                      aria-current={active ? "page" : undefined}
+                      className={`px-4 py-1.5 rounded-full border text-xs font-body transition-colors ${
+                        active
+                          ? "bg-foreground text-background border-foreground"
+                          : "border-border text-foreground/80 hover:border-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {i.name}
+                    </Link>
+                  );
+                })}
               </div>
             )}
+
           </motion.div>
         </div>
       </section>
