@@ -20,8 +20,13 @@ interface CategoryPageProps {
 const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps) => {
   const [dbProducts, setDbProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const location = useLocation();
 
   const cluster = clusterPath ? catalog.find((c) => c.path === clusterPath) : undefined;
+  /** Cluster that owns the current leaf page, so sibling chips stay visible. */
+  const parentCluster = cluster ?? findClusterByItemPath(location.pathname);
+  const currentItem = parentCluster?.items.find((i) => i.path === location.pathname);
+
 
   // Static products
   let staticProducts: Product[] = [];
