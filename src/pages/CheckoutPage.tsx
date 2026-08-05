@@ -335,7 +335,10 @@ const CheckoutPage = () => {
         `Total: $${finalTotal.toFixed(2)}` +
         (useAdvancePayment ? `\nPaid now: $${quote.payNow.toFixed(2)}\nDue on delivery: $${quote.dueOnDelivery.toFixed(2)}` : "") +
         `\n\nTrack your order at ${window.location.origin}/track-order`;
-      setWhatsappUrl(`https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`);
+      const waUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`;
+      setWhatsappUrl(waUrl);
+      // Auto-send the order details on WhatsApp for every payment method (COD + online)
+      window.open(waUrl, "_blank", "noopener,noreferrer");
     }
 
     setCompletedItems(items.map(item => ({ id: item.id, name: item.name })));

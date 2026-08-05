@@ -71,7 +71,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5">
+          <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center overflow-x-auto no-scrollbar">
             {/* Explore Mega-Menu Trigger */}
             <div
               className="relative flex-shrink-0"
@@ -146,8 +146,8 @@ const Navbar = () => {
           </div>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
-            <div className="hidden md:block">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <div className="hidden xl:block">
               <ScentSentimentSearch />
             </div>
 
