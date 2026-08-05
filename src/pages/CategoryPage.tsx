@@ -1,11 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { getProductsByCategory, getProductsBySubcategory, products as allProducts, Product } from "@/data/products";
-import { catalog } from "@/data/catalog";
+import { catalog, findClusterByItemPath } from "@/data/catalog";
+
 import { supabase } from "@/integrations/supabase/client";
 
 interface CategoryPageProps {
