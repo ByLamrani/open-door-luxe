@@ -15,6 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
 import ShareModal from "@/components/ShareModal";
 import ImageViewer from "@/components/ImageViewer";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { PRICING_RULES } from "@/lib/pricing";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
