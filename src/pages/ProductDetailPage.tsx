@@ -91,6 +91,11 @@ const ProductDetailPage = () => {
     checkFavorite();
   }, [user, product]);
 
+  // Localised product copy + active currency formatting
+  const { format } = useCurrency();
+  const [localName, localDescription] = useAutoTranslate([product?.name, product?.description]);
+
+
   if (!product) {
     return (
       <div className="min-h-screen bg-background">
