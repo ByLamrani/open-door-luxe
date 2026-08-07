@@ -163,7 +163,7 @@ const AdminPanel = () => {
       <main className="container mx-auto px-4 py-10 space-y-8">
         <header className="flex items-center gap-3">
           <ShieldCheck className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-bold">VANTA Admin Panel</h1>
+          <h1 className="text-3xl font-bold">Lamra Lux Admin Panel</h1>
         </header>
 
         <Card>

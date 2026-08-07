@@ -40,7 +40,7 @@ const SubscriptionPlans = ({ accountType, onSelected, showSkip }: Props) => {
     isSellerLike
       ? {
           tier: "seller_pro" as SubscriptionTier,
-          name: "Vanta Connect Pro",
+          name: "Lamra Lux Pro",
           price: 20,
           tagline: "AI + API for sellers & companies",
           icon: Zap,
@@ -55,7 +55,7 @@ const SubscriptionPlans = ({ accountType, onSelected, showSkip }: Props) => {
         }
       : {
           tier: "buyer_pro" as SubscriptionTier,
-          name: "Vanta Connect",
+          name: "Lamra Lux Club",
           price: 9,
           tagline: "Personal AI shopping assistant",
           icon: Bot,

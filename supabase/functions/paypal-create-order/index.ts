@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
         {
           reference_id: orderId,
           amount: { currency_code: currency, value: fmt(amount) },
-          description: `VANTA wallet top-up`,
+          description: `Lamra Lux wallet top-up`,
         },
       ];
     } else {
@@ -107,7 +107,7 @@ Deno.serve(async (req) => {
       intent: "CAPTURE",
       purchase_units,
       application_context: {
-        brand_name: "VANTA",
+        brand_name: "Lamra Lux",
         user_action: "PAY_NOW",
         shipping_preference: "NO_SHIPPING",
       },

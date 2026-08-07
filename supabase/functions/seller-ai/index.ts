@@ -67,7 +67,7 @@ serve(async (req) => {
       const descData = await callAI({
         model: "google/gemini-2.5-flash",
         messages: [
-          { role: "system", content: "You are a luxury copywriter for VANTA marketplace. Write seductive, premium product descriptions." },
+          { role: "system", content: "You are a luxury copywriter for Lamra Lux boutique. Write seductive, premium product descriptions." },
           { role: "user", content: `Write a marketing description (≈80 words) and 5 SEO bullet points for: "${productName}". Style notes: ${details || "luxury, premium"}.` },
         ],
       }, LOVABLE_API_KEY);
@@ -80,19 +80,19 @@ serve(async (req) => {
 
     // ---------- Existing text-based insights ----------
     const prompts: Record<string, string> = {
-      price_optimizer: `You are a pricing analyst for VANTA marketplace. Analyze these seller metrics and suggest optimal pricing. Metrics: Revenue ${metrics?.totalRevenue}, AOV ${metrics?.avgOrderValue}, Conversion ${metrics?.conversionRate}%. Inventory: ${JSON.stringify(inventory?.slice(0, 5))}. Give specific, actionable pricing advice in 3-4 sentences.`,
-      revenue_forecast: `You are a revenue forecaster for VANTA marketplace. Based on: Revenue ${metrics?.totalRevenue}, Orders ${metrics?.totalOrders}, AOV ${metrics?.avgOrderValue}. Project the next 30 days revenue with reasoning. Be specific with numbers.`,
-      sentiment: `You are a customer sentiment analyst for VANTA. Based on ${metrics?.totalOrders} orders and ${metrics?.conversionRate}% conversion rate. Generate a "Vibe Score" and summarize likely customer sentiment. Suggest 2 improvements.`,
-      restock: `You are an inventory intelligence AI for VANTA. Analyze: ${JSON.stringify(inventory)}. Identify items that need restocking urgently. Predict seasonal demand spikes (Ramadan, Summer, Holidays). Give specific restock recommendations.`,
-      discount_impact: `You are a discount strategy AI for VANTA. Current metrics: Revenue ${metrics?.totalRevenue}, Conversion ${metrics?.conversionRate}%, AOV ${metrics?.avgOrderValue}. Predict the impact of running a 10% discount this weekend. Give specific predictions.`,
-      ad_roi: `You are an advertising ROI analyst for VANTA. With ${metrics?.totalViews} views and ${metrics?.conversionRate}% conversion, calculate theoretical ROI for featured placement. The AI advertising fee is 3%. Give specific recommendations.`,
+      price_optimizer: `You are a pricing analyst for Lamra Lux boutique. Analyze these seller metrics and suggest optimal pricing. Metrics: Revenue ${metrics?.totalRevenue}, AOV ${metrics?.avgOrderValue}, Conversion ${metrics?.conversionRate}%. Inventory: ${JSON.stringify(inventory?.slice(0, 5))}. Give specific, actionable pricing advice in 3-4 sentences.`,
+      revenue_forecast: `You are a revenue forecaster for Lamra Lux boutique. Based on: Revenue ${metrics?.totalRevenue}, Orders ${metrics?.totalOrders}, AOV ${metrics?.avgOrderValue}. Project the next 30 days revenue with reasoning. Be specific with numbers.`,
+      sentiment: `You are a customer sentiment analyst for Lamra Lux. Based on ${metrics?.totalOrders} orders and ${metrics?.conversionRate}% conversion rate. Generate a "Vibe Score" and summarize likely customer sentiment. Suggest 2 improvements.`,
+      restock: `You are an inventory intelligence AI for Lamra Lux. Analyze: ${JSON.stringify(inventory)}. Identify items that need restocking urgently. Predict seasonal demand spikes (Ramadan, Summer, Holidays). Give specific restock recommendations.`,
+      discount_impact: `You are a discount strategy AI for Lamra Lux. Current metrics: Revenue ${metrics?.totalRevenue}, Conversion ${metrics?.conversionRate}%, AOV ${metrics?.avgOrderValue}. Predict the impact of running a 10% discount this weekend. Give specific predictions.`,
+      ad_roi: `You are an advertising ROI analyst for Lamra Lux. With ${metrics?.totalViews} views and ${metrics?.conversionRate}% conversion, calculate theoretical ROI for featured placement. The AI advertising fee is 3%. Give specific recommendations.`,
       custom: `Seller asks: "${customPrompt}". Context: metrics=${JSON.stringify(metrics)}, inventory=${JSON.stringify(inventory?.slice(0,5))}. Reply concisely with actionable advice.`,
     };
     const prompt = prompts[type] || "Provide general seller insights for a luxury marketplace.";
     const data = await callAI({
       model: "google/gemini-3-flash-preview",
       messages: [
-        { role: "system", content: "You are an AI business analyst for VANTA by Lamrani, a luxury smart-commerce marketplace. Give concise, data-driven insights." },
+        { role: "system", content: "You are an AI business analyst for Lamra Lux, a luxury smart-commerce marketplace. Give concise, data-driven insights." },
         { role: "user", content: prompt },
       ],
     }, LOVABLE_API_KEY);

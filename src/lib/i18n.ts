@@ -132,7 +132,7 @@ const dict: Record<string, Record<string, string>> = {
   "seller.listNewItem": t("List New Item", "Lister Article", "إدراج منتج", "Listar Artículo", "Добавить товар", "Artikel einstellen", "上架商品", "商品出品", "상품 등록", "Item plaatsen"),
   "seller.addCollection": t("Add New Collection", "Nouvelle Collection", "إضافة مجموعة", "Nueva Colección", "Новая коллекция", "Sammlung hinzufügen", "新增系列", "コレクション追加", "컬렉션 추가", "Collectie toevoegen"),
   "seller.aiInsight": t("AI Insight", "Analyse IA", "تحليل الذكاء", "Insight IA", "ИИ-инсайт", "KI-Einblick", "AI洞察", "AIインサイト", "AI 인사이트", "AI Inzicht"),
-  "seller.unlockAI": t("Unlock AI features with Vanta Connect Pro", "Débloquez l'IA avec Vanta Connect Pro", "افتح ميزات الذكاء الاصطناعي مع Vanta Connect Pro", "Desbloquea funciones IA con Vanta Connect Pro", "Откройте ИИ через Vanta Connect Pro", "KI mit Vanta Connect Pro freischalten", "通过 Vanta Connect Pro 解锁 AI", "Vanta Connect Pro でAIを解放", "Vanta Connect Pro로 AI 잠금 해제", "Ontgrendel AI met Vanta Connect Pro"),
+  "seller.unlockAI": t("Unlock AI features with Lamra Lux Pro", "Débloquez l'IA avec Lamra Lux Pro", "افتح ميزات الذكاء الاصطناعي مع Lamra Lux Pro", "Desbloquea funciones IA con Lamra Lux Pro", "Откройте ИИ через Lamra Lux Pro", "KI mit Lamra Lux Pro freischalten", "通过 Lamra Lux Pro 解锁 AI", "Lamra Lux Pro でAIを解放", "Lamra Lux Pro로 AI 잠금 해제", "Ontgrendel AI met Lamra Lux Pro"),
 };
 
 const resources: Record<string, { translation: Record<string, string> }> = {};

@@ -152,7 +152,7 @@ const SellerDashboard = () => {
 
   const getAIInsight = async (type: string) => {
     if (subscriptionTier === "free") {
-      toast({ title: "AI is locked", description: "Upgrade to Vanta Connect Pro to unlock AI features." });
+      toast({ title: "AI is locked", description: "Upgrade to Lamra Lux Pro to unlock AI features." });
       return;
     }
     setIsLoadingAI(true);
@@ -447,7 +447,7 @@ const SellerDashboard = () => {
                       <Lock className="w-6 h-6 text-gold" />
                       <div>
                         <p className="font-display text-lg text-foreground">AI Command Center is locked</p>
-                        <p className="text-sm text-muted-foreground">Unlock all AI features with Vanta Connect Pro — $20/mo.</p>
+                        <p className="text-sm text-muted-foreground">Unlock all AI features with Lamra Lux Pro — $20/mo.</p>
                       </div>
                     </div>
                     <Button variant="gold" onClick={handleUpgrade}>
