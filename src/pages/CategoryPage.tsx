@@ -101,8 +101,10 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
                   return (
                     <Link
                       key={i.path}
-                      to={i.path}
+                      /* Clicking the active chip clears the filter and shows the whole cluster */
+                      to={active ? parentCluster.path : i.path}
                       aria-current={active ? "page" : undefined}
+                      title={active ? "Click again to show everything" : undefined}
                       className={`px-4 py-1.5 rounded-full border text-xs font-body transition-colors ${
                         active
                           ? "bg-foreground text-background border-foreground"
