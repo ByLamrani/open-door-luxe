@@ -16,6 +16,7 @@ import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedC
 import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
 import { getQuote, PRICING_RULES, type PayMethod } from "@/lib/pricing";
+import { getProductById } from "@/data/products";
 
 interface ShippingInfo {
   firstName: string;
@@ -329,7 +330,13 @@ const CheckoutPage = () => {
     // WhatsApp order confirmation for the buyer
     const waPhone = shippingInfo.phone.replace(/[^0-9]/g, "");
     if (waPhone) {
-      const lines = items.map((i) => `• ${i.name} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`).join("\n");
+      // Always use the canonical catalog name so the buyer sees the exact product they ordered
+      const lines = items
+        .map((i) => {
+          const canonicalName = getProductById(i.id)?.name || i.name;
+          return `• ${canonicalName} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`;
+        })
+        .join("\n");
       const message =
         `Lamra Lux — Order Confirmation\n\nOrder ID: ${generatedOrderId}\n\n${lines}\n\n` +
         `Total: $${finalTotal.toFixed(2)}` +
