@@ -147,9 +147,13 @@ Object.entries(dict).forEach(([key, langs]) => {
 
 i18n.use(LanguageDetector).use(initReactI18next).init({
   resources,
-  fallbackLng: "en",
+  // Morocco-first: French is the default language
+  lng: localStorage.getItem("i18nextLng") || "fr",
+  fallbackLng: "fr",
+  supportedLngs: LANGUAGES.map((l) => l.code),
+  load: "languageOnly",
   interpolation: { escapeValue: false },
-  detection: { order: ["localStorage", "navigator"], caches: ["localStorage"] },
+  detection: { order: ["localStorage"], caches: ["localStorage"] },
 });
 
 const applyDir = (lng: string) => {
