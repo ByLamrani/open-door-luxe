@@ -16,7 +16,6 @@ const collections = catalog.map((c) => ({
   image: c.image,
   subcollections: c.items.map((i) => ({ name: i.name, path: i.path })),
 }));
-];
 
 const CollectionsPage = () => {
   const navigate = useNavigate();
