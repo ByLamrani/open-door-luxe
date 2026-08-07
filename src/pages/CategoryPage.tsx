@@ -8,6 +8,7 @@ import { getProductsByCategory, getProductsBySubcategory, products as allProduct
 import { catalog, findClusterByItemPath } from "@/data/catalog";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 interface CategoryPageProps {
   /** Single product category */
@@ -79,9 +80,11 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
 
   const title = cluster ? cluster.cluster : currentItem?.name || subcategory || category || "";
   const eyebrow = cluster ? "Explore" : parentCluster ? parentCluster.cluster : subcategory ? category : "Collection";
-  const blurb =
+  const rawBlurb =
     (cluster ? cluster.blurb : currentItem?.blurb) ||
     `Discover our curated selection of premium ${title.toLowerCase()} pieces.`;
+  const [localTitle, localBlurb] = useAutoTranslate([title, rawBlurb]);
+  const blurb = localBlurb || rawBlurb;
 
   return (
     <div className="min-h-screen bg-background">
