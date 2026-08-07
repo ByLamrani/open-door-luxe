@@ -94,7 +94,7 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
             <p className="font-body text-sm text-gold uppercase tracking-widest mb-2">{eyebrow}</p>
-            <h1 className="font-display text-4xl md:text-5xl text-foreground">{title}</h1>
+            <h1 className="font-display text-4xl md:text-5xl text-foreground">{localTitle || title}</h1>
             <p className="font-body text-muted-foreground mt-4 max-w-xl mx-auto">{blurb}</p>
 
             {parentCluster && (
