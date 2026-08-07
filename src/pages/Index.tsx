@@ -65,7 +65,7 @@ const Index = () => {
           <Navbar />
 
           {/* Hero Section */}
-          <section className="relative min-h-screen flex items-center justify-center pt-24 pb-16 overflow-hidden">
+          <section className="relative min-h-screen flex items-center justify-center pt-36 pb-16 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-muted/60 via-background to-background" />
             <div
               className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full opacity-10"
@@ -112,7 +112,7 @@ const Index = () => {
                 className="flex flex-col sm:flex-row gap-4 justify-center"
               >
                 <Button variant="gold" size="lg" asChild>
-                  <Link to="/self-care">
+                  <Link to="/collections">
                     {t("hero.exploreCollection")}
                     <ArrowRight className="ml-2 w-5 h-5" />
                   </Link>
