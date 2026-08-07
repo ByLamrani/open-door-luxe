@@ -46,8 +46,8 @@ const Footer = () => {
             </p>
             <div className="flex gap-4">
               {[
-                { Icon: Instagram, href: "https://www.instagram.com/ale.lifestyle1/" },
-                { Icon: Facebook, href: "#" },
+                { Icon: Instagram, href: "https://www.instagram.com/lamralux/" },
+                { Icon: Facebook, href: "https://www.facebook.com/profile.php?id=61591960955034" },
                 { Icon: Twitter, href: "#" },
               ].map(({ Icon, href }, i) => (
                 <motion.a
@@ -134,7 +134,7 @@ const Footer = () => {
           </div>
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-muted-foreground font-body text-sm">
-              © 2025 LamraLux by Lamrani. {t("footer.rights")}
+              © 2025 <span className="font-display">Lamra Lux</span>. {t("footer.rights")}
             </p>
             <div className="flex items-center gap-4">
               <span className="px-3 py-1 bg-gold/10 text-gold text-xs font-body rounded-full">
