@@ -36,15 +36,24 @@ const ProductDetailPage = () => {
   const [loadingProduct, setLoadingProduct] = useState(!product);
   const inCart = product ? isInCart(product.id) : false;
 
-  // If not found in static data, try DB
+  // Reset the whole page whenever the visited product changes
   useEffect(() => {
-    if (!product && id) {
-      const fetchFromDb = async () => {
-        const { data } = await supabase
-          .from("products")
-          .select("*")
-          .eq("id", id)
-          .single();
+    window.scrollTo({ top: 0, behavior: "auto" });
+    setQuantity(1);
+    setSelectedImage(0);
+    setAddedToCart(false);
+    setIsFavorite(false);
+    setShowImageViewer(false);
+
+    const staticProduct = id ? getProductById(id) : undefined;
+    setProduct(staticProduct);
+    setLoadingProduct(!staticProduct);
+
+    if (!staticProduct && id) {
+      let cancelled = false;
+      (async () => {
+        const { data } = await supabase.from("products").select("*").eq("id", id).single();
+        if (cancelled) return;
         if (data) {
           setProduct({
             id: data.id,
@@ -59,12 +68,13 @@ const ProductDetailPage = () => {
           });
         }
         setLoadingProduct(false);
+      })();
+      return () => {
+        cancelled = true;
       };
-      fetchFromDb();
-    } else {
-      setLoadingProduct(false);
     }
-  }, [id, product]);
+  }, [id]);
+
 
   // Check if product is in favorites
   useEffect(() => {
