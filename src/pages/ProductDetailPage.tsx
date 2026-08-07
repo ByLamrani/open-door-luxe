@@ -238,7 +238,7 @@ const ProductDetailPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="pt-36 pb-20">ns
+      <main className="pt-36 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <motion.div
@@ -426,7 +426,11 @@ const ProductDetailPage = () => {
                   onClick={handleAddToFavorites}
                   className="flex-1"
                 >
-                  <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-white" : ""}`} />
+                  <Heart
+                    className={`w-4 h-4 mr-2 transition-colors ${
+                      isFavorite ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
                   {isFavorite ? "In Favorites" : "Add to Favorites"}
                 </Button>
                 <Button
