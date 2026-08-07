@@ -8,6 +8,7 @@ import { getProductsByCategory, getProductsBySubcategory, products as allProduct
 import { catalog, findClusterByItemPath } from "@/data/catalog";
 
 import { supabase } from "@/integrations/supabase/client";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 interface CategoryPageProps {
   /** Single product category */
@@ -79,9 +80,11 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
 
   const title = cluster ? cluster.cluster : currentItem?.name || subcategory || category || "";
   const eyebrow = cluster ? "Explore" : parentCluster ? parentCluster.cluster : subcategory ? category : "Collection";
-  const blurb =
+  const rawBlurb =
     (cluster ? cluster.blurb : currentItem?.blurb) ||
     `Discover our curated selection of premium ${title.toLowerCase()} pieces.`;
+  const [localTitle, localBlurb] = useAutoTranslate([title, rawBlurb]);
+  const blurb = localBlurb || rawBlurb;
 
   return (
     <div className="min-h-screen bg-background">
@@ -91,7 +94,7 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center">
             <p className="font-body text-sm text-gold uppercase tracking-widest mb-2">{eyebrow}</p>
-            <h1 className="font-display text-4xl md:text-5xl text-foreground">{title}</h1>
+            <h1 className="font-display text-4xl md:text-5xl text-foreground">{localTitle || title}</h1>
             <p className="font-body text-muted-foreground mt-4 max-w-xl mx-auto">{blurb}</p>
 
             {parentCluster && (
@@ -101,8 +104,10 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
                   return (
                     <Link
                       key={i.path}
-                      to={i.path}
+                      /* Clicking the active chip clears the filter and shows the whole cluster */
+                      to={active ? parentCluster.path : i.path}
                       aria-current={active ? "page" : undefined}
+                      title={active ? "Click again to show everything" : undefined}
                       className={`px-4 py-1.5 rounded-full border text-xs font-body transition-colors ${
                         active
                           ? "bg-foreground text-background border-foreground"

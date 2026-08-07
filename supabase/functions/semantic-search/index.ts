@@ -26,7 +26,7 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are a luxury product recommendation AI for "VANTA by Lamrani" store. The store sells:
+              content: `You are a luxury product recommendation AI for "Lamra Lux" store. The store sells:
 - Fragrances (men's and women's perfumes, oud, floral, woody scents)
 - Self-Care (professional trimmers, grooming kits, spa products, massage tools)
 - Air Diffusers (reed diffusers, lavender, essential oil diffusers)

@@ -49,7 +49,7 @@ const AIInsightCommand = ({ metrics, inventory, unlocked, onUpgrade }: Props) =>
           </div>
           {!unlocked ? (
             <div className="text-sm space-y-2">
-              <p className="text-muted-foreground">AI features are part of <span className="text-gold">Vanta Connect Pro</span>.</p>
+              <p className="text-muted-foreground">AI features are part of <span className="text-gold">Lamra Lux Pro</span>.</p>
               <Button variant="gold" size="sm" className="w-full" onClick={onUpgrade}>Unlock for $20/mo</Button>
             </div>
           ) : (

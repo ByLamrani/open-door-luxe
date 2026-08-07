@@ -67,86 +67,30 @@ const Navbar = () => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-md border-b border-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+        {/* Top row — logo + utilities */}
+        <div className="flex items-center justify-between gap-4 h-20">
           {/* Logo */}
           <Link to="/" className="flex-shrink-0">
             <motion.img src={logo} alt="Lamra Lux" className="h-14 w-auto dark:invert" whileHover={{ scale: 1.05 }} transition={{ type: "spring", stiffness: 300 }} />
           </Link>
 
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-0.5 flex-1 min-w-0 justify-center">
-            {/* Explore Mega-Menu Trigger */}
-            <div
-              className="relative flex-shrink-0"
-              onMouseEnter={() => setShowExplore(true)}
-              onMouseLeave={() => setShowExplore(false)}
-            >
-              <button className="px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap text-gold hover:text-gold/80 font-semibold">
-                ✦ {t("nav.explore")}
-                <ChevronDown className="w-3 h-3" />
-              </button>
-              <AnimatePresence>
-                {showExplore && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
-                    transition={{ duration: 0.2 }}
-                    className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[680px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden"
-                  >
-                    <div className="grid grid-cols-3 gap-4">
-                      {exploreCategories.map((cat) => (
-                        <div key={cat.cluster}>
-                          <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{t(cat.translationKey)}</p>
-                          <div className="space-y-1">
-                            {cat.items.map((item) => (
-                              <Link
-                                key={item.name}
-                                to={item.path}
-                                className="block px-3 py-1.5 text-sm font-body text-foreground/80 hover:text-gold hover:bg-gold/5 rounded transition-colors"
-                              >
-                                {item.translationKey ? t(item.translationKey) : item.name}
-                              </Link>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {menuItems.map((item) => (
-              <div
-                key={item.name}
-                className={`relative flex-shrink-0 ${item.cluster ? "hidden 2xl:block" : ""}`}
-                onMouseEnter={() => item.submenu && setActiveSubmenu(item.name)}
-                onMouseLeave={() => setActiveSubmenu(null)}
-              >
+          {/* Primary links (kept short so nothing collides) */}
+          <div className="hidden lg:flex items-center gap-1 flex-shrink-0 ml-auto">
+            {menuItems
+              .filter((item) => !item.cluster)
+              .map((item) => (
                 <Link
+                  key={item.name}
                   to={item.path}
-                  className={`px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap ${
+                  className={`px-3 py-2 text-sm font-body tracking-wide whitespace-nowrap transition-colors ${
                     isActive(item.path) ? "text-gold" : "text-foreground/80 hover:text-gold"
                   }`}
                 >
                   {item.tKey ? t(item.tKey) : item.name}
-                  {item.submenu && <ChevronDown className="w-3 h-3" />}
                 </Link>
-                <AnimatePresence>
-                  {item.submenu && activeSubmenu === item.name && (
-                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="absolute top-full left-0 mt-1 py-2 min-w-[180px] bg-card border border-border rounded-md shadow-lg overflow-hidden">
-                      {item.submenu.map((subItem) => (
-                        <Link key={subItem.name} to={subItem.path} className="block px-4 py-2 text-sm font-body text-foreground/80 hover:text-gold hover:bg-muted transition-colors whitespace-nowrap">
-                          {subItem.name}
-                        </Link>
-                      ))}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
+              ))}
           </div>
+
 
           {/* Right side */}
           <div className="flex items-center gap-2 flex-shrink-0">
@@ -191,7 +135,87 @@ const Navbar = () => {
             </button>
           </div>
         </div>
+
+        {/* Second row — the 6 Explore clusters, each shown clearly */}
+        <div className="hidden lg:flex items-center justify-center gap-1 h-12 border-t border-border/60">
+          {/* Explore Mega-Menu Trigger */}
+          <div
+            className="relative flex-shrink-0"
+            onMouseEnter={() => setShowExplore(true)}
+            onMouseLeave={() => setShowExplore(false)}
+          >
+            <button className="px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap text-gold hover:text-gold/80 font-semibold">
+              ✦ {t("nav.explore")}
+              <ChevronDown className="w-3 h-3" />
+            </button>
+            <AnimatePresence>
+              {showExplore && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 10 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute top-full left-0 mt-1 py-4 px-4 min-w-[680px] bg-card border border-border rounded-xl shadow-2xl overflow-hidden z-50"
+                >
+                  <div className="grid grid-cols-3 gap-4">
+                    {exploreCategories.map((cat) => (
+                      <div key={cat.cluster}>
+                        <p className="text-xs font-semibold text-gold mb-2 uppercase tracking-wider">{t(cat.translationKey)}</p>
+                        <div className="space-y-1">
+                          {cat.items.map((item) => (
+                            <Link
+                              key={item.name}
+                              to={item.path}
+                              className="block px-3 py-1.5 text-sm font-body text-foreground/80 hover:text-gold hover:bg-gold/5 rounded transition-colors"
+                            >
+                              {item.translationKey ? t(item.translationKey) : item.name}
+                            </Link>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          <span className="h-4 w-px bg-border mx-1" />
+
+          {menuItems
+            .filter((item) => item.cluster)
+            .map((item) => (
+              <div
+                key={item.name}
+                className="relative flex-shrink-0"
+                onMouseEnter={() => item.submenu && setActiveSubmenu(item.name)}
+                onMouseLeave={() => setActiveSubmenu(null)}
+              >
+                <Link
+                  to={item.path}
+                  className={`px-3 py-2 text-xs font-body tracking-wide transition-colors flex items-center gap-1 whitespace-nowrap ${
+                    isActive(item.path) ? "text-gold" : "text-foreground/80 hover:text-gold"
+                  }`}
+                >
+                  {item.tKey ? t(item.tKey) : item.name}
+                  {item.submenu && <ChevronDown className="w-3 h-3" />}
+                </Link>
+                <AnimatePresence>
+                  {item.submenu && activeSubmenu === item.name && (
+                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} transition={{ duration: 0.2 }} className="absolute top-full left-0 mt-1 py-2 min-w-[200px] bg-card border border-border rounded-md shadow-lg overflow-hidden z-50">
+                      {item.submenu.map((subItem) => (
+                        <Link key={subItem.name} to={subItem.path} className="block px-4 py-2 text-sm font-body text-foreground/80 hover:text-gold hover:bg-muted transition-colors whitespace-nowrap">
+                          {subItem.name}
+                        </Link>
+                      ))}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ))}
+        </div>
       </div>
+
 
       {/* Mobile Menu */}
       <AnimatePresence>

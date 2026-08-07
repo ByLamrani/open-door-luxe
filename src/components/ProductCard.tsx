@@ -7,6 +7,9 @@ import { useState } from "react";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
 import ProductQuickView from "@/components/ProductQuickView";
 import { getProductById, Product } from "@/data/products";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useAutoTranslateText } from "@/hooks/useAutoTranslate";
+import { PRICING_RULES } from "@/lib/pricing";
 
 interface ProductCardProps {
   id: string;
@@ -25,6 +28,8 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
   const [product, setProduct] = useState<Product | null>(null);
+  const { format } = useCurrency();
+  const localName = useAutoTranslateText(name);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,7 +60,7 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
   };
 
   // Show 5% discounted price for online
-  const discountedPrice = price * 0.95;
+  const discountedPrice = price * (1 - PRICING_RULES.ONLINE_PCT);
 
   return (
     <>
@@ -126,14 +131,14 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
               {category}
             </p>
             <h3 className="font-display text-lg text-foreground group-hover:text-gold transition-colors">
-              {name}
+              {localName || name}
             </h3>
             <div className="flex items-center gap-2">
               <span className="font-body font-semibold text-gold">
-                ${discountedPrice.toFixed(2)}
+                {format(discountedPrice)}
               </span>
               <span className="text-sm text-muted-foreground line-through">
-                ${price.toFixed(2)}
+                {format(price)}
               </span>
             </div>
             {inCart && (

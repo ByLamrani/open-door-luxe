@@ -25,7 +25,7 @@ serve(async (req) => {
           messages: [
             {
               role: "system",
-              content: `You are an expert horologist (watch specialist) for "VANTA by Lamrani" luxury watch store. You help customers with watch sizing and fit advice.
+              content: `You are an expert horologist (watch specialist) for "Lamra Lux" luxury watch store. You help customers with watch sizing and fit advice.
 
 Given a wrist circumference in cm, provide:
 1. Whether the watch will fit well
@@ -79,7 +79,7 @@ Be concise, professional, and luxury-oriented in tone.`
           messages: [
             {
               role: "system",
-              content: `You are an expert horologist for "VANTA by Lamrani". Answer questions about watch care, maintenance, sizing, and technical details. Be concise and professional.`
+              content: `You are an expert horologist for "Lamra Lux". Answer questions about watch care, maintenance, sizing, and technical details. Be concise and professional.`
             },
             { role: "user", content: question }
           ],

@@ -49,7 +49,7 @@ const dict: Record<string, Record<string, string>> = {
     "엄선된 프리미엄 셀프케어 제품, 고급 향수, 럭셔리 액세서리 컬렉션을 만나보세요.",
     "Ontdek onze zorgvuldig samengestelde collectie premium verzorgingsproducten, verfijnde geuren en luxe accessoires."
   ),
-  "hero.exploreCollection": t("Explore Collection", "Explorer la Collection", "استكشف المجموعة", "Explorar Colección", "Смотреть коллекцию", "Kollektion entdecken", "探索系列", "コレクションを見る", "컬렉션 보기", "Ontdek Collectie"),
+  "hero.exploreCollection": t("Explore Collections", "Explorer les Collections", "استكشف المجموعات", "Explorar Colecciones", "Смотреть коллекции", "Kollektionen entdecken", "探索系列", "コレクションを見る", "컬렉션 보기", "Ontdek Collecties"),
   "hero.whyChoose": t("Why Choose Us", "Pourquoi Nous Choisir", "لماذا تختارنا", "Por Qué Elegirnos", "Почему выбирают нас", "Warum uns wählen", "为何选择我们", "選ばれる理由", "우리를 선택하는 이유", "Waarom voor ons kiezen"),
   "hero.discountBadge": t("Up to 8% OFF on Online Payments", "Jusqu'à 8% de réduction sur les paiements en ligne", "خصم يصل إلى 8% على المدفوعات عبر الإنترنت", "Hasta 8% de descuento en pagos en línea", "До 8% скидки при онлайн-оплате", "Bis zu 8% Rabatt bei Online-Zahlung", "在线支付最高享8%折扣", "オンライン決済で最大8%オフ", "온라인 결제 시 최대 8% 할인", "Tot 8% korting op online betalingen"),
   "hero.featured": t("Featured Picks", "Sélection Vedette", "المختارات المميزة", "Selección Destacada", "Избранное", "Ausgewählte Highlights", "精选推荐", "おすすめピック", "추천 상품", "Uitgelicht"),
@@ -61,7 +61,7 @@ const dict: Record<string, Record<string, string>> = {
   "features.premium": t("Premium Quality", "Qualité Premium", "جودة عالية", "Calidad Premium", "Премиум качество", "Premium-Qualität", "优质品质", "プレミアム品質", "프리미엄 품질", "Premium kwaliteit"),
 
   // sections
-  "section.exploreCollection": t("Explore Collection", "Explorer la Collection", "استكشف المجموعة", "Explorar Colección", "Смотреть коллекцию", "Kollektion entdecken", "探索系列", "コレクションを見る", "컬렉션 보기", "Ontdek Collectie"),
+  "section.exploreCollection": t("Explore Collections", "Explorer les Collections", "استكشف المجموعات", "Explorar Colecciones", "Смотреть коллекции", "Kollektionen entdecken", "探索系列", "コレクションを見る", "컬렉션 보기", "Ontdek Collecties"),
   "section.exploreDesc": t("Discover our diverse range of premium products across all categories.", "Découvrez notre gamme diversifiée de produits premium dans toutes les catégories.", "اكتشف مجموعتنا المتنوعة من المنتجات الفاخرة عبر جميع الفئات.", "Descubre nuestra amplia gama de productos premium en todas las categorías.", "Откройте наш разнообразный ассортимент премиальных товаров.", "Entdecken Sie unser vielfältiges Sortiment an Premium-Produkten.", "探索所有类别的多元高端产品。", "全カテゴリの多彩なプレミアム商品を発見。", "모든 카테고리의 다양한 프리미엄 제품을 만나보세요.", "Ontdek ons diverse aanbod premium producten."),
   "section.shopByCategory": t("Shop by Category", "Achetez par Catégorie", "تسوق حسب الفئة", "Comprar por Categoría", "Покупки по категории", "Nach Kategorie einkaufen", "按类别购物", "カテゴリで探す", "카테고리별 쇼핑", "Winkel per categorie"),
   "section.newArrivals": t("New Arrivals", "Nouveautés", "الوافدون الجدد", "Novedades", "Новинки", "Neuheiten", "新品上市", "新着商品", "신상품", "Nieuw"),
@@ -132,7 +132,7 @@ const dict: Record<string, Record<string, string>> = {
   "seller.listNewItem": t("List New Item", "Lister Article", "إدراج منتج", "Listar Artículo", "Добавить товар", "Artikel einstellen", "上架商品", "商品出品", "상품 등록", "Item plaatsen"),
   "seller.addCollection": t("Add New Collection", "Nouvelle Collection", "إضافة مجموعة", "Nueva Colección", "Новая коллекция", "Sammlung hinzufügen", "新增系列", "コレクション追加", "컬렉션 추가", "Collectie toevoegen"),
   "seller.aiInsight": t("AI Insight", "Analyse IA", "تحليل الذكاء", "Insight IA", "ИИ-инсайт", "KI-Einblick", "AI洞察", "AIインサイト", "AI 인사이트", "AI Inzicht"),
-  "seller.unlockAI": t("Unlock AI features with Vanta Connect Pro", "Débloquez l'IA avec Vanta Connect Pro", "افتح ميزات الذكاء الاصطناعي مع Vanta Connect Pro", "Desbloquea funciones IA con Vanta Connect Pro", "Откройте ИИ через Vanta Connect Pro", "KI mit Vanta Connect Pro freischalten", "通过 Vanta Connect Pro 解锁 AI", "Vanta Connect Pro でAIを解放", "Vanta Connect Pro로 AI 잠금 해제", "Ontgrendel AI met Vanta Connect Pro"),
+  "seller.unlockAI": t("Unlock AI features with Lamra Lux Pro", "Débloquez l'IA avec Lamra Lux Pro", "افتح ميزات الذكاء الاصطناعي مع Lamra Lux Pro", "Desbloquea funciones IA con Lamra Lux Pro", "Откройте ИИ через Lamra Lux Pro", "KI mit Lamra Lux Pro freischalten", "通过 Lamra Lux Pro 解锁 AI", "Lamra Lux Pro でAIを解放", "Lamra Lux Pro로 AI 잠금 해제", "Ontgrendel AI met Lamra Lux Pro"),
 };
 
 const resources: Record<string, { translation: Record<string, string> }> = {};
@@ -147,9 +147,13 @@ Object.entries(dict).forEach(([key, langs]) => {
 
 i18n.use(LanguageDetector).use(initReactI18next).init({
   resources,
-  fallbackLng: "en",
+  // Morocco-first: French is the default language
+  lng: localStorage.getItem("i18nextLng") || "fr",
+  fallbackLng: "fr",
+  supportedLngs: LANGUAGES.map((l) => l.code),
+  load: "languageOnly",
   interpolation: { escapeValue: false },
-  detection: { order: ["localStorage", "navigator"], caches: ["localStorage"] },
+  detection: { order: ["localStorage"], caches: ["localStorage"] },
 });
 
 const applyDir = (lng: string) => {

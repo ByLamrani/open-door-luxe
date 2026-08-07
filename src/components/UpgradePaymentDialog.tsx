@@ -36,7 +36,7 @@ const UpgradePaymentDialog = ({ open, onOpenChange, tier, amount, onActivated }:
       user_id: user!.id, tier, amount, status: "completed",
       paypal_capture_id: paymentRef ?? null,
     });
-    toast({ title: "Subscription activated 🎉", description: `Vanta Connect ${tier === "seller_pro" ? "Pro" : ""} is now active.` });
+    toast({ title: "Subscription activated 🎉", description: `Lamra Lux Club ${tier === "seller_pro" ? "Pro" : ""} is now active.` });
     onActivated?.();
     onOpenChange(false);
   };
@@ -53,7 +53,7 @@ const UpgradePaymentDialog = ({ open, onOpenChange, tier, amount, onActivated }:
       await supabase.from("wallets").update({ balance: Number(w!.balance) - amount }).eq("user_id", user.id);
       await supabase.from("wallet_transactions").insert({
         wallet_id: w!.id, amount: -amount, transaction_type: "subscription",
-        description: `Vanta Connect ${tier} (1 month)`,
+        description: `Lamra Lux Club ${tier} (1 month)`,
       });
       await activate("wallet");
     } catch (e: any) {
@@ -65,7 +65,7 @@ const UpgradePaymentDialog = ({ open, onOpenChange, tier, amount, onActivated }:
     setBusy(true);
     try {
       const { data, error } = await supabase.functions.invoke("stripe-create-checkout", {
-        body: { tier, amount, productName: `Vanta Connect ${tier === "seller_pro" ? "Pro" : ""} (1 month)` },
+        body: { tier, amount, productName: `Lamra Lux Club ${tier === "seller_pro" ? "Pro" : ""} (1 month)` },
       });
       if (error) throw error;
       if (data?.url) {
@@ -141,7 +141,7 @@ const UpgradePaymentDialog = ({ open, onOpenChange, tier, amount, onActivated }:
               buildOrderInput={() => ({
                 orderId: crypto.randomUUID(),
                 currency: "USD",
-                items: [{ name: `Vanta Connect ${tier} (1 month)`, amount, quantity: 1 }],
+                items: [{ name: `Lamra Lux Club ${tier} (1 month)`, amount, quantity: 1 }],
                 totalAmount: amount,
                 mode: "topup",
               })}

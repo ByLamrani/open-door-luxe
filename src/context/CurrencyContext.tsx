@@ -37,7 +37,8 @@ const CurrencyContext = createContext<Ctx | undefined>(undefined);
 
 export const CurrencyProvider = ({ children }: { children: ReactNode }) => {
   const [currency, setCurrencyState] = useState<CurrencyCode>(
-    (localStorage.getItem("vanta_currency") as CurrencyCode) || "USD"
+    // Morocco-first: the Dirham is the default currency
+    (localStorage.getItem("vanta_currency") as CurrencyCode) || "MAD"
   );
   const [rates, setRates] = useState<Record<string, number>>({ USD: 1 });
   const [loading, setLoading] = useState(true);

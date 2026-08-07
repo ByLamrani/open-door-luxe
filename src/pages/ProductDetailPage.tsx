@@ -15,6 +15,9 @@ import { useToast } from "@/hooks/use-toast";
 import AuthRequiredModal from "@/components/AuthRequiredModal";
 import ShareModal from "@/components/ShareModal";
 import ImageViewer from "@/components/ImageViewer";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { PRICING_RULES } from "@/lib/pricing";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -36,15 +39,24 @@ const ProductDetailPage = () => {
   const [loadingProduct, setLoadingProduct] = useState(!product);
   const inCart = product ? isInCart(product.id) : false;
 
-  // If not found in static data, try DB
+  // Reset the whole page whenever the visited product changes
   useEffect(() => {
-    if (!product && id) {
-      const fetchFromDb = async () => {
-        const { data } = await supabase
-          .from("products")
-          .select("*")
-          .eq("id", id)
-          .single();
+    window.scrollTo({ top: 0, behavior: "auto" });
+    setQuantity(1);
+    setSelectedImage(0);
+    setAddedToCart(false);
+    setIsFavorite(false);
+    setShowImageViewer(false);
+
+    const staticProduct = id ? getProductById(id) : undefined;
+    setProduct(staticProduct);
+    setLoadingProduct(!staticProduct);
+
+    if (!staticProduct && id) {
+      let cancelled = false;
+      (async () => {
+        const { data } = await supabase.from("products").select("*").eq("id", id).single();
+        if (cancelled) return;
         if (data) {
           setProduct({
             id: data.id,
@@ -59,12 +71,13 @@ const ProductDetailPage = () => {
           });
         }
         setLoadingProduct(false);
+      })();
+      return () => {
+        cancelled = true;
       };
-      fetchFromDb();
-    } else {
-      setLoadingProduct(false);
     }
-  }, [id, product]);
+  }, [id]);
+
 
   // Check if product is in favorites
   useEffect(() => {
@@ -80,6 +93,11 @@ const ProductDetailPage = () => {
     };
     checkFavorite();
   }, [user, product]);
+
+  // Localised product copy + active currency formatting
+  const { format } = useCurrency();
+  const [localName, localDescription] = useAutoTranslate([product?.name, product?.description]);
+
 
   if (!product) {
     return (
@@ -98,7 +116,7 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = getRelatedProducts(product);
-  const discountedPrice = product.price * 0.95; // 5% online discount
+  const discountedPrice = product.price * (1 - PRICING_RULES.ONLINE_PCT);
 
   const requireAuth = (action: string, callback: () => void) => {
     if (!user) {
@@ -220,7 +238,7 @@ const ProductDetailPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="pt-24 pb-20">
+      <main className="pt-36 pb-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <motion.div
@@ -306,25 +324,39 @@ const ProductDetailPage = () => {
               </p>
               
               <h1 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                {product.name}
+                {localName || product.name}
               </h1>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3 mb-6">
+              <div className="flex items-baseline gap-3 mb-2">
                 <span className="font-display text-3xl text-gold">
-                  ${discountedPrice.toFixed(2)}
+                  {format(discountedPrice)}
                 </span>
                 <span className="text-xl text-muted-foreground line-through">
-                  ${product.price.toFixed(2)}
+                  {format(product.price)}
                 </span>
                 <span className="text-sm text-accent-foreground bg-accent px-2 py-1 rounded">
-                  Save 5% online
+                  Save {Math.round(PRICING_RULES.ONLINE_PCT * 100)}% online
+                </span>
+              </div>
+
+              {/* Mini calculator — line total for the chosen quantity */}
+              <div className="mb-6 p-3 rounded-lg border border-border bg-muted/40 inline-flex flex-col gap-1 w-fit">
+                <span className="font-body text-xs text-muted-foreground">
+                  1 × {format(product.price)} · {quantity} × {format(product.price)} ={" "}
+                  {format(product.price * quantity)}
+                </span>
+                <span className="font-body text-sm text-foreground">
+                  Total ({quantity} {quantity > 1 ? "articles" : "article"}):{" "}
+                  <span className="font-display text-lg text-gold">
+                    {format(discountedPrice * quantity)}
+                  </span>
                 </span>
               </div>
 
               {/* Description */}
               <p className="font-body text-muted-foreground leading-relaxed mb-8">
-                {product.description}
+                {localDescription || product.description}
               </p>
 
               {/* Quantity Selector */}
@@ -348,6 +380,7 @@ const ProductDetailPage = () => {
                   </button>
                 </div>
               </div>
+
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -393,7 +426,11 @@ const ProductDetailPage = () => {
                   onClick={handleAddToFavorites}
                   className="flex-1"
                 >
-                  <Heart className={`w-4 h-4 mr-2 ${isFavorite ? "fill-white" : ""}`} />
+                  <Heart
+                    className={`w-4 h-4 mr-2 transition-colors ${
+                      isFavorite ? "fill-red-500 text-red-500" : ""
+                    }`}
+                  />
                   {isFavorite ? "In Favorites" : "Add to Favorites"}
                 </Button>
                 <Button
