@@ -116,7 +116,7 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = getRelatedProducts(product);
-  const discountedPrice = product.price * 0.95; // 5% online discount
+  const discountedPrice = product.price * (1 - PRICING_RULES.ONLINE_PCT);
 
   const requireAuth = (action: string, callback: () => void) => {
     if (!user) {
@@ -238,7 +238,7 @@ const ProductDetailPage = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
 
-      <main className="pt-24 pb-20">
+      <main className="pt-36 pb-20">ns
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Breadcrumb */}
           <motion.div
