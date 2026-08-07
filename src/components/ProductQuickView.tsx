@@ -6,9 +6,11 @@ import { Product } from "@/data/products";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import InviteLink from "@/components/InviteLink";
 import { PRICING_RULES } from "@/lib/pricing";
+import { useCurrency } from "@/context/CurrencyContext";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 interface ProductQuickViewProps {
   product: Product | null;
@@ -22,6 +24,8 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
   const { user } = useAuth();
   const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState(0);
+  const { format } = useCurrency();
+  const [localName, localDescription] = useAutoTranslate([product?.name, product?.description]);
 
   if (!product) return null;
 
@@ -119,18 +123,18 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
             </p>
 
             {/* Name */}
-            <h2 className="font-display text-2xl text-foreground mb-3">{product.name}</h2>
+            <h2 className="font-display text-2xl text-foreground mb-3">{localName || product.name}</h2>
 
             {/* Price */}
             <div className="flex items-baseline gap-3 mb-4">
-              <span className="font-display text-3xl text-gold">${discountedPrice.toFixed(2)}</span>
-              <span className="text-lg text-muted-foreground line-through">${product.price.toFixed(2)}</span>
+              <span className="font-display text-3xl text-gold">{format(discountedPrice)}</span>
+              <span className="text-lg text-muted-foreground line-through">{format(product.price)}</span>
               <span className="text-sm text-green-500 font-body">-5%</span>
             </div>
 
             {/* Description */}
             <p className="font-body text-muted-foreground mb-6 flex-grow">
-              {product.description}
+              {localDescription || product.description}
             </p>
 
             {/* Actions */}
@@ -147,7 +151,7 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
 
               <div className="flex gap-3">
                 <Button variant="outline" className="flex-1" asChild>
-                  <a href={`/product/${product.id}`}>View Full Details</a>
+                  <Link to={`/product/${product.id}`} onClick={onClose}>View Full Details</Link>
                 </Button>
                 <InviteLink productId={product.id} className="flex-1" />
               </div>
