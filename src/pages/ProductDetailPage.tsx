@@ -324,25 +324,39 @@ const ProductDetailPage = () => {
               </p>
               
               <h1 className="font-display text-3xl md:text-4xl text-foreground mb-4">
-                {product.name}
+                {localName || product.name}
               </h1>
 
               {/* Price */}
-              <div className="flex items-baseline gap-3 mb-6">
+              <div className="flex items-baseline gap-3 mb-2">
                 <span className="font-display text-3xl text-gold">
-                  ${discountedPrice.toFixed(2)}
+                  {format(discountedPrice)}
                 </span>
                 <span className="text-xl text-muted-foreground line-through">
-                  ${product.price.toFixed(2)}
+                  {format(product.price)}
                 </span>
                 <span className="text-sm text-accent-foreground bg-accent px-2 py-1 rounded">
-                  Save 5% online
+                  Save {Math.round(PRICING_RULES.ONLINE_PCT * 100)}% online
+                </span>
+              </div>
+
+              {/* Mini calculator — line total for the chosen quantity */}
+              <div className="mb-6 p-3 rounded-lg border border-border bg-muted/40 inline-flex flex-col gap-1 w-fit">
+                <span className="font-body text-xs text-muted-foreground">
+                  1 × {format(product.price)} · {quantity} × {format(product.price)} ={" "}
+                  {format(product.price * quantity)}
+                </span>
+                <span className="font-body text-sm text-foreground">
+                  Total ({quantity} {quantity > 1 ? "articles" : "article"}):{" "}
+                  <span className="font-display text-lg text-gold">
+                    {format(discountedPrice * quantity)}
+                  </span>
                 </span>
               </div>
 
               {/* Description */}
               <p className="font-body text-muted-foreground leading-relaxed mb-8">
-                {product.description}
+                {localDescription || product.description}
               </p>
 
               {/* Quantity Selector */}
@@ -366,6 +380,7 @@ const ProductDetailPage = () => {
                   </button>
                 </div>
               </div>
+
 
               {/* Action Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
