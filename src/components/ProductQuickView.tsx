@@ -113,7 +113,7 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
                 </span>
               )}
               <span className="px-2 py-1 bg-accent/90 text-accent-foreground text-xs font-body tracking-wide rounded">
-                Up to 8% OFF Online
+                Up to 7% OFF Online
               </span>
             </div>
 
@@ -170,7 +170,7 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-gold rounded-full" />
-                  8% Bulk Discount ($700+)
+                  6–7% Off on 8+ items
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-gold rounded-full" />
