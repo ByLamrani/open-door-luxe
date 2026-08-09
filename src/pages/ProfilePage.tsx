@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
+import MyCompanion from "@/components/MyCompanion";
 import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, BadgeCheck, Bot } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
