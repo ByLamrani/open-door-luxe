@@ -1,4 +1,6 @@
 import { createContext, useContext, useState, ReactNode } from "react";
+import { getQuote, getTierRate } from "@/lib/pricing";
+
 
 export interface CartItem {
   id: string;
