@@ -899,6 +899,9 @@ const ProfilePage = () => {
                     )}
                   </>
                 )}
+
+                {activeTab === "companion" && <MyCompanion />}
+
               </motion.div>
             </div>
           </div>
