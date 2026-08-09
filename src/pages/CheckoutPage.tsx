@@ -200,7 +200,7 @@ const CheckoutPage = () => {
   };
 
   // ---- Single pricing engine (src/lib/pricing.ts) for every method ----
-  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment);
+  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment, itemCount);
 
   const getAdvanceDiscount = () => quote.advanceDiscount;
   const getSmartDiscount = () => quote.onlineDiscount + quote.advanceDiscount;
