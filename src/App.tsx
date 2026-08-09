@@ -83,7 +83,9 @@ const App = () => (
                 <Route path="/admin" element={<AdminPanel />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
+              <AIChatbot />
             </BrowserRouter>
+
           </TooltipProvider>
         </CartProvider>
         </CurrencyProvider>
