@@ -46,6 +46,48 @@ export type Database = {
           },
         ]
       }
+      companion_settings: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          frequency: string
+          id: string
+          last_sent_at: string | null
+          notify_listings: boolean
+          notify_occasions: boolean
+          notify_orders: boolean
+          updated_at: string
+          user_id: string
+          whatsapp_phone: string | null
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          last_sent_at?: string | null
+          notify_listings?: boolean
+          notify_occasions?: boolean
+          notify_orders?: boolean
+          updated_at?: string
+          user_id: string
+          whatsapp_phone?: string | null
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          frequency?: string
+          id?: string
+          last_sent_at?: string | null
+          notify_listings?: boolean
+          notify_occasions?: boolean
+          notify_orders?: boolean
+          updated_at?: string
+          user_id?: string
+          whatsapp_phone?: string | null
+        }
+        Relationships: []
+      }
       currency_rates: {
         Row: {
           id: string
@@ -701,6 +743,48 @@ export type Database = {
           sent_at?: string | null
           shipper_id?: string
           status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      special_offers: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          discount_pct: number
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          occasion: string | null
+          starts_at: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_pct?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          occasion?: string | null
+          starts_at?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          discount_pct?: number
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          occasion?: string | null
+          starts_at?: string
+          title?: string
           updated_at?: string
         }
         Relationships: []
