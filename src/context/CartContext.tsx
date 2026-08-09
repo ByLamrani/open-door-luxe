@@ -60,28 +60,14 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const itemCount = items.reduce((acc, item) => acc + item.quantity, 0);
   const subtotal = items.reduce((acc, item) => acc + item.price * item.quantity, 0);
-  
-  // 5% online discount
-  const onlineDiscount = subtotal * 0.05;
-  
-  // 8% bulk discount for orders over $700
-  const bulkDiscount = subtotal >= 700 ? subtotal * 0.08 : 0;
-  
-  const total = (isOnline: boolean) => {
-    let finalTotal = subtotal;
-    
-    // Apply bulk discount first (if applicable)
-    if (subtotal >= 700) {
-      finalTotal -= bulkDiscount;
-    }
-    
-    // Apply online discount on the post-bulk-discount price (if applicable)
-    if (isOnline) {
-      finalTotal -= finalTotal * 0.05;
-    }
-    
-    return Math.max(0, finalTotal);
-  };
+
+  // Quantity-tier offers (see src/lib/pricing.ts)
+  const onlineDiscount = subtotal * getTierRate(itemCount, "online");
+  const bulkDiscount = subtotal * getTierRate(itemCount, "cod");
+
+  const total = (isOnline: boolean) =>
+    getQuote(subtotal, isOnline ? "online" : "cod", false, itemCount).total;
+
 
   return (
     <CartContext.Provider
