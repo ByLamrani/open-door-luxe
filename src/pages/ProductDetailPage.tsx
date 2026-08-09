@@ -116,7 +116,9 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = getRelatedProducts(product);
-  const discountedPrice = product.price * (1 - PRICING_RULES.ONLINE_PCT);
+  const tierRate = getTierRate(quantity, "online");
+  const discountedPrice = product.price * (1 - tierRate);
+
 
   const requireAuth = (action: string, callback: () => void) => {
     if (!user) {
