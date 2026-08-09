@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
 import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
-import { getQuote, PRICING_RULES, type PayMethod } from "@/lib/pricing";
+import { getQuote, getTierRate, PRICING_RULES, type PayMethod } from "@/lib/pricing";
 import { getProductById } from "@/data/products";
 
 interface ShippingInfo {
