@@ -17,7 +17,7 @@ import ShareModal from "@/components/ShareModal";
 import ImageViewer from "@/components/ImageViewer";
 import { useCurrency } from "@/context/CurrencyContext";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
-import { PRICING_RULES } from "@/lib/pricing";
+import { PRICING_RULES, getTierRate } from "@/lib/pricing";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
