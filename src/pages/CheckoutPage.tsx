@@ -1183,19 +1183,16 @@ const CheckoutPage = () => {
                     <span className="text-foreground">${subtotal.toFixed(2)}</span>
                   </div>
                   
-                  {bulkDiscount > 0 && (
+                  {quote.tierDiscount > 0 && (
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Bulk Discount (8%)</span>
-                      <span className="text-gold">-${bulkDiscount.toFixed(2)}</span>
+                      <span className="text-gold">
+                        Offer — {itemCount} {itemCount > 1 ? "items" : "item"} ({Math.round(quote.tierRate * 100)}%{" "}
+                        {isOnlinePayment ? "online" : "on delivery"})
+                      </span>
+                      <span className="text-gold">-${quote.tierDiscount.toFixed(2)}</span>
                     </div>
                   )}
-                  
-                  {isOnlinePayment && (
-                    <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Online Discount (5%)</span>
-                      <span className="text-gold">-${quote.onlineDiscount.toFixed(2)}</span>
-                    </div>
-                  )}
+
 
                   {useAdvancePayment && (
                     <div className="flex justify-between font-body text-sm">
