@@ -162,7 +162,7 @@ const ProductQuickView = ({ product, isOpen, onClose, onAuthRequired }: ProductQ
               <div className="grid grid-cols-2 gap-2 text-xs text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-gold rounded-full" />
-                  5% Online Discount
+                  2–7% Online Discount
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-2 h-2 bg-gold rounded-full" />
