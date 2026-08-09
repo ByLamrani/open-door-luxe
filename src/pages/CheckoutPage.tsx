@@ -365,44 +365,58 @@ const CheckoutPage = () => {
     });
   };
 
-  const handleRecipientSelect = (type: "self" | "friend") => {
+  const handleRecipientSelect = async (type: "self" | "friend") => {
     setRecipientType(type);
-    
-    if (type === "self" && userProfile) {
-      // Auto-fill with user's profile data
-      const nameParts = userProfile.full_name.split(" ");
-      setShippingInfo({
+
+    if (type === "self") {
+      // Make sure the profile is loaded even if the user clicks before the fetch settles
+      let profile = userProfile;
+      if (!profile && user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data) {
+          profile = data as typeof userProfile;
+          setUserProfile(profile);
+        }
+      }
+
+      const nameParts = (profile?.full_name || "").trim().split(" ");
+      const filled: ShippingInfo = {
         firstName: nameParts[0] || "",
         lastName: nameParts.slice(1).join(" ") || "",
-        email: userProfile.email,
-        phone: userProfile.phone || "",
-        address: userProfile.home_address || "",
-        city: userProfile.city || "",
+        email: profile?.email || user?.email || "",
+        phone: profile?.phone || "",
+        address: profile?.home_address || "",
+        city: profile?.city || "",
         postalCode: "",
-        country: userProfile.country || "Morocco",
-      });
-      // Skip shipping if profile is complete (name, email, phone, address, city all filled)
-      const profileComplete = userProfile.full_name && userProfile.email && userProfile.phone && userProfile.home_address && userProfile.city;
-      if (profileComplete) {
-        setStep("payment");
-      } else {
-        setStep("shipping");
-      }
-    } else {
-      // Reset shipping info for friend
-      setShippingInfo({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        country: "Morocco",
-      });
-      setStep("shipping");
+        country: profile?.country || "Morocco",
+      };
+      setShippingInfo(filled);
+
+      // Skip straight to payment whenever we have everything we need
+      const complete =
+        !!filled.firstName && !!filled.email && !!filled.phone && !!filled.address && !!filled.city;
+      setStep(complete ? "payment" : "shipping");
+      return;
     }
+
+    // Reset shipping info for friend
+    setShippingInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      postalCode: "",
+      country: "Morocco",
+    });
+    setStep("shipping");
   };
+
 
   const handleGoBack = () => {
     if (step === "verification") setStep("payment");
