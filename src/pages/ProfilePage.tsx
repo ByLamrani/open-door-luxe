@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
-import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, BadgeCheck } from "lucide-react";
+import MyCompanion from "@/components/MyCompanion";
+import { User, Wallet, Heart, ShoppingBag, History, Edit2, Save, ArrowLeft, Plus, Minus, Camera, CreditCard, Loader2, Link2, Gift, Bell, Trash2, BadgeCheck, Bot } from "lucide-react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import WearTimePredictor from "@/components/WearTimePredictor";
 import Navbar from "@/components/Navbar";
@@ -82,8 +83,8 @@ const ProfilePage = () => {
   const { user } = useAuth();
   // Get initial tab from URL state or default to profile
   const initialTab = (location.state as any)?.tab || "profile";
-  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">(initialTab);
-  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders">("profile");
+  const [activeTab, setActiveTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders" | "companion">(initialTab);
+  const [previousTab, setPreviousTab] = useState<"profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders" | "companion">("profile");
   const [isEditing, setIsEditing] = useState(false);
   const [isEditingMedia, setIsEditingMedia] = useState(false);
   const [showDepositModal, setShowDepositModal] = useState(false);
@@ -147,7 +148,7 @@ const ProfilePage = () => {
   };
 
   // Track tab changes for back navigation
-  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders") => {
+  const handleTabChange = (tab: "profile" | "wallet" | "purchases" | "favorites" | "media" | "reminders" | "companion") => {
     setPreviousTab(activeTab);
     setActiveTab(tab);
   };
@@ -393,6 +394,7 @@ const ProfilePage = () => {
     { id: "favorites", label: "Favorites", icon: Heart },
     { id: "media", label: "Linked Media", icon: Link2 },
     { id: "reminders", label: "Gift Reminders", icon: Bell },
+    { id: "companion", label: "My Companion", icon: Bot },
   ];
 
   return (
@@ -898,6 +900,9 @@ const ProfilePage = () => {
                     )}
                   </>
                 )}
+
+                {activeTab === "companion" && <MyCompanion />}
+
               </motion.div>
             </div>
           </div>

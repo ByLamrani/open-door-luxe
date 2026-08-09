@@ -15,7 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getSavedCardForCheckout, isSavedCardEnabled } from "@/components/SavedCardSection";
 import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
-import { getQuote, PRICING_RULES, type PayMethod } from "@/lib/pricing";
+import { getQuote, getTierRate, PRICING_RULES, type PayMethod } from "@/lib/pricing";
 import { getProductById } from "@/data/products";
 
 interface ShippingInfo {
@@ -45,7 +45,7 @@ const CheckoutPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
-  const { items, subtotal, onlineDiscount, bulkDiscount, total, clearCart } = useCart();
+  const { items, subtotal, onlineDiscount, bulkDiscount, itemCount, total, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
   const [useAdvancePayment, setUseAdvancePayment] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -200,7 +200,7 @@ const CheckoutPage = () => {
   };
 
   // ---- Single pricing engine (src/lib/pricing.ts) for every method ----
-  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment);
+  const quote = getQuote(subtotal, paymentMethod as PayMethod, useAdvancePayment, itemCount);
 
   const getAdvanceDiscount = () => quote.advanceDiscount;
   const getSmartDiscount = () => quote.onlineDiscount + quote.advanceDiscount;
@@ -365,44 +365,58 @@ const CheckoutPage = () => {
     });
   };
 
-  const handleRecipientSelect = (type: "self" | "friend") => {
+  const handleRecipientSelect = async (type: "self" | "friend") => {
     setRecipientType(type);
-    
-    if (type === "self" && userProfile) {
-      // Auto-fill with user's profile data
-      const nameParts = userProfile.full_name.split(" ");
-      setShippingInfo({
+
+    if (type === "self") {
+      // Make sure the profile is loaded even if the user clicks before the fetch settles
+      let profile = userProfile;
+      if (!profile && user) {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .maybeSingle();
+        if (data) {
+          profile = data as typeof userProfile;
+          setUserProfile(profile);
+        }
+      }
+
+      const nameParts = (profile?.full_name || "").trim().split(" ");
+      const filled: ShippingInfo = {
         firstName: nameParts[0] || "",
         lastName: nameParts.slice(1).join(" ") || "",
-        email: userProfile.email,
-        phone: userProfile.phone || "",
-        address: userProfile.home_address || "",
-        city: userProfile.city || "",
+        email: profile?.email || user?.email || "",
+        phone: profile?.phone || "",
+        address: profile?.home_address || "",
+        city: profile?.city || "",
         postalCode: "",
-        country: userProfile.country || "Morocco",
-      });
-      // Skip shipping if profile is complete (name, email, phone, address, city all filled)
-      const profileComplete = userProfile.full_name && userProfile.email && userProfile.phone && userProfile.home_address && userProfile.city;
-      if (profileComplete) {
-        setStep("payment");
-      } else {
-        setStep("shipping");
-      }
-    } else {
-      // Reset shipping info for friend
-      setShippingInfo({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        address: "",
-        city: "",
-        postalCode: "",
-        country: "Morocco",
-      });
-      setStep("shipping");
+        country: profile?.country || "Morocco",
+      };
+      setShippingInfo(filled);
+
+      // Skip straight to payment whenever we have everything we need
+      const complete =
+        !!filled.firstName && !!filled.email && !!filled.phone && !!filled.address && !!filled.city;
+      setStep(complete ? "payment" : "shipping");
+      return;
     }
+
+    // Reset shipping info for friend
+    setShippingInfo({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      address: "",
+      city: "",
+      postalCode: "",
+      country: "Morocco",
+    });
+    setStep("shipping");
   };
+
 
   const handleGoBack = () => {
     if (step === "verification") setStep("payment");
@@ -762,11 +776,11 @@ const CheckoutPage = () => {
                             Credit/Debit Card
                           </p>
                           <p className="font-body text-xs text-muted-foreground">
-                            Pay securely with card - Get 5% OFF instantly
+                            Pay securely with card - Get {Math.round(getTierRate(itemCount, "online") * 100)}% OFF instantly
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
@@ -789,7 +803,7 @@ const CheckoutPage = () => {
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
@@ -817,7 +831,7 @@ const CheckoutPage = () => {
                             </p>
                           </div>
                           <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                            5% OFF
+                            {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                           </span>
                         </button>
                       )}
@@ -841,7 +855,7 @@ const CheckoutPage = () => {
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
@@ -1183,19 +1197,16 @@ const CheckoutPage = () => {
                     <span className="text-foreground">${subtotal.toFixed(2)}</span>
                   </div>
                   
-                  {bulkDiscount > 0 && (
+                  {quote.tierDiscount > 0 && (
                     <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Bulk Discount (8%)</span>
-                      <span className="text-gold">-${bulkDiscount.toFixed(2)}</span>
+                      <span className="text-gold">
+                        Offer — {itemCount} {itemCount > 1 ? "items" : "item"} ({Math.round(quote.tierRate * 100)}%{" "}
+                        {isOnlinePayment ? "online" : "on delivery"})
+                      </span>
+                      <span className="text-gold">-${quote.tierDiscount.toFixed(2)}</span>
                     </div>
                   )}
-                  
-                  {isOnlinePayment && (
-                    <div className="flex justify-between font-body text-sm">
-                      <span className="text-gold">Online Discount (5%)</span>
-                      <span className="text-gold">-${quote.onlineDiscount.toFixed(2)}</span>
-                    </div>
-                  )}
+
 
                   {useAdvancePayment && (
                     <div className="flex justify-between font-body text-sm">

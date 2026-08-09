@@ -17,7 +17,7 @@ import ShareModal from "@/components/ShareModal";
 import ImageViewer from "@/components/ImageViewer";
 import { useCurrency } from "@/context/CurrencyContext";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
-import { PRICING_RULES } from "@/lib/pricing";
+import { PRICING_RULES, getTierRate } from "@/lib/pricing";
 
 const ProductDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -116,7 +116,9 @@ const ProductDetailPage = () => {
   }
 
   const relatedProducts = getRelatedProducts(product);
-  const discountedPrice = product.price * (1 - PRICING_RULES.ONLINE_PCT);
+  const tierRate = getTierRate(quantity, "online");
+  const discountedPrice = product.price * (1 - tierRate);
+
 
   const requireAuth = (action: string, callback: () => void) => {
     if (!user) {
@@ -336,23 +338,20 @@ const ProductDetailPage = () => {
                   {format(product.price)}
                 </span>
                 <span className="text-sm text-accent-foreground bg-accent px-2 py-1 rounded">
-                  Save {Math.round(PRICING_RULES.ONLINE_PCT * 100)}% online
+                  Save {Math.round(tierRate * 100)}% online
                 </span>
               </div>
 
-              {/* Mini calculator — line total for the chosen quantity */}
-              <div className="mb-6 p-3 rounded-lg border border-border bg-muted/40 inline-flex flex-col gap-1 w-fit">
-                <span className="font-body text-xs text-muted-foreground">
-                  1 × {format(product.price)} · {quantity} × {format(product.price)} ={" "}
-                  {format(product.price * quantity)}
+              {/* Automated total for the chosen quantity */}
+              <div className="mb-6 p-3 rounded-lg border border-border bg-muted/40 inline-flex items-baseline gap-2 w-fit">
+                <span className="font-body text-sm text-muted-foreground">
+                  Total ({quantity} {quantity > 1 ? "articles" : "article"})
                 </span>
-                <span className="font-body text-sm text-foreground">
-                  Total ({quantity} {quantity > 1 ? "articles" : "article"}):{" "}
-                  <span className="font-display text-lg text-gold">
-                    {format(discountedPrice * quantity)}
-                  </span>
+                <span className="font-display text-xl text-gold">
+                  {format(discountedPrice * quantity)}
                 </span>
               </div>
+
 
               {/* Description */}
               <p className="font-body text-muted-foreground leading-relaxed mb-8">

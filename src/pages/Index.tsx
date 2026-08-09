@@ -6,7 +6,6 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import MostRecommended from "@/components/MostRecommended";
-import AIChatbot from "@/components/AIChatbot";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles, Truck, Shield, CreditCard } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -379,7 +378,6 @@ const Index = () => {
           </section>
 
           <Footer />
-          <AIChatbot />
         </motion.div>
       )}
     </>

@@ -51,11 +51,11 @@ const dict: Record<string, Record<string, string>> = {
   ),
   "hero.exploreCollection": t("Explore Collections", "Explorer les Collections", "استكشف المجموعات", "Explorar Colecciones", "Смотреть коллекции", "Kollektionen entdecken", "探索系列", "コレクションを見る", "컬렉션 보기", "Ontdek Collecties"),
   "hero.whyChoose": t("Why Choose Us", "Pourquoi Nous Choisir", "لماذا تختارنا", "Por Qué Elegirnos", "Почему выбирают нас", "Warum uns wählen", "为何选择我们", "選ばれる理由", "우리를 선택하는 이유", "Waarom voor ons kiezen"),
-  "hero.discountBadge": t("Up to 8% OFF on Online Payments", "Jusqu'à 8% de réduction sur les paiements en ligne", "خصم يصل إلى 8% على المدفوعات عبر الإنترنت", "Hasta 8% de descuento en pagos en línea", "До 8% скидки при онлайн-оплате", "Bis zu 8% Rabatt bei Online-Zahlung", "在线支付最高享8%折扣", "オンライン決済で最大8%オフ", "온라인 결제 시 최대 8% 할인", "Tot 8% korting op online betalingen"),
+  "hero.discountBadge": t("Up to 7% OFF on Online Payments", "Jusqu'à 7% de réduction sur les paiements en ligne", "خصم يصل إلى 7% على المدفوعات عبر الإنترنت", "Hasta 7% de descuento en pagos en línea", "До 7% скидки при онлайн-оплате", "Bis zu 7% Rabatt bei Online-Zahlung", "在线支付最高享7%折扣", "オンライン決済で最大7%オフ", "온라인 결제 시 최대 7% 할인", "Tot 7% korting op online betalingen"),
   "hero.featured": t("Featured Picks", "Sélection Vedette", "المختارات المميزة", "Selección Destacada", "Избранное", "Ausgewählte Highlights", "精选推荐", "おすすめピック", "추천 상품", "Uitgelicht"),
 
   // features
-  "features.onlineDiscount": t("Up to 8% OFF Online", "Jusqu'à 8% en ligne", "خصم 8% أونلاين", "Hasta 8% en línea", "До 8% онлайн", "Bis zu 8% online", "在线最高8%折扣", "オンライン最大8%オフ", "온라인 최대 8% 할인", "Tot 8% online"),
+  "features.onlineDiscount": t("Up to 7% OFF Online", "Jusqu'à 7% en ligne", "خصم 7% أونلاين", "Hasta 7% en línea", "До 7% онлайн", "Bis zu 7% online", "在线最高7%折扣", "オンライン最大7%オフ", "온라인 최대 7% 할인", "Tot 7% online"),
   "features.cod": t("Cash on Delivery", "Paiement à la livraison", "الدفع عند الاستلام", "Pago contra entrega", "Оплата при доставке", "Zahlung bei Lieferung", "货到付款", "代金引換", "착불", "Betaling bij levering"),
   "features.secure": t("Secure Shopping", "Achats Sécurisés", "تسوق آمن", "Compra Segura", "Безопасные покупки", "Sicheres Einkaufen", "安全购物", "安全なお買い物", "안전한 쇼핑", "Veilig winkelen"),
   "features.premium": t("Premium Quality", "Qualité Premium", "جودة عالية", "Calidad Premium", "Премиум качество", "Premium-Qualität", "优质品质", "プレミアム品質", "프리미엄 품질", "Premium kwaliteit"),
