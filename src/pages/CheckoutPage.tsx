@@ -776,11 +776,11 @@ const CheckoutPage = () => {
                             Credit/Debit Card
                           </p>
                           <p className="font-body text-xs text-muted-foreground">
-                            Pay securely with card - Get 5% OFF instantly
+                            Pay securely with card - Get {Math.round(getTierRate(itemCount, "online") * 100)}% OFF instantly
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
@@ -803,7 +803,7 @@ const CheckoutPage = () => {
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
@@ -831,7 +831,7 @@ const CheckoutPage = () => {
                             </p>
                           </div>
                           <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                            5% OFF
+                            {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                           </span>
                         </button>
                       )}
@@ -855,7 +855,7 @@ const CheckoutPage = () => {
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
-                          5% OFF
+                          {Math.round(getTierRate(itemCount, "online") * 100)}% OFF
                         </span>
                       </button>
 
