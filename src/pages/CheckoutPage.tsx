@@ -45,6 +45,7 @@ const countries = [
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { format } = useCurrency();
   const { user } = useAuth();
   const { items, subtotal, onlineDiscount, bulkDiscount, itemCount, total, clearCart } = useCart();
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cod" | "wallet" | "paypal" | "wallet_card">("online");
