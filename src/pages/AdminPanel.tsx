@@ -686,7 +686,7 @@ const AdminPanel = () => {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="flex min-h-[calc(100vh-80px)]">
+      <div className="flex min-h-[calc(100vh-80px)] pt-32">
         {/* Sidebar */}
         <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
           <div className="p-6 border-b border-border">
