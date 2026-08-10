@@ -93,7 +93,7 @@ const ProductCard = ({ id, name, price, image, category, isNew }: ProductCardPro
 
             {/* Online Discount Badge */}
             <div className="absolute top-3 right-3 px-2 py-1 bg-accent/90 text-accent-foreground text-xs font-body tracking-wide rounded backdrop-blur-sm">
-              Up to 7% OFF
+              Up to 8% OFF
             </div>
 
             {/* Hover Overlay */}

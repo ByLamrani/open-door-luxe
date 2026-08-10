@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import DoorEntry from "@/components/DoorEntry";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
@@ -16,8 +15,7 @@ import { catalog, clusterCategories } from "@/data/catalog";
 
 const Index = () => {
   const { t } = useTranslation();
-  const [hasEntered, setHasEntered] = useState(false);
-  const [showContent, setShowContent] = useState(false);
+  const [showContent, setShowContent] = useState(true);
 
   const diverseProducts = getDiverseProducts();
   const newProducts = getNewProducts();
@@ -34,26 +32,8 @@ const Index = () => {
     }))
     .filter((c) => c.items.length > 0);
 
-  useEffect(() => {
-    const entered = sessionStorage.getItem("aleLifestyleEntered");
-    if (entered) {
-      setHasEntered(true);
-      setShowContent(true);
-    }
-  }, []);
-
-  const handleEnter = () => {
-    sessionStorage.setItem("aleLifestyleEntered", "true");
-    setHasEntered(true);
-    setTimeout(() => setShowContent(true), 500);
-  };
-
   return (
     <>
-      <AnimatePresence>
-        {!hasEntered && <DoorEntry onEnter={handleEnter} />}
-      </AnimatePresence>
-
       {showContent && (
         <motion.div
           initial={{ opacity: 0 }}
