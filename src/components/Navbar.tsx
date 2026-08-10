@@ -117,6 +117,11 @@ const Navbar = () => {
                     <User className="w-5 h-5" />
                   )}
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="p-2 text-foreground/80 hover:text-gold transition-colors" title={t("nav.admin")}>
+                    <ShieldCheck className="w-5 h-5" />
+                  </Link>
+                )}
                 <button onClick={() => signOut()} className="text-xs text-muted-foreground hover:text-gold transition-colors">
                    {t("nav.signOut")}
                 </button>
