@@ -50,6 +50,7 @@ const Navbar = () => {
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [showExplore, setShowExplore] = useState(false);
   const [, setAccountType] = useState<string>("buyer");
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
@@ -59,6 +60,11 @@ const Navbar = () => {
       supabase.from("profiles").select("account_type").eq("user_id", user.id).single().then(({ data }) => {
         if (data) setAccountType(data.account_type || "buyer");
       });
+      supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
+        setIsAdmin(!!data?.some((r: any) => r.role === "admin"));
+      });
+    } else {
+      setIsAdmin(false);
     }
   }, [user]);
 
