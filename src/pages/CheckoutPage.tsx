@@ -334,13 +334,13 @@ const CheckoutPage = () => {
       const lines = items
         .map((i) => {
           const canonicalName = getProductById(i.id)?.name || i.name;
-          return `• ${canonicalName} x${i.quantity} — $${(i.price * i.quantity).toFixed(2)}`;
+          return `• ${canonicalName} x${i.quantity} — ${format((i.price * i.quantity))}`;
         })
         .join("\n");
       const message =
         `Lamra Lux — Order Confirmation\n\nOrder ID: ${generatedOrderId}\n\n${lines}\n\n` +
-        `Total: $${finalTotal.toFixed(2)}` +
-        (useAdvancePayment ? `\nPaid now: $${quote.payNow.toFixed(2)}\nDue on delivery: $${quote.dueOnDelivery.toFixed(2)}` : "") +
+        `Total: ${format(finalTotal)}` +
+        (useAdvancePayment ? `\nPaid now: ${format(quote.payNow)}\nDue on delivery: ${format(quote.dueOnDelivery)}` : "") +
         `\n\nTrack your order at ${window.location.origin}/track-order`;
       const waUrl = `https://wa.me/${waPhone}?text=${encodeURIComponent(message)}`;
       setWhatsappUrl(waUrl);
@@ -501,7 +501,7 @@ const CheckoutPage = () => {
                 {paymentMethod === "cod" && (
                   <li className="flex items-start gap-3">
                     <Check className="w-5 h-5 text-gold flex-shrink-0 mt-0.5" />
-                    <span>Please have <span className="text-gold font-semibold">${(useAdvancePayment ? quote.dueOnDelivery : quote.total).toFixed(2)}</span> ready for cash payment upon delivery</span>
+                    <span>Please have <span className="text-gold font-semibold">{format((useAdvancePayment ? quote.dueOnDelivery : quote.total))}</span> ready for cash payment upon delivery</span>
                   </li>
                 )}
               </ul>
@@ -799,7 +799,7 @@ const CheckoutPage = () => {
                             E-Wallet
                           </p>
                           <p className="font-body text-xs text-muted-foreground">
-                            Balance: ${walletBalance.toFixed(2)} - Fastest checkout
+                            Balance: {format(walletBalance)} - Fastest checkout
                           </p>
                         </div>
                         <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
@@ -827,7 +827,7 @@ const CheckoutPage = () => {
                               Wallet + Card
                             </p>
                             <p className="font-body text-xs text-muted-foreground">
-                              Use ${walletBalance.toFixed(2)} from wallet, pay the rest by card
+                              Use {format(walletBalance)} from wallet, pay the rest by card
                             </p>
                           </div>
                           <span className="px-2 py-1 bg-gold text-primary-foreground text-xs font-bold rounded">
@@ -908,15 +908,15 @@ const CheckoutPage = () => {
                       <div className="mt-4 p-3 bg-gold/10 border border-gold/30 rounded-lg space-y-1">
                         <div className="flex justify-between text-sm font-body">
                           <span className="text-muted-foreground">Advance (3% discount applied)</span>
-                          <span className="text-gold font-semibold">${getAdvanceAmount().toFixed(2)}</span>
+                          <span className="text-gold font-semibold">{format(getAdvanceAmount())}</span>
                         </div>
                         <div className="flex justify-between text-sm font-body">
                           <span className="text-muted-foreground">Remaining on delivery</span>
-                          <span className="text-foreground">${getRemainingAmount().toFixed(2)}</span>
+                          <span className="text-foreground">{format(getRemainingAmount())}</span>
                         </div>
                         <div className="flex justify-between text-sm font-body">
                           <span className="text-gold">You save</span>
-                          <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                          <span className="text-gold">-{format(getAdvanceDiscount())}</span>
                         </div>
                       </div>
                     )}
@@ -933,11 +933,11 @@ const CheckoutPage = () => {
                       <div className="space-y-2 mb-4">
                         <div className="flex justify-between text-sm font-body">
                           <span className="text-muted-foreground">From Wallet</span>
-                          <span className="text-gold font-semibold">${getWalletCardSplit().walletPortion.toFixed(2)}</span>
+                          <span className="text-gold font-semibold">{format(getWalletCardSplit().walletPortion)}</span>
                         </div>
                         <div className="flex justify-between text-sm font-body">
                           <span className="text-muted-foreground">From Card</span>
-                          <span className="text-foreground font-semibold">${getWalletCardSplit().cardPortion.toFixed(2)}</span>
+                          <span className="text-foreground font-semibold">{format(getWalletCardSplit().cardPortion)}</span>
                         </div>
                       </div>
                     </div>
@@ -1034,7 +1034,7 @@ const CheckoutPage = () => {
                   {paymentMethod === "paypal" ? (
                     <div className="space-y-2">
                       <p className="text-xs text-muted-foreground">
-                        You'll pay <span className="text-foreground font-semibold">${getFinalTotal().toFixed(2)}</span> via PayPal.
+                        You'll pay <span className="text-foreground font-semibold">{format(getFinalTotal())}</span> via PayPal.
                         90% goes to the vendor, 10% platform fee — split automatically.
                       </p>
                       <PayPalButton
@@ -1064,8 +1064,8 @@ const CheckoutPage = () => {
                   ) : paymentMethod === "cod" && useAdvancePayment ? (
                     <div className="space-y-2">
                       <p className="text-xs text-muted-foreground">
-                        Hybrid COD — pay <span className="text-foreground font-semibold">${getAdvanceAmount().toFixed(2)}</span> now (20% deposit).
-                        Remaining <span className="text-foreground font-semibold">${(getFinalTotal() - getAdvanceAmount()).toFixed(2)}</span> due on delivery.
+                        Hybrid COD — pay <span className="text-foreground font-semibold">{format(getAdvanceAmount())}</span> now (20% deposit).
+                        Remaining <span className="text-foreground font-semibold">{format((getFinalTotal() - getAdvanceAmount()))}</span> due on delivery.
                       </p>
                       <PayPalButton
                         buildOrderInput={() => ({
@@ -1092,8 +1092,8 @@ const CheckoutPage = () => {
                       onClick={handleProceedToVerification}
                     >
                       {paymentMethod === "online" || paymentMethod === "wallet" || paymentMethod === "wallet_card"
-                        ? `Proceed to Verification${useAdvancePayment ? ` - $${getAdvanceAmount().toFixed(2)}` : ""}`
-                        : `Place Order - $${getFinalTotal().toFixed(2)}`}
+                        ? `Proceed to Verification${useAdvancePayment ? ` - ${format(getAdvanceAmount())}` : ""}`
+                        : `Place Order - ${format(getFinalTotal())}`}
                     </Button>
                   )}
                 </motion.div>
@@ -1147,7 +1147,7 @@ const CheckoutPage = () => {
                         Processing...
                       </>
                     ) : (
-                      `Confirm & Pay $${useAdvancePayment ? getAdvanceAmount().toFixed(2) : getFinalTotal().toFixed(2)}`
+                      `Confirm & Pay ${format(useAdvancePayment ? getAdvanceAmount().toFixed(2) : getFinalTotal())}`
                     )}
                   </Button>
                 </motion.div>
@@ -1184,7 +1184,7 @@ const CheckoutPage = () => {
                         </p>
                       </div>
                       <p className="font-body text-sm text-foreground">
-                        ${(item.price * item.quantity).toFixed(2)}
+                        {format((item.price * item.quantity))}
                       </p>
                     </div>
                   ))}
@@ -1194,7 +1194,7 @@ const CheckoutPage = () => {
                 <div className="space-y-3 border-t border-border pt-4">
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-muted-foreground">Subtotal</span>
-                    <span className="text-foreground">${subtotal.toFixed(2)}</span>
+                    <span className="text-foreground">{format(subtotal)}</span>
                   </div>
                   
                   {quote.tierDiscount > 0 && (
@@ -1203,7 +1203,7 @@ const CheckoutPage = () => {
                         Offer — {itemCount} {itemCount > 1 ? "items" : "item"} ({Math.round(quote.tierRate * 100)}%{" "}
                         {isOnlinePayment ? "online" : "on delivery"})
                       </span>
-                      <span className="text-gold">-${quote.tierDiscount.toFixed(2)}</span>
+                      <span className="text-gold">-{format(quote.tierDiscount)}</span>
                     </div>
                   )}
 
@@ -1211,7 +1211,7 @@ const CheckoutPage = () => {
                   {useAdvancePayment && (
                     <div className="flex justify-between font-body text-sm">
                       <span className="text-gold">Advance Discount (5%)</span>
-                      <span className="text-gold">-${getAdvanceDiscount().toFixed(2)}</span>
+                      <span className="text-gold">-{format(getAdvanceDiscount())}</span>
                     </div>
                   )}
                   
@@ -1223,7 +1223,7 @@ const CheckoutPage = () => {
                   <div className="flex justify-between font-display text-lg pt-3 border-t border-border">
                     <span className="text-foreground">Total</span>
                     <span className="text-gold">
-                      ${getFinalTotal().toFixed(2)}
+                      {format(getFinalTotal())}
                     </span>
                   </div>
 
@@ -1231,18 +1231,18 @@ const CheckoutPage = () => {
                     <>
                       <div className="flex justify-between font-body text-sm bg-gold/10 p-2 rounded">
                         <span className="text-gold font-medium">Pay Now (20%)</span>
-                        <span className="text-gold font-semibold">${quote.payNow.toFixed(2)}</span>
+                        <span className="text-gold font-semibold">{format(quote.payNow)}</span>
                       </div>
                       <div className="flex justify-between font-body text-sm">
                         <span className="text-muted-foreground">Due on Delivery</span>
-                        <span className="text-foreground">${quote.dueOnDelivery.toFixed(2)}</span>
+                        <span className="text-foreground">{format(quote.dueOnDelivery)}</span>
                       </div>
                     </>
                   )}
 
                   {quote.totalDiscount > 0 && (
                     <p className="text-xs text-gold text-center mt-2">
-                      🎉 You save ${quote.totalDiscount.toFixed(2)} on this order
+                      🎉 You save {format(quote.totalDiscount)} on this order
                     </p>
                   )}
                 </div>
