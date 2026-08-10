@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown, User, ShieldCheck } from "lucide-react";
 import logo from "@/assets/lamralux-mark.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
