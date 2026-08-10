@@ -17,6 +17,7 @@ import PayPalButton from "@/components/payments/PayPalButton";
 import { PRICING } from "@/lib/payments/config";
 import { getQuote, getTierRate, PRICING_RULES, type PayMethod } from "@/lib/pricing";
 import { getProductById } from "@/data/products";
+import { useCurrency } from "@/context/CurrencyContext";
 
 interface ShippingInfo {
   firstName: string;
@@ -1147,7 +1148,7 @@ const CheckoutPage = () => {
                         Processing...
                       </>
                     ) : (
-                      `Confirm & Pay ${format(useAdvancePayment ? getAdvanceAmount().toFixed(2) : getFinalTotal())}`
+                      `Confirm & Pay ${format(useAdvancePayment ? getAdvanceAmount() : getFinalTotal())}`
                     )}
                   </Button>
                 </motion.div>
