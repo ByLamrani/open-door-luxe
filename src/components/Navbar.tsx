@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Menu, X, ChevronDown, User } from "lucide-react";
+import { ShoppingBag, Menu, X, ChevronDown, User, ShieldCheck } from "lucide-react";
 import logo from "@/assets/lamralux-mark.png";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
@@ -50,6 +50,7 @@ const Navbar = () => {
   const [activeSubmenu, setActiveSubmenu] = useState<string | null>(null);
   const [showExplore, setShowExplore] = useState(false);
   const [, setAccountType] = useState<string>("buyer");
+  const [isAdmin, setIsAdmin] = useState(false);
   const location = useLocation();
   const { itemCount } = useCart();
   const { user, signOut } = useAuth();
@@ -59,6 +60,11 @@ const Navbar = () => {
       supabase.from("profiles").select("account_type").eq("user_id", user.id).single().then(({ data }) => {
         if (data) setAccountType(data.account_type || "buyer");
       });
+      supabase.from("user_roles").select("role").eq("user_id", user.id).then(({ data }) => {
+        setIsAdmin(!!data?.some((r: any) => r.role === "admin"));
+      });
+    } else {
+      setIsAdmin(false);
     }
   }, [user]);
 
@@ -111,6 +117,11 @@ const Navbar = () => {
                     <User className="w-5 h-5" />
                   )}
                 </Link>
+                {isAdmin && (
+                  <Link to="/admin" className="p-2 text-foreground/80 hover:text-gold transition-colors" title={t("nav.admin")}>
+                    <ShieldCheck className="w-5 h-5" />
+                  </Link>
+                )}
                 <button onClick={() => signOut()} className="text-xs text-muted-foreground hover:text-gold transition-colors">
                    {t("nav.signOut")}
                 </button>
@@ -260,9 +271,16 @@ const Navbar = () => {
               ))}
 
               {user && (
-                <button onClick={() => { signOut(); setIsOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-body text-muted-foreground hover:text-gold">
-                  {t("nav.signOut")}
-                </button>
+                <>
+                  {isAdmin && (
+                    <Link to="/admin" onClick={() => setIsOpen(false)} className="block px-4 py-3 text-sm font-body text-gold hover:text-gold/80">
+                      {t("nav.admin")}
+                    </Link>
+                  )}
+                  <button onClick={() => { signOut(); setIsOpen(false); }} className="block w-full text-left px-4 py-3 text-sm font-body text-muted-foreground hover:text-gold">
+                    {t("nav.signOut")}
+                  </button>
+                </>
               )}
             </div>
           </motion.div>

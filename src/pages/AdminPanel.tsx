@@ -22,8 +22,13 @@ import {
   Sparkles,
   Trash2,
   Plus,
+  LayoutDashboard,
+  ShoppingCart,
+  Verified,
+  Wallet,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrency } from "@/context/CurrencyContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import * as XLSX from "xlsx";
@@ -39,14 +44,14 @@ type Tab =
   | "withdrawals";
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
-  { id: "overview", label: "Overview", icon: BarChart3 },
-  { id: "orders", label: "Orders", icon: Package },
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "orders", label: "Orders", icon: ShoppingCart },
   { id: "logistics", label: "Logistics", icon: Truck },
   { id: "payments", label: "Payments", icon: CreditCard },
-  { id: "products", label: "Products", icon: Plus },
+  { id: "products", label: "Products", icon: Package },
   { id: "offers", label: "Special Offers", icon: Sparkles },
-  { id: "verification", label: "Verification", icon: ShieldCheck },
-  { id: "withdrawals", label: "Withdrawals", icon: Users },
+  { id: "verification", label: "Verification", icon: Verified },
+  { id: "withdrawals", label: "Withdrawals", icon: Wallet },
 ];
 
 const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
@@ -56,12 +61,11 @@ const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
   { key: "returned", label: "Returned", statuses: ["returned", "refunded", "cancelled"] },
 ];
 
-const money = (n: number) => `$${Number(n || 0).toFixed(2)}`;
-
 const AdminPanel = () => {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { format } = useCurrency();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<Tab>("overview");
   const [busy, setBusy] = useState<string | null>(null);
@@ -314,49 +318,21 @@ const AdminPanel = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <main className="container mx-auto px-4 py-10 space-y-6">
-        <header className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <ShieldCheck className="h-8 w-8 text-primary" />
-            <h1 className="text-3xl font-bold">Lamra Lux Dashboard</h1>
-          </div>
-          <Button onClick={exportExcel}>
-            <Download className="h-4 w-4 mr-2" /> Download Excel
-          </Button>
-        </header>
-
-        <nav className="flex flex-wrap gap-2">
-          {TABS.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => setTab(t.id)}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${
-                tab === t.id
-                  ? "border-foreground bg-foreground text-background"
-                  : "border-border text-muted-foreground hover:border-foreground/50"
-              }`}
-            >
-              <t.icon className="h-4 w-4" />
-              {t.label}
-            </button>
-          ))}
-        </nav>
-
-        {tab === "overview" && (
+  const renderContent = () => {
+    switch (tab) {
+      case "overview":
+        return (
           <div className="space-y-6">
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Total revenue", value: money(stats.revenue) },
+                { label: "Total revenue", value: format(stats.revenue) },
                 { label: "Orders", value: stats.orders },
-                { label: "Revenue (30 days)", value: money(stats.last30Revenue) },
+                { label: "Revenue (30 days)", value: format(stats.last30Revenue) },
                 { label: "Orders (30 days)", value: stats.last30Orders },
                 { label: "Customers", value: stats.customers },
-                { label: "Average basket", value: money(stats.avgBasket) },
+                { label: "Average basket", value: format(stats.avgBasket) },
                 { label: "Online payments", value: `${stats.onlineShare.toFixed(0)}%` },
-                { label: "Wallet top-ups", value: money(stats.topups) },
+                { label: "Wallet top-ups", value: format(stats.topups) },
               ].map((s) => (
                 <Card key={s.label}>
                   <CardContent className="pt-6">
@@ -381,9 +357,10 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </div>
-        )}
+        );
 
-        {tab === "orders" && (
+      case "orders":
+        return (
           <Card>
             <CardHeader>
               <CardTitle>Orders ({orders.length})</CardTitle>
@@ -399,7 +376,7 @@ const AdminPanel = () => {
                       <Badge variant="secondary">{o.payment_method}</Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {money(o.total)} • {new Date(o.created_at).toLocaleString()}
+                      {format(o.total)} • {new Date(o.created_at).toLocaleString()}
                     </p>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -419,9 +396,10 @@ const AdminPanel = () => {
               ))}
             </CardContent>
           </Card>
-        )}
+        );
 
-        {tab === "logistics" && (
+      case "logistics":
+        return (
           <Card>
             <CardHeader>
               <CardTitle>Logistics ({jobs.length})</CardTitle>
@@ -441,9 +419,10 @@ const AdminPanel = () => {
               ))}
             </CardContent>
           </Card>
-        )}
+        );
 
-        {tab === "payments" && (
+      case "payments":
+        return (
           <div className="grid gap-6 lg:grid-cols-2">
             <Card>
               <CardHeader>
@@ -454,7 +433,7 @@ const AdminPanel = () => {
                 {topups.map((t) => (
                   <div key={t.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
                     <span>
-                      {money(t.amount)} {t.currency}
+                      {format(t.amount)} {t.currency}
                     </span>
                     <span className="text-muted-foreground">
                       {t.status} • {new Date(t.created_at).toLocaleDateString()}
@@ -471,15 +450,16 @@ const AdminPanel = () => {
                 {txns.map((t) => (
                   <div key={t.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
                     <span>{t.transaction_type}</span>
-                    <span className={Number(t.amount) < 0 ? "text-destructive" : ""}>{money(t.amount)}</span>
+                    <span className={Number(t.amount) < 0 ? "text-destructive" : ""}>{format(t.amount)}</span>
                   </div>
                 ))}
               </CardContent>
             </Card>
           </div>
-        )}
+        );
 
-        {tab === "products" && (
+      case "products":
+        return (
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -491,7 +471,7 @@ const AdminPanel = () => {
                   <Input value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Price (USD)</Label>
+                  <Label>Price</Label>
                   <Input
                     type="number"
                     value={newProduct.price}
@@ -533,7 +513,7 @@ const AdminPanel = () => {
                     <div>
                       <p className="font-semibold text-sm">{p.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {money(p.price)} • {p.category || "uncategorised"}
+                        {format(p.price)} • {p.category || "uncategorised"}
                       </p>
                     </div>
                     <Button size="sm" variant="destructive" disabled={busy === p.id} onClick={() => removeProduct(p.id)}>
@@ -544,9 +524,10 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </div>
-        )}
+        );
 
-        {tab === "offers" && (
+      case "offers":
+        return (
           <div className="space-y-6">
             <Card>
               <CardHeader>
@@ -625,9 +606,10 @@ const AdminPanel = () => {
               </CardContent>
             </Card>
           </div>
-        )}
+        );
 
-        {tab === "verification" && (
+      case "verification":
+        return (
           <Card>
             <CardHeader>
               <CardTitle>Verification queue ({docs.length})</CardTitle>
@@ -660,9 +642,10 @@ const AdminPanel = () => {
               ))}
             </CardContent>
           </Card>
-        )}
+        );
 
-        {tab === "withdrawals" && (
+      case "withdrawals":
+        return (
           <Card>
             <CardHeader>
               <CardTitle>Withdrawal requests ({withdrawals.length})</CardTitle>
@@ -673,7 +656,7 @@ const AdminPanel = () => {
                 <div key={w.id} className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg p-3">
                   <div>
                     <div className="font-semibold">
-                      {money(w.amount)} {w.currency}
+                      {format(w.amount)} {w.currency}
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {w.method} • {w.status} • {new Date(w.created_at).toLocaleString()}
@@ -693,8 +676,107 @@ const AdminPanel = () => {
               ))}
             </CardContent>
           </Card>
-        )}
-      </main>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+      <div className="flex min-h-[calc(100vh-80px)] pt-32">
+        {/* Sidebar */}
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center gap-2">
+              <div className="p-2 bg-gold/10 rounded-lg">
+                <BarChart3 className="h-5 w-5 text-gold" />
+              </div>
+              <div>
+                <h2 className="font-display text-lg font-semibold">Admin</h2>
+                <p className="text-xs text-muted-foreground">Lamra Lux</p>
+              </div>
+            </div>
+          </div>
+
+          <nav className="flex-1 p-3 space-y-1">
+            {TABS.map((t) => {
+              const Icon = t.icon;
+              const active = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-body transition-colors ${
+                    active
+                      ? "bg-foreground text-background"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </nav>
+
+          <div className="p-4 border-t border-border">
+            <Button onClick={exportExcel} className="w-full" variant="outline">
+              <Download className="h-4 w-4 mr-2" /> Download Excel
+            </Button>
+          </div>
+        </aside>
+
+        {/* Main */}
+        <main className="flex-1 min-w-0">
+          <header className="sticky top-0 z-10 bg-background/95 backdrop-blur border-b border-border px-6 py-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <ShieldCheck className="h-6 w-6 text-gold" />
+                <div>
+                  <h1 className="text-2xl font-bold font-display">Lamra Lux Dashboard</h1>
+                  <p className="text-xs text-muted-foreground">Manage traffic, orders, products, payments and offers.</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge variant="outline" className="font-body">Admin</Badge>
+                <Button onClick={exportExcel} className="hidden sm:flex" variant="outline">
+                  <Download className="h-4 w-4 mr-2" /> Download Excel
+                </Button>
+              </div>
+            </div>
+          </header>
+
+          {/* Mobile tab selector */}
+          <div className="md:hidden p-4 border-b border-border overflow-x-auto">
+            <div className="flex gap-2 min-w-max">
+              {TABS.map((t) => {
+                const Icon = t.icon;
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTab(t.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm whitespace-nowrap ${
+                      tab === t.id
+                        ? "border-foreground bg-foreground text-background"
+                        : "border-border text-muted-foreground"
+                    }`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
+            {renderContent()}
+          </div>
+        </main>
+      </div>
       <Footer />
     </div>
   );

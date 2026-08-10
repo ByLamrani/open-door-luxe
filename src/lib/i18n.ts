@@ -29,6 +29,7 @@ const dict: Record<string, Record<string, string>> = {
   "nav.whyUs": t("Why Us", "Pourquoi Nous", "لماذا نحن", "Por Qué Nosotros", "Почему мы", "Warum wir", "为什么选我们", "私たちの理由", "우리를 선택하는 이유", "Waarom wij"),
   "nav.signIn": t("Sign In", "Connexion", "تسجيل الدخول", "Iniciar sesión", "Войти", "Anmelden", "登录", "サインイン", "로그인", "Inloggen"),
   "nav.signOut": t("Sign Out", "Déconnexion", "تسجيل الخروج", "Cerrar sesión", "Выйти", "Abmelden", "退出", "サインアウト", "로그아웃", "Uitloggen"),
+  "nav.admin": t("Admin", "Admin", "إدارة", "Admin", "Админ", "Admin", "管理", "管理", "관리자", "Admin"),
   "nav.selfCare": t("Self-Care", "Soins Personnels", "العناية الذاتية", "Cuidado Personal", "Уход за собой", "Selbstpflege", "自我护理", "セルフケア", "셀프 케어", "Zelfzorg"),
   "nav.fragrances": t("Fragrances", "Parfums", "العطور", "Fragancias", "Ароматы", "Düfte", "香水", "フレグランス", "향수", "Geuren"),
   "nav.airDiffusers": t("Air Diffusers", "Diffuseurs", "معطرات الجو", "Difusores", "Диффузоры", "Diffusoren", "香薰机", "ディフューザー", "디퓨저", "Diffusers"),
