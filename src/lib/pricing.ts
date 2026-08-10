@@ -6,19 +6,19 @@ export type PayMethod = "online" | "wallet" | "paypal" | "wallet_card" | "cod";
  *
  *  1 – 3 products : 0% offline / 2% online
  *  4 – 7 products : 3% offline / 5% online
- *  8+   products  : 6% offline / 7% online
+ *  8+   products  : 6% offline / 8% online
  */
 export const OFFER_TIERS = [
   { min: 1, max: 3, offline: 0, online: 0.02, label: "1–3 items" },
   { min: 4, max: 7, offline: 0.03, online: 0.05, label: "4–7 items" },
-  { min: 8, max: Infinity, offline: 0.06, online: 0.07, label: "8+ items" },
+  { min: 8, max: Infinity, offline: 0.06, online: 0.08, label: "8+ items" },
 ] as const;
 
 export const PRICING_RULES = {
   /** Discount for a single online (prepaid) item: card, wallet, wallet+card, PayPal */
   ONLINE_PCT: 0.02,
   /** Best online discount available (used for "up to X% off" badges) */
-  MAX_ONLINE_PCT: 0.07,
+  MAX_ONLINE_PCT: 0.08,
   /** Extra discount when paying an advance deposit on a Cash-on-Delivery order */
   ADVANCE_PCT: 0.05,
   /** Share of the order paid up front with the advance option */
