@@ -67,7 +67,7 @@ const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
 ];
 
 const AdminPanel = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { format } = useCurrency();
@@ -906,7 +906,6 @@ const AdminPanel = () => {
           </div>
         </main>
       </div>
-      <Footer />
     </div>
   );
 };
