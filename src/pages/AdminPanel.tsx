@@ -353,14 +353,13 @@ const AdminPanel = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <ShieldAlert className="h-12 w-12 mx-auto text-destructive mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
-          <p className="text-muted-foreground">You don't have permission to view this page.</p>
-        </div>
-        <Footer />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+        <ShieldAlert className="h-12 w-12 mx-auto text-destructive mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
+        <p className="text-muted-foreground mb-6">You don't have permission to view this page.</p>
+        <Button asChild variant="outline">
+          <Link to="/">Back to store</Link>
+        </Button>
       </div>
     );
   }
