@@ -29,8 +29,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrency } from "@/context/CurrencyContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
+import { LogOut, ScrollText, UserCog, Store } from "lucide-react";
+import { logAudit, sanitizeText } from "@/lib/audit";
 import * as XLSX from "xlsx";
 
 type Tab =
@@ -40,8 +41,10 @@ type Tab =
   | "payments"
   | "products"
   | "offers"
+  | "users"
   | "verification"
-  | "withdrawals";
+  | "withdrawals"
+  | "activity";
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -50,8 +53,10 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "products", label: "Products", icon: Package },
   { id: "offers", label: "Special Offers", icon: Sparkles },
+  { id: "users", label: "Users & Access", icon: UserCog },
   { id: "verification", label: "Verification", icon: Verified },
   { id: "withdrawals", label: "Withdrawals", icon: Wallet },
+  { id: "activity", label: "Activity log", icon: ScrollText },
 ];
 
 const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
