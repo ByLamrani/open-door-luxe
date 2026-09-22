@@ -29,8 +29,9 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCurrency } from "@/context/CurrencyContext";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Link } from "react-router-dom";
+import { LogOut, ScrollText, UserCog, Store } from "lucide-react";
+import { logAudit, sanitizeText } from "@/lib/audit";
 import * as XLSX from "xlsx";
 
 type Tab =
@@ -40,8 +41,10 @@ type Tab =
   | "payments"
   | "products"
   | "offers"
+  | "users"
   | "verification"
-  | "withdrawals";
+  | "withdrawals"
+  | "activity";
 
 const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -50,8 +53,10 @@ const TABS: { id: Tab; label: string; icon: any }[] = [
   { id: "payments", label: "Payments", icon: CreditCard },
   { id: "products", label: "Products", icon: Package },
   { id: "offers", label: "Special Offers", icon: Sparkles },
+  { id: "users", label: "Users & Access", icon: UserCog },
   { id: "verification", label: "Verification", icon: Verified },
   { id: "withdrawals", label: "Withdrawals", icon: Wallet },
+  { id: "activity", label: "Activity log", icon: ScrollText },
 ];
 
 const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
@@ -62,7 +67,7 @@ const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
 ];
 
 const AdminPanel = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { format } = useCurrency();
@@ -79,6 +84,9 @@ const AdminPanel = () => {
   const [txns, setTxns] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [userSearch, setUserSearch] = useState("");
 
   const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "", image: "", description: "" });
   const [newOffer, setNewOffer] = useState({ title: "", occasion: "", discount_pct: "", ends_at: "", description: "" });
@@ -98,7 +106,7 @@ const AdminPanel = () => {
   }, [user, loading]);
 
   const refresh = async () => {
-    const [d, w, o, p, pr, t, tx, j, of] = await Promise.all([
+    const [d, w, o, p, pr, t, tx, j, of, rl, al] = await Promise.all([
       supabase.from("verification_documents").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("withdrawal_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }),
@@ -108,7 +116,11 @@ const AdminPanel = () => {
       supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("shipping_jobs").select("*").order("created_at", { ascending: false }),
       supabase.from("special_offers" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("*"),
+      supabase.from("audit_logs" as any).select("*").order("created_at", { ascending: false }).limit(200),
     ]);
+    setRoles(rl.data ?? []);
+    setAuditLogs((al.data as any[]) ?? []);
     setDocs(d.data ?? []);
     setWithdrawals(w.data ?? []);
     setOrders(o.data ?? []);
@@ -219,6 +231,7 @@ const AdminPanel = () => {
         .eq("user_id", doc.user_id);
     }
     setBusy(null);
+    await logAudit(`verification.${decision}`, { entity: "verification_documents", entityId: doc.id });
     toast({ title: `Document ${decision}` });
     refresh();
   };
@@ -230,6 +243,7 @@ const AdminPanel = () => {
       .update({ status: decision, processed_by: user!.id, processed_at: new Date().toISOString() })
       .eq("id", w.id);
     setBusy(null);
+    await logAudit(`withdrawal.${decision}`, { entity: "withdrawal_requests", entityId: w.id, details: { amount: w.amount } });
     toast({ title: `Withdrawal ${decision}` });
     refresh();
   };
@@ -238,6 +252,7 @@ const AdminPanel = () => {
     setBusy(o.id);
     await supabase.from("orders").update({ status }).eq("id", o.id);
     setBusy(null);
+    await logAudit("order.status_change", { entity: "orders", entityId: o.order_id ?? o.id, details: { status } });
     refresh();
   };
 
@@ -248,14 +263,15 @@ const AdminPanel = () => {
     }
     setBusy("new-product");
     const { error } = await supabase.from("products").insert({
-      name: newProduct.name,
+      name: sanitizeText(newProduct.name, 160),
       price: Number(newProduct.price),
-      category: newProduct.category || null,
-      image: newProduct.image || null,
-      description: newProduct.description || null,
+      category: sanitizeText(newProduct.category, 80) || null,
+      image: sanitizeText(newProduct.image, 500) || null,
+      description: sanitizeText(newProduct.description) || null,
     });
     setBusy(null);
     if (error) return toast({ title: "Could not add product", description: error.message, variant: "destructive" });
+    await logAudit("product.create", { entity: "products", details: { name: newProduct.name } });
     setNewProduct({ name: "", price: "", category: "", image: "", description: "" });
     toast({ title: "Product added" });
     refresh();
@@ -265,6 +281,7 @@ const AdminPanel = () => {
     setBusy(id);
     await supabase.from("products").delete().eq("id", id);
     setBusy(null);
+    await logAudit("product.delete", { entity: "products", entityId: id });
     refresh();
   };
 
@@ -272,9 +289,9 @@ const AdminPanel = () => {
     if (!newOffer.title) return toast({ title: "Title is required", variant: "destructive" });
     setBusy("new-offer");
     const { error } = await supabase.from("special_offers" as any).insert({
-      title: newOffer.title,
-      occasion: newOffer.occasion || null,
-      description: newOffer.description || null,
+      title: sanitizeText(newOffer.title, 160),
+      occasion: sanitizeText(newOffer.occasion, 80) || null,
+      description: sanitizeText(newOffer.description) || null,
       discount_pct: Number(newOffer.discount_pct || 0),
       ends_at: newOffer.ends_at ? new Date(newOffer.ends_at).toISOString() : null,
       created_by: user!.id,
@@ -293,8 +310,38 @@ const AdminPanel = () => {
 
   const deleteOffer = async (id: string) => {
     await supabase.from("special_offers" as any).delete().eq("id", id);
+    await logAudit("offer.delete", { entity: "special_offers", entityId: id });
     refresh();
   };
+
+  const roleFor = (uid: string) => roles.find((r) => r.user_id === uid)?.role ?? "user";
+
+  const changeRole = async (uid: string, role: "admin" | "moderator" | "user") => {
+    setBusy(uid);
+    const existing = roles.filter((r) => r.user_id === uid);
+    for (const r of existing) {
+      await supabase.from("user_roles").delete().eq("id", r.id);
+    }
+    const { error } = await supabase.from("user_roles").insert({ user_id: uid, role });
+    setBusy(null);
+    if (error) {
+      toast({ title: "Could not update role", description: error.message, variant: "destructive" });
+      return;
+    }
+    await logAudit("user.role_change", { entity: "user_roles", entityId: uid, details: { role } });
+    toast({ title: `Role set to ${role}` });
+    refresh();
+  };
+
+  const filteredProfiles = profiles.filter((p) => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (p.full_name || "").toLowerCase().includes(q) ||
+      (p.email || "").toLowerCase().includes(q) ||
+      (p.city || "").toLowerCase().includes(q)
+    );
+  });
 
   if (loading || isAdmin === null) {
     return (
@@ -306,14 +353,13 @@ const AdminPanel = () => {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background">
-        <Navbar />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <ShieldAlert className="h-12 w-12 mx-auto text-destructive mb-4" />
-          <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
-          <p className="text-muted-foreground">You don't have permission to view this page.</p>
-        </div>
-        <Footer />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
+        <ShieldAlert className="h-12 w-12 mx-auto text-destructive mb-4" />
+        <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
+        <p className="text-muted-foreground mb-6">You don't have permission to view this page.</p>
+        <Button asChild variant="outline">
+          <Link to="/">Back to store</Link>
+        </Button>
       </div>
     );
   }
@@ -678,6 +724,82 @@ const AdminPanel = () => {
           </Card>
         );
 
+      case "users":
+        return (
+          <Card>
+            <CardHeader className="gap-3">
+              <CardTitle>Users & access ({profiles.length})</CardTitle>
+              <Input
+                placeholder="Search by name, email or city…"
+                value={userSearch}
+                onChange={(e) => setUserSearch(e.target.value)}
+                className="max-w-sm"
+              />
+            </CardHeader>
+            <CardContent className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[720px]">
+                <thead>
+                  <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
+                    <th className="py-2 pr-4">Name</th>
+                    <th className="py-2 pr-4">Email</th>
+                    <th className="py-2 pr-4">Joined</th>
+                    <th className="py-2 pr-4">Verified</th>
+                    <th className="py-2 pr-4">Role</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredProfiles.slice(0, 200).map((p) => (
+                    <tr key={p.id} className="border-b border-border/50">
+                      <td className="py-2 pr-4 font-medium">{p.full_name || "—"}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{p.email}</td>
+                      <td className="py-2 pr-4 text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</td>
+                      <td className="py-2 pr-4">
+                        {p.is_verified ? <Badge variant="outline">Verified</Badge> : <span className="text-muted-foreground">—</span>}
+                      </td>
+                      <td className="py-2 pr-4">
+                        <select
+                          value={roleFor(p.user_id)}
+                          disabled={busy === p.user_id}
+                          onChange={(e) => changeRole(p.user_id, e.target.value as any)}
+                          className="bg-background border border-border rounded-md px-2 py-1 text-sm"
+                        >
+                          <option value="user">user</option>
+                          <option value="moderator">moderator</option>
+                          <option value="admin">admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {filteredProfiles.length === 0 && <p className="text-sm text-muted-foreground py-4">No users match this search.</p>}
+            </CardContent>
+          </Card>
+        );
+
+      case "activity":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity log ({auditLogs.length})</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2">
+              {auditLogs.length === 0 && <p className="text-sm text-muted-foreground">No admin activity recorded yet.</p>}
+              {auditLogs.map((l) => (
+                <div key={l.id} className="flex flex-wrap items-center justify-between gap-2 border border-border rounded-lg p-3">
+                  <div>
+                    <div className="font-medium text-sm">{l.action}</div>
+                    <div className="text-xs text-muted-foreground">
+                      {l.actor_email || l.actor_id} • {l.entity || "—"} {l.entity_id ? `#${String(l.entity_id).slice(0, 12)}` : ""}
+                    </div>
+                  </div>
+                  <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        );
+
       default:
         return null;
     }
@@ -685,17 +807,16 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="flex min-h-[calc(100vh-80px)] pt-32">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card sticky top-0 h-screen">
           <div className="p-6 border-b border-border">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gold/10 rounded-lg">
                 <BarChart3 className="h-5 w-5 text-gold" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-semibold">Admin</h2>
+                <h2 className="font-display text-lg font-semibold">Back Office</h2>
                 <p className="text-xs text-muted-foreground">Lamra Lux</p>
               </div>
             </div>
@@ -722,9 +843,17 @@ const AdminPanel = () => {
             })}
           </nav>
 
-          <div className="p-4 border-t border-border">
+          <div className="p-4 border-t border-border space-y-2">
             <Button onClick={exportExcel} className="w-full" variant="outline">
               <Download className="h-4 w-4 mr-2" /> Download Excel
+            </Button>
+            <Button asChild variant="ghost" className="w-full justify-start">
+              <Link to="/">
+                <Store className="h-4 w-4 mr-2" /> View store
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" onClick={() => signOut()}>
+              <LogOut className="h-4 w-4 mr-2" /> Sign out
             </Button>
           </div>
         </aside>
@@ -777,7 +906,6 @@ const AdminPanel = () => {
           </div>
         </main>
       </div>
-      <Footer />
     </div>
   );
 };
