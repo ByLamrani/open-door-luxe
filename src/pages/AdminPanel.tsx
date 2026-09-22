@@ -807,17 +807,16 @@ const AdminPanel = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="flex min-h-[calc(100vh-80px)] pt-32">
+      <div className="flex min-h-screen">
         {/* Sidebar */}
-        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card">
+        <aside className="hidden md:flex w-64 flex-col border-r border-border bg-card sticky top-0 h-screen">
           <div className="p-6 border-b border-border">
             <div className="flex items-center gap-2">
               <div className="p-2 bg-gold/10 rounded-lg">
                 <BarChart3 className="h-5 w-5 text-gold" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-semibold">Admin</h2>
+                <h2 className="font-display text-lg font-semibold">Back Office</h2>
                 <p className="text-xs text-muted-foreground">Lamra Lux</p>
               </div>
             </div>
@@ -844,9 +843,17 @@ const AdminPanel = () => {
             })}
           </nav>
 
-          <div className="p-4 border-t border-border">
+          <div className="p-4 border-t border-border space-y-2">
             <Button onClick={exportExcel} className="w-full" variant="outline">
               <Download className="h-4 w-4 mr-2" /> Download Excel
+            </Button>
+            <Button asChild variant="ghost" className="w-full justify-start">
+              <Link to="/">
+                <Store className="h-4 w-4 mr-2" /> View store
+              </Link>
+            </Button>
+            <Button variant="ghost" className="w-full justify-start" onClick={() => signOut()}>
+              <LogOut className="h-4 w-4 mr-2" /> Sign out
             </Button>
           </div>
         </aside>
