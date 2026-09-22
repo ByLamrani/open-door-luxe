@@ -263,14 +263,15 @@ const AdminPanel = () => {
     }
     setBusy("new-product");
     const { error } = await supabase.from("products").insert({
-      name: newProduct.name,
+      name: sanitizeText(newProduct.name, 160),
       price: Number(newProduct.price),
-      category: newProduct.category || null,
-      image: newProduct.image || null,
-      description: newProduct.description || null,
+      category: sanitizeText(newProduct.category, 80) || null,
+      image: sanitizeText(newProduct.image, 500) || null,
+      description: sanitizeText(newProduct.description) || null,
     });
     setBusy(null);
     if (error) return toast({ title: "Could not add product", description: error.message, variant: "destructive" });
+    await logAudit("product.create", { entity: "products", details: { name: newProduct.name } });
     setNewProduct({ name: "", price: "", category: "", image: "", description: "" });
     toast({ title: "Product added" });
     refresh();
@@ -280,6 +281,7 @@ const AdminPanel = () => {
     setBusy(id);
     await supabase.from("products").delete().eq("id", id);
     setBusy(null);
+    await logAudit("product.delete", { entity: "products", entityId: id });
     refresh();
   };
 
@@ -287,9 +289,9 @@ const AdminPanel = () => {
     if (!newOffer.title) return toast({ title: "Title is required", variant: "destructive" });
     setBusy("new-offer");
     const { error } = await supabase.from("special_offers" as any).insert({
-      title: newOffer.title,
-      occasion: newOffer.occasion || null,
-      description: newOffer.description || null,
+      title: sanitizeText(newOffer.title, 160),
+      occasion: sanitizeText(newOffer.occasion, 80) || null,
+      description: sanitizeText(newOffer.description) || null,
       discount_pct: Number(newOffer.discount_pct || 0),
       ends_at: newOffer.ends_at ? new Date(newOffer.ends_at).toISOString() : null,
       created_by: user!.id,
