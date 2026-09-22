@@ -231,6 +231,7 @@ const AdminPanel = () => {
         .eq("user_id", doc.user_id);
     }
     setBusy(null);
+    await logAudit(`verification.${decision}`, { entity: "verification_documents", entityId: doc.id });
     toast({ title: `Document ${decision}` });
     refresh();
   };
@@ -242,6 +243,7 @@ const AdminPanel = () => {
       .update({ status: decision, processed_by: user!.id, processed_at: new Date().toISOString() })
       .eq("id", w.id);
     setBusy(null);
+    await logAudit(`withdrawal.${decision}`, { entity: "withdrawal_requests", entityId: w.id, details: { amount: w.amount } });
     toast({ title: `Withdrawal ${decision}` });
     refresh();
   };
@@ -250,6 +252,7 @@ const AdminPanel = () => {
     setBusy(o.id);
     await supabase.from("orders").update({ status }).eq("id", o.id);
     setBusy(null);
+    await logAudit("order.status_change", { entity: "orders", entityId: o.order_id ?? o.id, details: { status } });
     refresh();
   };
 
