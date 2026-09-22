@@ -84,6 +84,9 @@ const AdminPanel = () => {
   const [txns, setTxns] = useState<any[]>([]);
   const [jobs, setJobs] = useState<any[]>([]);
   const [offers, setOffers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [userSearch, setUserSearch] = useState("");
 
   const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "", image: "", description: "" });
   const [newOffer, setNewOffer] = useState({ title: "", occasion: "", discount_pct: "", ends_at: "", description: "" });
@@ -103,7 +106,7 @@ const AdminPanel = () => {
   }, [user, loading]);
 
   const refresh = async () => {
-    const [d, w, o, p, pr, t, tx, j, of] = await Promise.all([
+    const [d, w, o, p, pr, t, tx, j, of, rl, al] = await Promise.all([
       supabase.from("verification_documents").select("*").eq("status", "pending").order("created_at", { ascending: false }),
       supabase.from("withdrawal_requests").select("*").order("created_at", { ascending: false }),
       supabase.from("orders").select("*").order("created_at", { ascending: false }),
@@ -113,7 +116,11 @@ const AdminPanel = () => {
       supabase.from("wallet_transactions").select("*").order("created_at", { ascending: false }).limit(500),
       supabase.from("shipping_jobs").select("*").order("created_at", { ascending: false }),
       supabase.from("special_offers" as any).select("*").order("created_at", { ascending: false }),
+      supabase.from("user_roles").select("*"),
+      supabase.from("audit_logs" as any).select("*").order("created_at", { ascending: false }).limit(200),
     ]);
+    setRoles(rl.data ?? []);
+    setAuditLogs((al.data as any[]) ?? []);
     setDocs(d.data ?? []);
     setWithdrawals(w.data ?? []);
     setOrders(o.data ?? []);
