@@ -305,8 +305,38 @@ const AdminPanel = () => {
 
   const deleteOffer = async (id: string) => {
     await supabase.from("special_offers" as any).delete().eq("id", id);
+    await logAudit("offer.delete", { entity: "special_offers", entityId: id });
     refresh();
   };
+
+  const roleFor = (uid: string) => roles.find((r) => r.user_id === uid)?.role ?? "user";
+
+  const changeRole = async (uid: string, role: "admin" | "moderator" | "user") => {
+    setBusy(uid);
+    const existing = roles.filter((r) => r.user_id === uid);
+    for (const r of existing) {
+      await supabase.from("user_roles").delete().eq("id", r.id);
+    }
+    const { error } = await supabase.from("user_roles").insert({ user_id: uid, role });
+    setBusy(null);
+    if (error) {
+      toast({ title: "Could not update role", description: error.message, variant: "destructive" });
+      return;
+    }
+    await logAudit("user.role_change", { entity: "user_roles", entityId: uid, details: { role } });
+    toast({ title: `Role set to ${role}` });
+    refresh();
+  };
+
+  const filteredProfiles = profiles.filter((p) => {
+    const q = userSearch.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      (p.full_name || "").toLowerCase().includes(q) ||
+      (p.email || "").toLowerCase().includes(q) ||
+      (p.city || "").toLowerCase().includes(q)
+    );
+  });
 
   if (loading || isAdmin === null) {
     return (
