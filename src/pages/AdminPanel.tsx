@@ -87,6 +87,40 @@ const AdminPanel = () => {
   const [roles, setRoles] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [userSearch, setUserSearch] = useState("");
+  const [newUser, setNewUser] = useState({ email: "", password: "", full_name: "" });
+
+  const callAdminUsers = async (body: Record<string, unknown>, okMsg: string) => {
+    const { data, error } = await supabase.functions.invoke("admin-users", { body });
+    if (error || (data as any)?.error) {
+      let msg = (data as any)?.error || error?.message;
+      try { msg = (await (error as any)?.context?.json())?.error ?? msg; } catch { /* ignore */ }
+      toast({ title: "Action failed", description: typeof msg === "string" ? msg : JSON.stringify(msg), variant: "destructive" });
+      return false;
+    }
+    await logAudit(`user.${body.action}`, { entity: "auth.users", entityId: String(body.user_id ?? body.email ?? ""), details: {} });
+    toast({ title: okMsg });
+    refresh();
+    return true;
+  };
+  const createUser = async () => {
+    if (!newUser.email || newUser.password.length < 8) {
+      toast({ title: "Email and a password of 8+ characters are required", variant: "destructive" });
+      return;
+    }
+    if (await callAdminUsers({ action: "create", ...newUser, full_name: sanitizeText(newUser.full_name) }, "User created"))
+      setNewUser({ email: "", password: "", full_name: "" });
+  };
+  const deleteUser = async (p: any) => {
+    if (!confirm(`Permanently delete ${p.email}? This cannot be undone.`)) return;
+    await callAdminUsers({ action: "delete", user_id: p.user_id }, "User deleted");
+  };
+  const editUser = async (p: any) => {
+    const full_name = prompt("Full name", p.full_name || ""); if (full_name === null) return;
+    const phone = prompt("Phone", p.phone || ""); if (phone === null) return;
+    const city = prompt("City", p.city || ""); if (city === null) return;
+    const home_address = prompt("Address", p.home_address || ""); if (home_address === null) return;
+    await callAdminUsers({ action: "update", user_id: p.user_id, full_name: sanitizeText(full_name), phone: sanitizeText(phone), city: sanitizeText(city), home_address: sanitizeText(home_address) }, "Client updated");
+  };
 
   const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "", image: "", description: "" });
   const [newOffer, setNewOffer] = useState({ title: "", occasion: "", discount_pct: "", ends_at: "", description: "" });
@@ -94,7 +128,7 @@ const AdminPanel = () => {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      navigate("/auth");
+      navigate("/admin/login");
       return;
     }
     (async () => {
@@ -735,6 +769,12 @@ const AdminPanel = () => {
                 onChange={(e) => setUserSearch(e.target.value)}
                 className="max-w-sm"
               />
+              <div className="flex flex-wrap gap-2 items-end border border-border rounded-lg p-3">
+                <Input placeholder="Full name" value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} className="max-w-[180px]" />
+                <Input type="email" placeholder="Email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="max-w-[220px]" />
+                <Input type="password" placeholder="Password (8+)" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="max-w-[180px]" />
+                <Button onClick={createUser}><Plus className="h-4 w-4 mr-1" /> Add user</Button>
+              </div>
             </CardHeader>
             <CardContent className="overflow-x-auto">
               <table className="w-full text-sm min-w-[720px]">
@@ -744,7 +784,9 @@ const AdminPanel = () => {
                     <th className="py-2 pr-4">Email</th>
                     <th className="py-2 pr-4">Joined</th>
                     <th className="py-2 pr-4">Verified</th>
+                    <th className="py-2 pr-4">Phone / City</th>
                     <th className="py-2 pr-4">Role</th>
+                    <th className="py-2 pr-4">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -756,6 +798,7 @@ const AdminPanel = () => {
                       <td className="py-2 pr-4">
                         {p.is_verified ? <Badge variant="outline">Verified</Badge> : <span className="text-muted-foreground">—</span>}
                       </td>
+                      <td className="py-2 pr-4 text-muted-foreground">{p.phone || "—"} / {p.city || "—"}</td>
                       <td className="py-2 pr-4">
                         <select
                           value={roleFor(p.user_id)}
@@ -767,6 +810,10 @@ const AdminPanel = () => {
                           <option value="moderator">moderator</option>
                           <option value="admin">admin</option>
                         </select>
+                      </td>
+                      <td className="py-2 pr-4 whitespace-nowrap">
+                        <Button size="sm" variant="outline" onClick={() => editUser(p)}>Edit</Button>{" "}
+                        <Button size="sm" variant="ghost" disabled={p.user_id === user?.id} onClick={() => deleteUser(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       </td>
                     </tr>
                   ))}

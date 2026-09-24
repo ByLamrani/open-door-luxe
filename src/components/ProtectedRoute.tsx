@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
   redirectTo?: string;
 }
 
-const ProtectedRoute = ({ children, requiredRole, redirectTo = "/auth" }: ProtectedRouteProps) => {
+const ProtectedRoute = ({ children, requiredRole, redirectTo }: ProtectedRouteProps) => {
   const { user, loading } = useAuth();
   const [allowed, setAllowed] = useState<boolean | null>(null);
 
