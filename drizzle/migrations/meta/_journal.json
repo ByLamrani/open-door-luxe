@@ -8,6 +8,13 @@
       "when": 1790088351804,
       "tag": "0000_audit_logs_and_role_admin_policies",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790260284971,
+      "tag": "0001_security_hardening",
+      "breakpoints": true
     }
   ]
 }

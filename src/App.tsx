@@ -24,6 +24,7 @@ import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
 import CollectionsPage from "./pages/CollectionsPage";
 import AdminPanel from "./pages/AdminPanel";
+import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
@@ -98,6 +99,7 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route path="/admin/login" element={<AdminLogin />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <StorefrontWidgets />

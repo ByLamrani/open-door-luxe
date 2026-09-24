@@ -36,8 +36,8 @@ const dict: Record<string, Record<string, string>> = {
   "nav.watches": t("Watches", "Montres", "الساعات", "Relojes", "Часы", "Uhren", "手表", "腕時計", "시계", "Horloges"),
 
   // hero
-  "hero.title1": t("Elevate Your", "Élevez Votre", "ارتقِ بـ", "Eleva Tu", "Возвысьте свой", "Erhebe deinen", "提升您的", "あなたの", "당신의", "Verhef Uw"),
-  "hero.titleAccent": t("LifeStyle", "Style de Vie", "أسلوب حياتك", "Estilo de Vida", "Стиль", "Lebensstil", "生活方式", "ライフスタイル", "라이프스타일", "Levensstijl"),
+  "hero.title1": t("Be the Criteria of", "Soyez le Critère de l'", "كن معيار", "Sé el Criterio de la", "Будьте эталоном", "Sei das Maß der", "成为", "", "", "Wees de Maatstaf van"),
+  "hero.titleAccent": t("Elegance", "Élégance", "الأناقة", "Elegancia", "элегантности", "Eleganz", "优雅的标准", "エレガンスの基準であれ", "우아함의 기준이 되세요", "Elegantie"),
   "hero.subtitle": t(
     "Discover our curated collection of premium self-care products, exquisite fragrances, and luxury accessories.",
     "Découvrez notre collection sélectionnée de produits de soins personnels, parfums exquis et accessoires de luxe.",
