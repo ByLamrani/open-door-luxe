@@ -47,7 +47,7 @@ const ProtectedRoute = ({ children, requiredRole, redirectTo }: ProtectedRoutePr
     );
   }
 
-  if (!user) return <Navigate to={redirectTo} replace />;
+  if (!user) return <Navigate to={redirectTo ?? (requiredRole === "admin" ? "/admin/login" : "/auth")} replace />;
 
   if (!allowed) {
     return (
