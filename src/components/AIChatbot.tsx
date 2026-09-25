@@ -15,7 +15,7 @@ const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
 const AIChatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: "assistant", content: "Hello! 👋 Welcome to Lamra Lux. How can I help you today?" }
+    { role: "assistant", content: "Hello! 👋 I'm Nova, your Lamra Lux assistant. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -145,7 +145,7 @@ const AIChatbot = () => {
                   <Bot className="w-5 h-5 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-display text-sm text-foreground">ale Assistant</h3>
+                  <h3 className="font-display text-sm text-foreground">Nova</h3>
                   <p className="text-xs text-muted-foreground">Online</p>
                 </div>
               </div>
