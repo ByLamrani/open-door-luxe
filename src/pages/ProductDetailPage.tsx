@@ -1,3 +1,5 @@
+import { Skeleton } from "@/components/ui/skeleton";
+import PrivateConcierge from "@/components/PrivateConcierge";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart, ZoomIn } from "lucide-react";
