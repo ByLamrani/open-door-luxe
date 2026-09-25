@@ -1,3 +1,5 @@
+import { Skeleton } from "@/components/ui/skeleton";
+import PrivateConcierge from "@/components/PrivateConcierge";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingBag, Truck, Shield, CreditCard, Minus, Plus, Check, Heart, Share2, Gift, ShoppingCart, ZoomIn } from "lucide-react";
@@ -98,6 +100,29 @@ const ProductDetailPage = () => {
   const { format } = useCurrency();
   const [localName, localDescription] = useAutoTranslate([product?.name, product?.description]);
 
+
+  if (!product && loadingProduct) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto px-4 pt-32 pb-20 grid md:grid-cols-2 gap-12">
+          <div className="space-y-3">
+            <Skeleton className="aspect-square w-full" />
+            <div className="grid grid-cols-4 gap-3">
+              {[0, 1, 2, 3].map((i) => <Skeleton key={i} className="aspect-square" />)}
+            </div>
+          </div>
+          <div className="space-y-4">
+            <Skeleton className="h-4 w-24" />
+            <Skeleton className="h-10 w-3/4" />
+            <Skeleton className="h-8 w-32" />
+            <Skeleton className="h-24 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -416,6 +441,7 @@ const ProductDetailPage = () => {
                   Buy Now
                 </Button>
               </div>
+              <PrivateConcierge productName={product.name} />
 
               {/* Social Actions */}
               <div className="flex gap-3 mb-8">

@@ -30,6 +30,16 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
+/** backoffice.yoursite.com serves only the back office. */
+const isBackofficeHost = typeof window !== "undefined" && window.location.hostname.startsWith("backoffice.");
+
+const BackofficeRoutes = () => (
+  <Routes>
+    <Route path="/login" element={<AdminLogin />} />
+    <Route path="*" element={<ProtectedRoute requiredRole="admin" redirectTo="/login"><AdminPanel /></ProtectedRoute>} />
+  </Routes>
+);
+
 /** The back office runs as a standalone console — no storefront widgets. */
 const StorefrontWidgets = () => {
   const { pathname } = useLocation();
@@ -47,6 +57,7 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
+              {isBackofficeHost ? <BackofficeRoutes /> : (<>
               <ReferralCapture />
               <Routes>
                 <Route path="/" element={<Index />} />
@@ -103,6 +114,7 @@ const App = () => (
                 <Route path="*" element={<NotFound />} />
               </Routes>
               <StorefrontWidgets />
+              </>)}
             </BrowserRouter>
 
           </TooltipProvider>
