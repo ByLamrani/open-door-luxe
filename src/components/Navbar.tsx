@@ -8,6 +8,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useTranslation } from "react-i18next";
 import ThemeToggle from "@/components/ThemeToggle";
 import ScentSentimentSearch from "@/components/ScentSentimentSearch";
+import QuickSearch from "@/components/QuickSearch";
 import { supabase } from "@/integrations/supabase/client";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 import CurrencySwitcher from "@/components/CurrencySwitcher";
@@ -103,6 +104,7 @@ const Navbar = () => {
             <div className="hidden xl:block">
               <ScentSentimentSearch />
             </div>
+            <QuickSearch />
 
             <CurrencySwitcher />
             <LanguageSwitcher />
