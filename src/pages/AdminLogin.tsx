@@ -32,7 +32,7 @@ const AdminLogin = () => {
       setError("Ce compte n'a pas accès au Backoffice.");
       return;
     }
-    navigate("/admin", { replace: true });
+    navigate(window.location.hostname.startsWith("backoffice.") ? "/" : "/admin", { replace: true });
   };
 
   return (
