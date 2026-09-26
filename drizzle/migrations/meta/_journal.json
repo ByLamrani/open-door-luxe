@@ -15,6 +15,13 @@
       "when": 1790260284971,
       "tag": "0001_security_hardening",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790448184342,
+      "tag": "0002_backoffice_upgrades",
+      "breakpoints": true
     }
   ]
 }
