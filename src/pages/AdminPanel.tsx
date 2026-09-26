@@ -33,6 +33,31 @@ import { Link } from "react-router-dom";
 import { LogOut, ScrollText, UserCog, Store } from "lucide-react";
 import { logAudit, sanitizeText } from "@/lib/audit";
 import * as XLSX from "xlsx";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
+  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { catalog } from "@/data/catalog";
+import { products as staticProducts } from "@/data/products";
+import { ImagePlus, ChevronRight } from "lucide-react";
+
+const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
+const subcategoriesOf = (cat: string) =>
+  Array.from(new Set(catalog.flatMap((c) => c.items).filter((i) => i.category === cat && i.subcategory).map((i) => i.subcategory!)));
+const ALL_SUBS = CATEGORIES.flatMap((c) => subcategoriesOf(c).map((s) => `${c} / ${s}`));
+const ORDER_STATUSES = ["processing", "shipped", "delivered", "returned", "received"];
+const selectCls = "w-full h-10 rounded-md border border-input bg-background px-3 text-sm";
+
+const Chip = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: any }) => (
+  <button
+    type="button"
+    onClick={onClick}
+    className={`px-3 py-1 rounded-full border text-xs transition-colors ${active ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}
+  >
+    {children}
+  </button>
+);
 
 type Tab =
   | "overview"
@@ -122,8 +147,24 @@ const AdminPanel = () => {
     await callAdminUsers({ action: "update", user_id: p.user_id, full_name: sanitizeText(full_name), phone: sanitizeText(phone), city: sanitizeText(city), home_address: sanitizeText(home_address) }, "Client updated");
   };
 
-  const [newProduct, setNewProduct] = useState({ name: "", price: "", category: "", image: "", description: "" });
+  const emptyProduct = { name: "", price: "", compare_price: "", category: "", subcategory: "", description: "" };
+  const [newProduct, setNewProduct] = useState(emptyProduct);
+  const [productFile, setProductFile] = useState<File | null>(null);
   const [newOffer, setNewOffer] = useState({ title: "", occasion: "", discount_pct: "", ends_at: "", description: "" });
+  const [offerCats, setOfferCats] = useState<string[]>([]);
+  const [offerSubs, setOfferSubs] = useState<string[]>([]);
+  const [offerProds, setOfferProds] = useState<string[]>([]);
+  const [offerProdSearch, setOfferProdSearch] = useState("");
+  const [orderStatusFilter, setOrderStatusFilter] = useState("all");
+  const [orderRange, setOrderRange] = useState<"all" | "day" | "week" | "month">("all");
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const [paySub, setPaySub] = useState("summary");
+  const [logSub, setLogSub] = useState("overview");
+  const [companies, setCompanies] = useState<any[]>([]);
+  const [newCompany, setNewCompany] = useState({ name: "", contact_phone: "", contact_email: "", price_per_delivery: "" });
+  const toggleIn = (arr: string[], set: (v: string[]) => void, v: string) =>
+    set(arr.includes(v) ? arr.filter((x) => x !== v) : [...arr, v]);
 
   useEffect(() => {
     if (loading) return;
@@ -153,6 +194,8 @@ const AdminPanel = () => {
       supabase.from("user_roles").select("*"),
       supabase.from("audit_logs" as any).select("*").order("created_at", { ascending: false }).limit(200),
     ]);
+    const { data: dc } = await supabase.from("delivery_companies" as any).select("*").order("created_at", { ascending: false });
+    setCompanies((dc as any[]) ?? []);
     setRoles(rl.data ?? []);
     setAuditLogs((al.data as any[]) ?? []);
     setDocs(d.data ?? []);
@@ -284,29 +327,74 @@ const AdminPanel = () => {
 
   const setOrderStatus = async (o: any, status: string) => {
     setBusy(o.id);
-    await supabase.from("orders").update({ status }).eq("id", o.id);
+    const { error } = await supabase.from("orders").update({ status }).eq("id", o.id);
     setBusy(null);
+    if (error) return toast({ title: "Could not update status", description: error.message, variant: "destructive" });
     await logAudit("order.status_change", { entity: "orders", entityId: o.order_id ?? o.id, details: { status } });
+    if (selectedOrder?.id === o.id) setSelectedOrder({ ...o, status });
+    toast({ title: `Order ${o.order_id} → ${status}` });
+    refresh();
+  };
+
+  const updateOrder = async (o: any, patch: Record<string, unknown>) => {
+    const { error } = await supabase.from("orders").update(patch as any).eq("id", o.id);
+    if (error) return toast({ title: "Could not update order", description: error.message, variant: "destructive" });
+    await logAudit("order.update", { entity: "orders", entityId: o.order_id ?? o.id, details: patch });
+    refresh();
+  };
+
+  const addCompany = async () => {
+    if (!newCompany.name.trim()) return toast({ title: "Company name is required", variant: "destructive" });
+    const { error } = await supabase.from("delivery_companies" as any).insert({
+      name: sanitizeText(newCompany.name, 120),
+      contact_phone: sanitizeText(newCompany.contact_phone, 40) || null,
+      contact_email: sanitizeText(newCompany.contact_email, 160) || null,
+      price_per_delivery: Number(newCompany.price_per_delivery || 0),
+    });
+    if (error) return toast({ title: "Could not add company", description: error.message, variant: "destructive" });
+    await logAudit("delivery_company.create", { entity: "delivery_companies", details: { name: newCompany.name } });
+    setNewCompany({ name: "", contact_phone: "", contact_email: "", price_per_delivery: "" });
+    refresh();
+  };
+
+  const deleteCompany = async (id: string) => {
+    await supabase.from("delivery_companies" as any).delete().eq("id", id);
+    await logAudit("delivery_company.delete", { entity: "delivery_companies", entityId: id });
     refresh();
   };
 
   const addProduct = async () => {
-    if (!newProduct.name || !newProduct.price) {
-      toast({ title: "Name and price are required", variant: "destructive" });
+    if (!newProduct.category || !newProduct.name || !newProduct.price) {
+      toast({ title: "Category, name and price are required", variant: "destructive" });
       return;
     }
     setBusy("new-product");
+    let image: string | null = null;
+    if (productFile) {
+      const ext = productFile.name.split(".").pop() || "jpg";
+      const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("product-images").upload(path, productFile);
+      if (upErr) {
+        setBusy(null);
+        return toast({ title: "Image upload failed", description: upErr.message, variant: "destructive" });
+      }
+      const { data: signed } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
+      image = signed?.signedUrl ?? null;
+    }
     const { error } = await supabase.from("products").insert({
       name: sanitizeText(newProduct.name, 160),
       price: Number(newProduct.price),
-      category: sanitizeText(newProduct.category, 80) || null,
-      image: sanitizeText(newProduct.image, 500) || null,
+      compare_price: newProduct.compare_price ? Number(newProduct.compare_price) : null,
+      category: newProduct.category,
+      subcategory: newProduct.subcategory || null,
+      image,
       description: sanitizeText(newProduct.description) || null,
-    });
+    } as any);
     setBusy(null);
     if (error) return toast({ title: "Could not add product", description: error.message, variant: "destructive" });
     await logAudit("product.create", { entity: "products", details: { name: newProduct.name } });
-    setNewProduct({ name: "", price: "", category: "", image: "", description: "" });
+    setNewProduct(emptyProduct);
+    setProductFile(null);
     toast({ title: "Product added" });
     refresh();
   };
@@ -329,10 +417,14 @@ const AdminPanel = () => {
       discount_pct: Number(newOffer.discount_pct || 0),
       ends_at: newOffer.ends_at ? new Date(newOffer.ends_at).toISOString() : null,
       created_by: user!.id,
+      target_categories: offerCats,
+      target_subcategories: offerSubs,
+      target_products: offerProds,
     });
     setBusy(null);
     if (error) return toast({ title: "Could not create offer", description: error.message, variant: "destructive" });
     setNewOffer({ title: "", occasion: "", discount_pct: "", ends_at: "", description: "" });
+    setOfferCats([]); setOfferSubs([]); setOfferProds([]);
     toast({ title: "Offer created" });
     refresh();
   };
