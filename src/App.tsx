@@ -26,6 +26,7 @@ import CollectionsPage from "./pages/CollectionsPage";
 import AdminPanel from "./pages/AdminPanel";
 import AdminLogin from "./pages/AdminLogin";
 import NotFound from "./pages/NotFound";
+import FeelingSearchPage from "./pages/FeelingSearchPage";
 import ProtectedRoute from "@/components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -94,6 +95,7 @@ const App = () => (
                 <Route path="/bedroom" element={<CategoryPage category="Bedroom" />} />
                 <Route path="/bath-linen" element={<CategoryPage category="Bath & Linen" />} />
                 <Route path="/product/:id" element={<ProductDetailPage />} />
+                <Route path="/feeling-search" element={<FeelingSearchPage />} />
                 <Route path="/new" element={<CategoryPage category="New Arrivals" />} />
                 <Route path="/cart" element={<CartPage />} />
                 <Route path="/checkout" element={<CheckoutPage />} />
