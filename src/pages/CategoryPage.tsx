@@ -55,13 +55,16 @@ const CategoryPage = ({ category, subcategory, clusterPath }: CategoryPageProps)
       const { data } = await supabase.from("products").select("*").in("category", cats);
 
       if (data) {
-        const mapped: Product[] = data.map((p) => ({
+        const mapped: Product[] = data
+          .filter((p: any) => !subcategory || p.subcategory === subcategory)
+          .map((p: any) => ({
           id: p.id,
           name: p.name,
           price: p.price,
           image: p.image || "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=500",
           images: p.image ? [p.image] : [],
           category: p.category || category || "",
+          subcategory: p.subcategory || undefined,
           description: p.description || "",
           isNew: p.is_new || false,
           isFeatured: p.is_featured || false,

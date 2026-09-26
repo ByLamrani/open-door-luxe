@@ -46,21 +46,8 @@ const ScentSentimentSearch = () => {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-    setIsSearching(true);
-    setResult(null);
-
-    try {
-      const { data, error } = await supabase.functions.invoke("semantic-search", {
-        body: { query, action: "search" },
-      });
-
-      if (error) throw error;
-      setResult(data);
-    } catch (err: any) {
-      console.error("Search error:", err);
-    } finally {
-      setIsSearching(false);
-    }
+    setIsOpen(false);
+    navigate(`/feeling-search?q=${encodeURIComponent(query.trim())}`);
   };
 
   const navigateToCategory = (category: string) => {
