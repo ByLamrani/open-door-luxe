@@ -139,6 +139,36 @@ export type Database = {
         }
         Relationships: []
       }
+      delivery_companies: {
+        Row: {
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          price_per_delivery: number
+        }
+        Insert: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          price_per_delivery?: number
+        }
+        Update: {
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_per_delivery?: number
+        }
+        Relationships: []
+      }
       escrow_transactions: {
         Row: {
           buyer_id: string | null
@@ -252,7 +282,9 @@ export type Database = {
       }
       orders: {
         Row: {
+          cod_settled: boolean
           created_at: string
+          delivery_company_id: string | null
           deposit_amount: number | null
           discount_amount: number | null
           due_on_delivery: number | null
@@ -263,6 +295,7 @@ export type Database = {
           paypal_capture_id: string | null
           paypal_order_id: string | null
           platform_fee: number | null
+          shipping_cost: number
           shipping_info: Json
           status: string
           subtotal: number
@@ -273,7 +306,9 @@ export type Database = {
           vendor_share: number | null
         }
         Insert: {
+          cod_settled?: boolean
           created_at?: string
+          delivery_company_id?: string | null
           deposit_amount?: number | null
           discount_amount?: number | null
           due_on_delivery?: number | null
@@ -284,6 +319,7 @@ export type Database = {
           paypal_capture_id?: string | null
           paypal_order_id?: string | null
           platform_fee?: number | null
+          shipping_cost?: number
           shipping_info: Json
           status?: string
           subtotal: number
@@ -294,7 +330,9 @@ export type Database = {
           vendor_share?: number | null
         }
         Update: {
+          cod_settled?: boolean
           created_at?: string
+          delivery_company_id?: string | null
           deposit_amount?: number | null
           discount_amount?: number | null
           due_on_delivery?: number | null
@@ -305,6 +343,7 @@ export type Database = {
           paypal_capture_id?: string | null
           paypal_order_id?: string | null
           platform_fee?: number | null
+          shipping_cost?: number
           shipping_info?: Json
           status?: string
           subtotal?: number
@@ -314,11 +353,20 @@ export type Database = {
           vendor_id?: string | null
           vendor_share?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_delivery_company_id_fkey"
+            columns: ["delivery_company_id"]
+            isOneToOne: false
+            referencedRelation: "delivery_companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
           category: string | null
+          compare_price: number | null
           created_at: string
           description: string | null
           id: string
@@ -327,10 +375,12 @@ export type Database = {
           is_new: boolean | null
           name: string
           price: number
+          subcategory: string | null
           updated_at: string
         }
         Insert: {
           category?: string | null
+          compare_price?: number | null
           created_at?: string
           description?: string | null
           id?: string
@@ -339,10 +389,12 @@ export type Database = {
           is_new?: boolean | null
           name: string
           price: number
+          subcategory?: string | null
           updated_at?: string
         }
         Update: {
           category?: string | null
+          compare_price?: number | null
           created_at?: string
           description?: string | null
           id?: string
@@ -351,6 +403,7 @@ export type Database = {
           is_new?: boolean | null
           name?: string
           price?: number
+          subcategory?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -791,6 +844,9 @@ export type Database = {
           is_active: boolean
           occasion: string | null
           starts_at: string
+          target_categories: string[]
+          target_products: string[]
+          target_subcategories: string[]
           title: string
           updated_at: string
         }
@@ -804,6 +860,9 @@ export type Database = {
           is_active?: boolean
           occasion?: string | null
           starts_at?: string
+          target_categories?: string[]
+          target_products?: string[]
+          target_subcategories?: string[]
           title: string
           updated_at?: string
         }
@@ -817,6 +876,9 @@ export type Database = {
           is_active?: boolean
           occasion?: string | null
           starts_at?: string
+          target_categories?: string[]
+          target_products?: string[]
+          target_subcategories?: string[]
           title?: string
           updated_at?: string
         }
