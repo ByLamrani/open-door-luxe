@@ -1301,7 +1301,7 @@ const AdminPanel = () => {
                 <Store className="h-4 w-4 mr-2" /> View store
               </Link>
             </Button>
-            <Button variant="ghost" className="w-full justify-start" onClick={() => signOut()}>
+            <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setConfirmSignOut(true)}>
               <LogOut className="h-4 w-4 mr-2" /> Sign out
             </Button>
           </div>
@@ -1355,6 +1355,90 @@ const AdminPanel = () => {
           </div>
         </main>
       </div>
+
+      <AlertDialog open={confirmSignOut} onOpenChange={setConfirmSignOut}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sign out of the Back Office?</AlertDialogTitle>
+            <AlertDialogDescription>You will need to sign in again to manage the store.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => signOut()}>
+              Sign out
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={!!selectedOrder} onOpenChange={(o) => !o && setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          {selectedOrder && (() => {
+            const o = selectedOrder;
+            const s = o.shipping_info || {};
+            const buyer = profiles.find((p) => p.user_id === o.user_id);
+            const rows: [string, any][] = [
+              ["Buyer", buyerName(o)],
+              ["Phone", s.phone || buyer?.phone],
+              ["Email", s.email || buyer?.email],
+              ["Address", s.address || buyer?.home_address],
+              ["City", s.city || buyer?.city],
+              ["Postal code", s.postalCode || s.zip],
+              ["Country", s.country || buyer?.country],
+              ["Notes", s.notes],
+              ["Payment", isCod(o) ? "Cash on delivery" : `Online (${o.payment_method})`],
+              ["Subtotal", format(o.subtotal)],
+              ["Discount", format(o.discount_amount || 0)],
+              ["Total", format(o.total)],
+              ["Deposit paid", o.deposit_amount ? format(o.deposit_amount) : null],
+              ["Due on delivery", o.due_on_delivery ? format(o.due_on_delivery) : null],
+              ["PayPal capture", o.paypal_capture_id],
+              ["Delivery company", o.delivery_company_id ? companyName(o.delivery_company_id) : null],
+              ["Shipping cost", Number(o.shipping_cost) ? format(o.shipping_cost) : null],
+              ["Placed on", new Date(o.created_at).toLocaleString()],
+            ];
+            const items: any[] = Array.isArray(o.items) ? o.items : [];
+            return (
+              <>
+                <DialogHeader>
+                  <DialogTitle className="flex items-center gap-2">
+                    Order {o.order_id} <Badge variant="outline">{o.status}</Badge>
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="flex flex-wrap gap-2">
+                  {[...ORDER_STATUSES, "cancelled"].map((st) => (
+                    <Button key={st} size="sm" variant={o.status === st ? "default" : "outline"} disabled={busy === o.id} onClick={() => setOrderStatus(o, st)}>
+                      {st}
+                    </Button>
+                  ))}
+                </div>
+                <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
+                  {rows.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
+                    <div key={k} className="border-b border-border py-1">
+                      <p className="text-xs text-muted-foreground">{k}</p>
+                      <p className="break-words">{String(v)}</p>
+                    </div>
+                  ))}
+                </div>
+                <div>
+                  <p className="font-semibold text-sm mb-2">Items ({items.length})</p>
+                  <div className="space-y-2">
+                    {items.map((it, i) => (
+                      <div key={i} className="flex items-center justify-between gap-3 border border-border rounded-lg p-2 text-sm">
+                        <div className="flex items-center gap-3">
+                          {it.image && <img src={it.image} alt="" className="h-10 w-10 object-cover rounded" />}
+                          <span>{it.name || it.product_name || it.id}</span>
+                        </div>
+                        <span>{it.quantity ?? 1} × {format(Number(it.price || 0))}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
