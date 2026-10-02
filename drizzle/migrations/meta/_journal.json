@@ -22,6 +22,13 @@
       "when": 1790448184342,
       "tag": "0002_backoffice_upgrades",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790964721362,
+      "tag": "0003_account_permissions",
+      "breakpoints": true
     }
   ]
 }
