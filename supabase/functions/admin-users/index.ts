@@ -11,6 +11,10 @@ const Body = z.discriminatedUnion("action", [
     email: z.string().email().max(255),
     password: z.string().min(8).max(128),
     full_name: z.string().max(120).optional(),
+    phone: z.string().max(40).optional(),
+    city: z.string().max(80).optional(),
+    country: z.string().max(80).optional(),
+    home_address: z.string().max(255).optional(),
   }),
   z.object({ action: z.literal("delete"), user_id: z.string().uuid() }),
   z.object({
@@ -20,6 +24,7 @@ const Body = z.discriminatedUnion("action", [
     phone: z.string().max(40).optional(),
     city: z.string().max(80).optional(),
     home_address: z.string().max(255).optional(),
+    country: z.string().max(80).optional(),
   }),
 ]);
 
@@ -42,7 +47,10 @@ Deno.serve(async (req) => {
     if (b.action === "create") {
       const { data, error } = await admin.auth.admin.createUser({
         email: b.email, password: b.password, email_confirm: true,
-        user_metadata: { full_name: b.full_name ?? "" },
+        user_metadata: {
+          full_name: b.full_name ?? "", phone: b.phone ?? "", city: b.city ?? "",
+          country: b.country ?? "", home_address: b.home_address ?? "",
+        },
       });
       if (error) return json({ error: error.message }, 400);
       return json({ ok: true, user_id: data.user?.id });
