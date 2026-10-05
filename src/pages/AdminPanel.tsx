@@ -113,6 +113,9 @@ const AdminPanel = () => {
   const [offers, setOffers] = useState<any[]>([]);
   const [roles, setRoles] = useState<any[]>([]);
   const [auditLogs, setAuditLogs] = useState<any[]>([]);
+  const [permRows, setPermRows] = useState<any[]>([]);
+  const [wallets, setWallets] = useState<any[]>([]);
+  const [allDocs, setAllDocs] = useState<any[]>([]);
   const [userSearch, setUserSearch] = useState("");
   const [newUser, setNewUser] = useState({ email: "", password: "", full_name: "" });
 
@@ -198,6 +201,14 @@ const AdminPanel = () => {
     ]);
     const { data: dc } = await supabase.from("delivery_companies" as any).select("*").order("created_at", { ascending: false });
     setCompanies((dc as any[]) ?? []);
+    const [pm, wl, ad] = await Promise.all([
+      supabase.from("account_permissions" as any).select("*"),
+      supabase.from("wallets").select("*"),
+      supabase.from("verification_documents").select("*").order("created_at", { ascending: false }),
+    ]);
+    setPermRows((pm.data as any[]) ?? []);
+    setWallets(wl.data ?? []);
+    setAllDocs(ad.data ?? []);
     setRoles(rl.data ?? []);
     setAuditLogs((al.data as any[]) ?? []);
     setDocs(d.data ?? []);
@@ -210,6 +221,9 @@ const AdminPanel = () => {
     setJobs(j.data ?? []);
     setOffers((of.data as any[]) ?? []);
   };
+
+  const myPerms = permRows.find((r) => r.user_id === user?.id && r.kind === "agent")?.permissions;
+  const visibleTabs = TABS.filter((t) => !myPerms?.sections || (myPerms.sections[t.perm] ?? "none") !== "none");
 
   const stats = useMemo(() => {
     const revenue = orders.reduce((a, o) => a + Number(o.total || 0), 0);
@@ -1163,93 +1177,14 @@ const AdminPanel = () => {
         );
 
       case "users":
-        return (
-          <Card>
-            <CardHeader className="gap-3">
-              <CardTitle>Users & access ({profiles.length})</CardTitle>
-              <Input
-                placeholder="Search by name, email or city…"
-                value={userSearch}
-                onChange={(e) => setUserSearch(e.target.value)}
-                className="max-w-sm"
-              />
-              <div className="flex flex-wrap gap-2 items-end border border-border rounded-lg p-3">
-                <Input placeholder="Full name" value={newUser.full_name} onChange={(e) => setNewUser({ ...newUser, full_name: e.target.value })} className="max-w-[180px]" />
-                <Input type="email" placeholder="Email" value={newUser.email} onChange={(e) => setNewUser({ ...newUser, email: e.target.value })} className="max-w-[220px]" />
-                <Input type="password" placeholder="Password (8+)" value={newUser.password} onChange={(e) => setNewUser({ ...newUser, password: e.target.value })} className="max-w-[180px]" />
-                <Button onClick={createUser}><Plus className="h-4 w-4 mr-1" /> Add user</Button>
-              </div>
-            </CardHeader>
-            <CardContent className="overflow-x-auto">
-              <table className="w-full text-sm min-w-[720px]">
-                <thead>
-                  <tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
-                    <th className="py-2 pr-4">Name</th>
-                    <th className="py-2 pr-4">Email</th>
-                    <th className="py-2 pr-4">Joined</th>
-                    <th className="py-2 pr-4">Verified</th>
-                    <th className="py-2 pr-4">Phone / City</th>
-                    <th className="py-2 pr-4">Role</th>
-                    <th className="py-2 pr-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredProfiles.slice(0, 200).map((p) => (
-                    <tr key={p.id} className="border-b border-border/50">
-                      <td className="py-2 pr-4 font-medium">{p.full_name || "—"}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">{p.email}</td>
-                      <td className="py-2 pr-4 text-muted-foreground">{new Date(p.created_at).toLocaleDateString()}</td>
-                      <td className="py-2 pr-4">
-                        {p.is_verified ? <Badge variant="outline">Verified</Badge> : <span className="text-muted-foreground">—</span>}
-                      </td>
-                      <td className="py-2 pr-4 text-muted-foreground">{p.phone || "—"} / {p.city || "—"}</td>
-                      <td className="py-2 pr-4">
-                        <select
-                          value={roleFor(p.user_id)}
-                          disabled={busy === p.user_id}
-                          onChange={(e) => changeRole(p.user_id, e.target.value as any)}
-                          className="bg-background border border-border rounded-md px-2 py-1 text-sm"
-                        >
-                          <option value="user">user</option>
-                          <option value="moderator">moderator</option>
-                          <option value="admin">admin</option>
-                        </select>
-                      </td>
-                      <td className="py-2 pr-4 whitespace-nowrap">
-                        <Button size="sm" variant="outline" onClick={() => editUser(p)}>Edit</Button>{" "}
-                        <Button size="sm" variant="ghost" disabled={p.user_id === user?.id} onClick={() => deleteUser(p)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              {filteredProfiles.length === 0 && <p className="text-sm text-muted-foreground py-4">No users match this search.</p>}
-            </CardContent>
-          </Card>
-        );
+        return <AgentsSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format} currentUserId={user?.id} />;
+
+      case "clients":
+        return <UsersSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format}
+          topups={topups} withdrawals={withdrawals} txns={txns} wallets={wallets} docs={allDocs} orders={orders} onDecideWithdrawal={decideWithdrawal} busy={busy} />;
 
       case "activity":
-        return (
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity log ({auditLogs.length})</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {auditLogs.length === 0 && <p className="text-sm text-muted-foreground">No admin activity recorded yet.</p>}
-              {auditLogs.map((l) => (
-                <div key={l.id} className="flex flex-wrap items-center justify-between gap-2 border border-border rounded-lg p-3">
-                  <div>
-                    <div className="font-medium text-sm">{l.action}</div>
-                    <div className="text-xs text-muted-foreground">
-                      {l.actor_email || l.actor_id} • {l.entity || "—"} {l.entity_id ? `#${String(l.entity_id).slice(0, 12)}` : ""}
-                    </div>
-                  </div>
-                  <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
-                </div>
-              ))}
-            </CardContent>
-          </Card>
-        );
+        return <HistorySection auditLogs={auditLogs} profiles={profiles} orders={orders} topups={topups} withdrawals={withdrawals} format={format} />;
 
       default:
         return null;
@@ -1274,7 +1209,7 @@ const AdminPanel = () => {
           </div>
 
           <nav className="flex-1 p-3 space-y-1">
-            {TABS.map((t) => {
+            {visibleTabs.map((t) => {
               const Icon = t.icon;
               const active = tab === t.id;
               return (
@@ -1332,7 +1267,7 @@ const AdminPanel = () => {
           {/* Mobile tab selector */}
           <div className="md:hidden p-4 border-b border-border overflow-x-auto">
             <div className="flex gap-2 min-w-max">
-              {TABS.map((t) => {
+              {visibleTabs.map((t) => {
                 const Icon = t.icon;
                 return (
                   <button
