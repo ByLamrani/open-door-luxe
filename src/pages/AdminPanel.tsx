@@ -41,6 +41,7 @@ import {
 import { catalog } from "@/data/catalog";
 import { products as staticProducts } from "@/data/products";
 import { ImagePlus, ChevronRight } from "lucide-react";
+import { AgentsSection, UsersSection, HistorySection } from "@/components/admin/AdminPeople";
 
 const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
 const subcategoriesOf = (cat: string) =>
@@ -66,22 +67,23 @@ type Tab =
   | "payments"
   | "products"
   | "offers"
+  | "clients"
   | "users"
   | "verification"
   | "withdrawals"
   | "activity";
 
-const TABS: { id: Tab; label: string; icon: any }[] = [
-  { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "orders", label: "Orders", icon: ShoppingCart },
-  { id: "logistics", label: "Logistics", icon: Truck },
-  { id: "payments", label: "Payments", icon: CreditCard },
-  { id: "products", label: "Products", icon: Package },
-  { id: "offers", label: "Special Offers", icon: Sparkles },
-  { id: "users", label: "Users & Access", icon: UserCog },
-  { id: "verification", label: "Verification", icon: Verified },
-  { id: "withdrawals", label: "Withdrawals", icon: Wallet },
-  { id: "activity", label: "Activity log", icon: ScrollText },
+const TABS: { id: Tab; label: string; icon: any; perm: string }[] = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard, perm: "overview" },
+  { id: "products", label: "Products", icon: Package, perm: "products" },
+  { id: "payments", label: "Payments", icon: CreditCard, perm: "payments" },
+  { id: "offers", label: "Special Offers", icon: Sparkles, perm: "offers" },
+  { id: "orders", label: "Orders", icon: ShoppingCart, perm: "orders" },
+  { id: "logistics", label: "Logistics", icon: Truck, perm: "logistics" },
+  { id: "clients", label: "Users", icon: Users, perm: "users" },
+  { id: "verification", label: "Verifications", icon: Verified, perm: "verification" },
+  { id: "users", label: "Agents", icon: UserCog, perm: "agents" },
+  { id: "activity", label: "History", icon: ScrollText, perm: "history" },
 ];
 
 const ORDER_BUCKETS: { key: string; label: string; statuses: string[] }[] = [
