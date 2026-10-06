@@ -73,6 +73,36 @@ export type Database = {
           },
         ]
       }
+      api_connections: {
+        Row: {
+          category: string
+          created_at: string
+          fields: Json
+          id: string
+          is_active: boolean
+          label: string | null
+          provider: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          provider: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          fields?: Json
+          id?: string
+          is_active?: boolean
+          label?: string | null
+          provider?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -145,6 +175,24 @@ export type Database = {
           updated_at?: string
           user_id?: string
           whatsapp_phone?: string | null
+        }
+        Relationships: []
+      }
+      company_settings: {
+        Row: {
+          data: Json
+          id: number
+          updated_at: string
+        }
+        Insert: {
+          data?: Json
+          id?: number
+          updated_at?: string
+        }
+        Update: {
+          data?: Json
+          id?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -247,6 +295,39 @@ export type Database = {
           total_amount?: number
           updated_at?: string
           vendor_share?: number
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string
+          notes: string | null
+          spent_on: string
+        }
+        Insert: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label: string
+          notes?: string | null
+          spent_on?: string
+        }
+        Update: {
+          amount?: number
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string
+          notes?: string | null
+          spent_on?: string
         }
         Relationships: []
       }
@@ -389,6 +470,27 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      product_inventory: {
+        Row: {
+          buying_price: number
+          product_id: string
+          quantity: number
+          updated_at: string
+        }
+        Insert: {
+          buying_price?: number
+          product_id: string
+          quantity?: number
+          updated_at?: string
+        }
+        Update: {
+          buying_price?: number
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       products: {
         Row: {
@@ -1174,6 +1276,7 @@ export type Database = {
         Args: { _months?: number; _tier: string }
         Returns: Json
       }
+      consume_inventory: { Args: { _items: Json }; Returns: undefined }
       credit_wallet_from_topup: {
         Args: { _amount: number; _topup_id: string; _user: string }
         Returns: undefined

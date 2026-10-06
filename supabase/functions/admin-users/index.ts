@@ -57,6 +57,9 @@ Deno.serve(async (req) => {
     }
     if (b.action === "delete") {
       if (b.user_id === u.user.id) return json({ error: "You cannot delete your own account" }, 400);
+      const { data: target } = await admin.auth.admin.getUserById(b.user_id);
+      if (target.user?.email?.toLowerCase() === "adil.lamrani.ejjouti@gmail.com")
+        return json({ error: "The owner admin account cannot be removed" }, 400);
       const { error } = await admin.auth.admin.deleteUser(b.user_id);
       if (error) return json({ error: error.message }, 400);
       return json({ ok: true });
