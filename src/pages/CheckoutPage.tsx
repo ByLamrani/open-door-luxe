@@ -313,6 +313,9 @@ const CheckoutPage = () => {
           shipping_info: shippingInfo as unknown as import("@/integrations/supabase/types").Json,
           status: isHybridCod ? "paid_deposit" : useAdvancePayment ? "advance_paid" : "pending",
         });
+        await supabase.rpc("consume_inventory" as any, {
+          _items: items.map((i) => ({ id: i.id, quantity: i.quantity })),
+        } as any);
       } catch (error) {
         console.error("Failed to save order:", error);
       }
