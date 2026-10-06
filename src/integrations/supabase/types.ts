@@ -1276,6 +1276,7 @@ export type Database = {
         Args: { _months?: number; _tier: string }
         Returns: Json
       }
+      consume_inventory: { Args: { _items: Json }; Returns: undefined }
       credit_wallet_from_topup: {
         Args: { _amount: number; _topup_id: string; _user: string }
         Returns: undefined
