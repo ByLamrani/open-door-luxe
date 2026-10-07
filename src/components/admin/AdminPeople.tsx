@@ -156,14 +156,14 @@ export const AgentsSection = ({ profiles, roles, perms, callAdminUsers, refresh,
           const row = perms.find((x) => x.user_id === a.user_id);
           const allowed = row ? AGENT_SECTIONS.filter(([k]) => row.permissions?.sections?.[k] && row.permissions.sections[k] !== "none").length : AGENT_SECTIONS.length;
           return (
-            <div key={a.user_id} className="flex flex-wrap items-center justify-between gap-2 border border-border rounded-lg p-3">
-              <div>
+            <div key={a.user_id} className="flex flex-wrap items-center justify-between gap-2 border border-border rounded-lg p-3 hover:border-foreground transition-colors">
+              <div className="cursor-pointer flex-1" onClick={() => setEdit({ ...a, job_title: row?.job_title, perms: row?.permissions?.sections ? row.permissions : defaultAgentPerms() })}>
                 <div className="font-medium">{a.full_name || a.email} <Badge variant="outline" className="ml-1">{roleOf(a.user_id)}</Badge></div>
                 <div className="text-xs text-muted-foreground">{row?.job_title || "—"} • {a.email} • {a.phone || "no phone"} • {allowed}/{AGENT_SECTIONS.length} sections</div>
               </div>
               <div className="flex gap-2">
                 <Button size="sm" variant="outline" onClick={() => setEdit({ ...a, job_title: row?.job_title, perms: row?.permissions?.sections ? row.permissions : defaultAgentPerms() })}>Permissions & info</Button>
-                <Button size="sm" variant="ghost" disabled={a.user_id === currentUserId} onClick={() => confirm(`Delete ${a.email}?`) && callAdminUsers({ action: "delete", user_id: a.user_id }, "Agent deleted")}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                <Button size="sm" variant="ghost" disabled={a.user_id === currentUserId || a.email?.toLowerCase() === "adil.lamrani.ejjouti@gmail.com"} onClick={() => confirm(`Delete ${a.email}?`) && callAdminUsers({ action: "delete", user_id: a.user_id }, "Agent deleted")}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             </div>
           );
