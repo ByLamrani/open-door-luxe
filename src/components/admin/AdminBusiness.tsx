@@ -442,7 +442,7 @@ export const ConnectionsSection = () => {
       </Card>
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{open === "custom" ? "Set a new connection" : `Connect ${open && open !== "custom" ? open.name : ""}`}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{open === "custom" ? "Set a new connection" : `Connect ${open ? (open as Preset).name : ""}`}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             {open === "custom" && <div className="space-y-1"><Label>Platform name</Label><Input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Glovo, Jumia, Odoo…" /></div>}
             <div className="space-y-1"><Label>Label (optional)</Label><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Production" /></div>
