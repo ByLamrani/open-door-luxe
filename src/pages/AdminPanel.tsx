@@ -106,6 +106,8 @@ const AdminPanel = () => {
   const { format } = useCurrency();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<Tab>("overview");
+  const [adminSub, setAdminSub] = useState<"admin" | "company" | "agents">("admin");
+  const { inventory, reloadInventory } = useInventory();
   const [busy, setBusy] = useState<string | null>(null);
 
   const [docs, setDocs] = useState<any[]>([]);
@@ -909,94 +911,14 @@ const AdminPanel = () => {
         );
       }
 
-      case "products": {
-        const subs = subcategoriesOf(newProduct.category);
-        return (
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Add a product</CardTitle>
-              </CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-2">
-                <div className="space-y-1">
-                  <Label>Category</Label>
-                  <select className={selectCls} value={newProduct.category}
-                    onChange={(e) => setNewProduct({ ...newProduct, category: e.target.value, subcategory: "" })}>
-                    <option value="">Select a category</option>
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1">
-                  <Label>Sub-category</Label>
-                  <select className={selectCls} value={newProduct.subcategory} disabled={subs.length === 0}
-                    onChange={(e) => setNewProduct({ ...newProduct, subcategory: e.target.value })}>
-                    <option value="">{subs.length ? "Select a sub-category" : "No sub-category"}</option>
-                    {subs.map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                  <Label>Name</Label>
-                  <Input value={newProduct.name} onChange={(e) => setNewProduct({ ...newProduct, name: e.target.value })} />
-                </div>
-                <div className="space-y-1">
-                  <Label>Price</Label>
-                  <Input type="number" value={newProduct.price} onChange={(e) => setNewProduct({ ...newProduct, price: e.target.value })} />
-                </div>
-                <div className="space-y-1">
-                  <Label>Comparative price (before discount)</Label>
-                  <Input type="number" value={newProduct.compare_price} onChange={(e) => setNewProduct({ ...newProduct, compare_price: e.target.value })} />
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                  <Label>Description</Label>
-                  <Textarea value={newProduct.description} onChange={(e) => setNewProduct({ ...newProduct, description: e.target.value })} />
-                </div>
-                <div className="space-y-1 sm:col-span-2">
-                  <Label>Picture</Label>
-                  <label className="flex items-center gap-4 border border-dashed border-border rounded-lg p-4 cursor-pointer hover:border-foreground">
-                    {productFile ? (
-                      <img src={URL.createObjectURL(productFile)} alt="Preview" className="h-16 w-16 object-cover rounded" />
-                    ) : (
-                      <ImagePlus className="h-8 w-8 text-muted-foreground" />
-                    )}
-                    <span className="text-sm text-muted-foreground">{productFile ? productFile.name : "Click to upload a picture (JPG, PNG, WEBP — max 10 MB)"}</span>
-                    <input type="file" accept="image/*" className="hidden" onChange={(e) => setProductFile(e.target.files?.[0] ?? null)} />
-                  </label>
-                </div>
-                <Button onClick={addProduct} disabled={busy === "new-product"} className="sm:col-span-2">
-                  {busy === "new-product" ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />} Add product
-                </Button>
-              </CardContent>
-            </Card>
+      case "products":
+        return <ProductsSection products={products} inventory={inventory} refresh={() => { refresh(); reloadInventory(); }} format={format} />;
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Catalogue ({products.length})</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                {products.length === 0 && <p className="text-sm text-muted-foreground">No products stored yet.</p>}
-                {products.map((p) => (
-                  <div key={p.id} className="flex items-center justify-between gap-3 border border-border rounded-lg p-3">
-                    <div className="flex items-center gap-3">
-                      {p.image && <img src={p.image} alt={p.name} className="h-12 w-12 object-cover rounded" />}
-                      <div>
-                        <p className="font-semibold text-sm">{p.name}</p>
-                        <p className="text-xs text-muted-foreground">
-                          {format(p.price)}
-                          {p.compare_price ? <span className="line-through ml-2">{format(p.compare_price)}</span> : null}
-                          {" • "}{p.category || "uncategorised"}{p.subcategory ? ` / ${p.subcategory}` : ""}
-                        </p>
-                      </div>
-                    </div>
-                    <Button size="sm" variant="destructive" disabled={busy === p.id} onClick={() => removeProduct(p.id)}>
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-          </div>
-        );
-      }
+      case "expenses":
+        return <ExpensesSection format={format} />;
+
+      case "connections":
+        return <ConnectionsSection />;
 
       case "offers": {
         const productPool = [
@@ -1039,33 +961,8 @@ const AdminPanel = () => {
                   <Input type="date" value={newOffer.ends_at} onChange={(e) => setNewOffer({ ...newOffer, ends_at: e.target.value })} />
                 </div>
 
-                <div className="sm:col-span-2 border border-border rounded-lg p-4 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <Label>Applies to</Label>
-                    <Chip active={allSelected} onClick={() => { setOfferCats([]); setOfferSubs([]); setOfferProds([]); }}>All products</Chip>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-2">Categories</p>
-                    <div className="flex flex-wrap gap-2">
-                      {CATEGORIES.map((c) => <Chip key={c} active={offerCats.includes(c)} onClick={() => toggleIn(offerCats, setOfferCats, c)}>{c}</Chip>)}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-2">Sub-categories</p>
-                    <div className="flex flex-wrap gap-2">
-                      {ALL_SUBS.map((s) => <Chip key={s} active={offerSubs.includes(s)} onClick={() => toggleIn(offerSubs, setOfferSubs, s)}>{s}</Chip>)}
-                    </div>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground mb-2">Products {offerProds.length > 0 && `(${offerProds.length} selected)`}</p>
-                    <Input placeholder="Search a product…" value={offerProdSearch} onChange={(e) => setOfferProdSearch(e.target.value)} className="mb-2" />
-                    <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto">
-                      {visibleProds.map((p) => <Chip key={p.id} active={offerProds.includes(p.id)} onClick={() => toggleIn(offerProds, setOfferProds, p.id)}>{p.name}</Chip>)}
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    {allSelected ? "Nothing selected — the offer applies to every product on the website." : "The offer applies only to the selected categories, sub-categories and products."}
-                  </p>
+                <div className="sm:col-span-2 border border-border rounded-lg p-4">
+                  <OfferTargets cats={offerCats} setCats={setOfferCats} subs={offerSubs} setSubs={setOfferSubs} prods={offerProds} setProds={setOfferProds} dbProducts={products} />
                 </div>
 
                 <div className="space-y-1 sm:col-span-2">
@@ -1183,7 +1080,18 @@ const AdminPanel = () => {
         );
 
       case "users":
-        return <AgentsSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format} currentUserId={user?.id} />;
+        return (
+          <div className="space-y-4">
+            <div className="flex gap-2">
+              {(["admin", "company", "agents"] as const).map((k) => (
+                <Chip key={k} active={adminSub === k} onClick={() => setAdminSub(k)}>{k === "admin" ? "Admin" : k === "company" ? "Company" : "Agents"}</Chip>
+              ))}
+            </div>
+            {adminSub === "admin" && <AdminOwnerPanel profiles={profiles} orders={orders} inventory={inventory} format={format} />}
+            {adminSub === "company" && <CompanyPanel />}
+            {adminSub === "agents" && <AgentsSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format} currentUserId={user?.id} />}
+          </div>
+        );
 
       case "clients":
         return <UsersSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format}
