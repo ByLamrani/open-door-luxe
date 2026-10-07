@@ -28,8 +28,7 @@ const uploadImage = async (file: File) => {
   const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
   const { error } = await supabase.storage.from("product-images").upload(path, file);
   if (error) throw error;
-  const { data } = await supabase.storage.from("product-images").createSignedUrl(path, 60 * 60 * 24 * 365 * 10);
-  return data?.signedUrl ?? null;
+  return supabase.storage.from("product-images").getPublicUrl(path).data.publicUrl;
 };
 
 /* ---------------- Products ---------------- */
