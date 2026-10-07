@@ -42,6 +42,8 @@ import { catalog } from "@/data/catalog";
 import { products as staticProducts } from "@/data/products";
 import { ImagePlus, ChevronRight } from "lucide-react";
 import { AgentsSection, UsersSection, HistorySection } from "@/components/admin/AdminPeople";
+import { ProductsSection, OfferTargets, ExpensesSection, ConnectionsSection, AdminOwnerPanel, CompanyPanel, useInventory } from "@/components/admin/AdminBusiness";
+import { Receipt, Plug } from "lucide-react";
 
 const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
 const subcategoriesOf = (cat: string) =>
@@ -71,7 +73,9 @@ type Tab =
   | "users"
   | "verification"
   | "withdrawals"
-  | "activity";
+  | "activity"
+  | "expenses"
+  | "connections";
 
 const TABS: { id: Tab; label: string; icon: any; perm: string }[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard, perm: "overview" },
@@ -80,9 +84,11 @@ const TABS: { id: Tab; label: string; icon: any; perm: string }[] = [
   { id: "offers", label: "Special Offers", icon: Sparkles, perm: "offers" },
   { id: "orders", label: "Orders", icon: ShoppingCart, perm: "orders" },
   { id: "logistics", label: "Logistics", icon: Truck, perm: "logistics" },
+  { id: "expenses", label: "Expenses", icon: Receipt, perm: "payments" },
   { id: "clients", label: "Users", icon: Users, perm: "users" },
   { id: "verification", label: "Verifications", icon: Verified, perm: "verification" },
-  { id: "users", label: "Agents", icon: UserCog, perm: "agents" },
+  { id: "connections", label: "APIs & Connections", icon: Plug, perm: "agents" },
+  { id: "users", label: "Administration", icon: UserCog, perm: "agents" },
   { id: "activity", label: "History", icon: ScrollText, perm: "history" },
 ];
 
