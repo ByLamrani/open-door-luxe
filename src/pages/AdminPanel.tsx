@@ -108,6 +108,7 @@ const AdminPanel = () => {
   const { format } = useCurrency();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<Tab>("overview");
+  const { lang: boLang, setLang: setBoLang } = useBackofficeLang();
   const [adminSub, setAdminSub] = useState<"admin" | "company" | "agents">("admin");
   const { inventory, reloadInventory } = useInventory();
   const [busy, setBusy] = useState<string | null>(null);
@@ -1172,6 +1173,11 @@ const AdminPanel = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <div className="flex rounded-md border border-border overflow-hidden text-xs" translate="no">
+                  {(["en", "fr"] as const).map((l) => (
+                    <button key={l} onClick={() => setBoLang(l)} className={`px-2.5 py-1.5 ${boLang === l ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>{l.toUpperCase()}</button>
+                  ))}
+                </div>
                 <Badge variant="outline" className="font-body">Admin</Badge>
                 <Button onClick={exportExcel} className="hidden sm:flex" variant="outline">
                   <Download className="h-4 w-4 mr-2" /> Download Excel
