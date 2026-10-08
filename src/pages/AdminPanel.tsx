@@ -44,6 +44,8 @@ import { ImagePlus, ChevronRight } from "lucide-react";
 import { AgentsSection, UsersSection, HistorySection } from "@/components/admin/AdminPeople";
 import { ProductsSection, OfferTargets, ExpensesSection, ConnectionsSection, AdminOwnerPanel, CompanyPanel, useInventory } from "@/components/admin/AdminBusiness";
 import { Receipt, Plug } from "lucide-react";
+import { OrderFulfillment } from "@/components/admin/OrderFulfillment";
+import { useBackofficeLang } from "@/lib/backofficeI18n";
 
 const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
 const subcategoriesOf = (cat: string) =>
@@ -1263,6 +1265,7 @@ const AdminPanel = () => {
                     </Button>
                   ))}
                 </div>
+                <OrderFulfillment order={o} companies={companies} format={format} onStatus={(st) => { setSelectedOrder({ ...o, status: st }); refresh(); }} />
                 <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
                   {rows.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
                     <div key={k} className="border-b border-border py-1">
