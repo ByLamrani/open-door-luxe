@@ -388,6 +388,57 @@ export type Database = {
         }
         Relationships: []
       }
+      order_fulfillment: {
+        Row: {
+          cod_collected: number
+          created_at: string
+          delivery_company_id: string | null
+          delivery_cost: number
+          expenses: Json
+          history: Json
+          notes: string | null
+          order_id: string
+          package: Json
+          receiver: Json
+          stage: string
+          steps: Json
+          tracking_number: string | null
+          updated_at: string
+        }
+        Insert: {
+          cod_collected?: number
+          created_at?: string
+          delivery_company_id?: string | null
+          delivery_cost?: number
+          expenses?: Json
+          history?: Json
+          notes?: string | null
+          order_id: string
+          package?: Json
+          receiver?: Json
+          stage?: string
+          steps?: Json
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cod_collected?: number
+          created_at?: string
+          delivery_company_id?: string | null
+          delivery_cost?: number
+          expenses?: Json
+          history?: Json
+          notes?: string | null
+          order_id?: string
+          package?: Json
+          receiver?: Json
+          stage?: string
+          steps?: Json
+          tracking_number?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           cod_settled: boolean

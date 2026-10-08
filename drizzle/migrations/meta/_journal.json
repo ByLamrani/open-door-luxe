@@ -43,6 +43,13 @@
       "when": 1791292935892,
       "tag": "0005_consume_inventory",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1791502703021,
+      "tag": "0006_order_fulfillment",
+      "breakpoints": true
     }
   ]
 }
