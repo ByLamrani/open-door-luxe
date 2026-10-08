@@ -44,6 +44,8 @@ import { ImagePlus, ChevronRight } from "lucide-react";
 import { AgentsSection, UsersSection, HistorySection } from "@/components/admin/AdminPeople";
 import { ProductsSection, OfferTargets, ExpensesSection, ConnectionsSection, AdminOwnerPanel, CompanyPanel, useInventory } from "@/components/admin/AdminBusiness";
 import { Receipt, Plug } from "lucide-react";
+import { OrderFulfillment } from "@/components/admin/OrderFulfillment";
+import { useBackofficeLang } from "@/lib/backofficeI18n";
 
 const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
 const subcategoriesOf = (cat: string) =>
@@ -106,6 +108,7 @@ const AdminPanel = () => {
   const { format } = useCurrency();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const [tab, setTab] = useState<Tab>("overview");
+  const { lang: boLang, setLang: setBoLang } = useBackofficeLang();
   const [adminSub, setAdminSub] = useState<"admin" | "company" | "agents">("admin");
   const { inventory, reloadInventory } = useInventory();
   const [busy, setBusy] = useState<string | null>(null);
@@ -1170,6 +1173,11 @@ const AdminPanel = () => {
                 </div>
               </div>
               <div className="flex items-center gap-2">
+                <div className="flex rounded-md border border-border overflow-hidden text-xs" translate="no">
+                  {(["en", "fr"] as const).map((l) => (
+                    <button key={l} onClick={() => setBoLang(l)} className={`px-2.5 py-1.5 ${boLang === l ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>{l.toUpperCase()}</button>
+                  ))}
+                </div>
                 <Badge variant="outline" className="font-body">Admin</Badge>
                 <Button onClick={exportExcel} className="hidden sm:flex" variant="outline">
                   <Download className="h-4 w-4 mr-2" /> Download Excel
@@ -1263,6 +1271,7 @@ const AdminPanel = () => {
                     </Button>
                   ))}
                 </div>
+                <OrderFulfillment order={o} companies={companies} format={format} onStatus={(st) => { setSelectedOrder({ ...o, status: st }); refresh(); }} />
                 <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
                   {rows.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
                     <div key={k} className="border-b border-border py-1">
