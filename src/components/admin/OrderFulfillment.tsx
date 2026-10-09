@@ -1,3 +1,4 @@
+import { bo } from "@/lib/backofficeI18n";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -95,11 +96,11 @@ export const OrderFulfillment = ({ order, companies, format, onStatus }: { order
   };
 
   const Checks = ({ k }: { k: string }) => (
-    <div className="space-y-1.5">{CHECKS[k].map(([c, l]) => (
+    <div className="space-y-1.5">{bo(CHECKS[k].map(([c, l]) => (
       <label key={c} className="flex items-center gap-2 text-sm cursor-pointer">
-        <input type="checkbox" className="h-4 w-4 accent-foreground" checked={!!f.steps[`${k}.${c}`]} onChange={(e) => setStep(`${k}.${c}`, e.target.checked)} /> {l}
+        <input type="checkbox" className="h-4 w-4 accent-foreground" checked={!!f.steps[`${k}.${c}`]} onChange={(e) => setStep(`${k}.${c}`, e.target.checked)} /> {bo(l)}
       </label>
-    ))}</div>
+    )))}</div>
   );
 
   const body = (k: StageKey) => {
@@ -108,57 +109,57 @@ export const OrderFulfillment = ({ order, companies, format, onStatus }: { order
         return (
           <div className="space-y-3">
             <Checks k={k} />
-            {k === "package" && (
+            {bo(k === "package" && (
               <div className="grid grid-cols-3 gap-2">
-                {[["parcels", "Parcels"], ["weight", "Weight (kg)"], ["size", "Size (cm)"]].map(([x, l]) => (
-                  <div key={x}><Label className="text-xs">{l}</Label><Input value={f.package[x] || ""} onChange={(e) => setF({ ...f, package: { ...f.package, [x]: e.target.value } })} /></div>
-                ))}
+                {bo([["parcels", "Parcels"], ["weight", "Weight (kg)"], ["size", "Size (cm)"]].map(([x, l]) => (
+                  <div key={x}><Label className="text-xs">{bo(l)}</Label><Input value={f.package[x] || ""} onChange={(e) => setF({ ...f, package: { ...f.package, [x]: e.target.value } })} /></div>
+                )))}
               </div>
-            )}
-            {k === "delivered" && (
-              <div><Label className="text-xs">Amount collected on delivery</Label><Input type="number" value={f.cod_collected} onChange={(e) => setF({ ...f, cod_collected: e.target.value })} /></div>
-            )}
+            ))}
+            {bo(k === "delivered" && (
+              <div><Label className="text-xs">{bo("Amount collected on delivery")}</Label><Input type="number" value={f.cod_collected} onChange={(e) => setF({ ...f, cod_collected: e.target.value })} /></div>
+            ))}
           </div>
         );
       case "receiver":
         return (
           <div className="grid sm:grid-cols-2 gap-2">
-            {[["name", "Receiver name *"], ["phone", "Phone *"], ["address", "Address *"], ["city", "City *"], ["landmark", "Landmark / directions"], ["slot", "Preferred delivery time"]].map(([x, l]) => (
-              <div key={x}><Label className="text-xs">{l}</Label><Input value={f.receiver[x] || ""} onChange={(e) => setF({ ...f, receiver: { ...f.receiver, [x]: e.target.value } })} /></div>
-            ))}
+            {bo([["name", "Receiver name *"], ["phone", "Phone *"], ["address", "Address *"], ["city", "City *"], ["landmark", "Landmark / directions"], ["slot", "Preferred delivery time"]].map(([x, l]) => (
+              <div key={x}><Label className="text-xs">{bo(l)}</Label><Input value={f.receiver[x] || ""} onChange={(e) => setF({ ...f, receiver: { ...f.receiver, [x]: e.target.value } })} /></div>
+            )))}
           </div>
         );
       case "courier":
         return (
           <div className="grid sm:grid-cols-2 gap-2">
-            <div className="sm:col-span-2"><Label className="text-xs">Delivery company *</Label>
+            <div className="sm:col-span-2"><Label className="text-xs">{bo("Delivery company *")}</Label>
               <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={f.delivery_company_id}
                 onChange={(e) => { const c = companies.find((x) => x.id === e.target.value); setF({ ...f, delivery_company_id: e.target.value, delivery_cost: c ? String(c.price_per_delivery) : f.delivery_cost }); }}>
-                <option value="">Select a company</option>
-                {companies.map((c) => <option key={c.id} value={c.id}>{c.name} — {format(Number(c.price_per_delivery))}</option>)}
+                <option value="">{bo("Select a company")}</option>
+                {bo(companies.map((c) => <option key={c.id} value={c.id}>{bo(c.name)}{bo(" — ")}{bo(format(Number(c.price_per_delivery)))}</option>))}
               </select>
-              {companies.length === 0 && <p className="text-xs text-muted-foreground mt-1">Add delivery companies in Logistics → Delivery companies.</p>}
+              {bo(companies.length === 0 && <p className="text-xs text-muted-foreground mt-1">{bo("Add delivery companies in Logistics → Delivery companies.")}</p>)}
             </div>
-            <div><Label className="text-xs">Tracking number</Label><Input value={f.tracking_number} onChange={(e) => setF({ ...f, tracking_number: e.target.value })} /></div>
-            <div><Label className="text-xs">Delivery cost</Label><Input type="number" value={f.delivery_cost} onChange={(e) => setF({ ...f, delivery_cost: e.target.value })} /></div>
+            <div><Label className="text-xs">{bo("Tracking number")}</Label><Input value={f.tracking_number} onChange={(e) => setF({ ...f, tracking_number: e.target.value })} /></div>
+            <div><Label className="text-xs">{bo("Delivery cost")}</Label><Input type="number" value={f.delivery_cost} onChange={(e) => setF({ ...f, delivery_cost: e.target.value })} /></div>
           </div>
         );
       case "expenses":
         return (
           <div className="space-y-2">
-            <div className="flex justify-between text-sm"><span>Delivery cost</span><b>{format(Number(f.delivery_cost || 0))}</b></div>
-            {(f.expenses as any[]).map((e, i) => (
+            <div className="flex justify-between text-sm"><span>{bo("Delivery cost")}</span><b>{bo(format(Number(f.delivery_cost || 0)))}</b></div>
+            {bo((f.expenses as any[]).map((e, i) => (
               <div key={i} className="grid grid-cols-[1fr_100px_1fr_auto] gap-2">
                 <select className="h-10 rounded-md border border-input bg-background px-2 text-sm" value={e.type} onChange={(ev) => { const x = [...f.expenses]; x[i] = { ...e, type: ev.target.value }; setF({ ...f, expenses: x }); }}>
-                  {EXPENSE_TYPES.map((t) => <option key={t}>{t}</option>)}
+                  {bo(EXPENSE_TYPES.map((t) => <option key={t}>{bo(t)}</option>))}
                 </select>
-                <Input type="number" placeholder="Amount" value={e.amount} onChange={(ev) => { const x = [...f.expenses]; x[i] = { ...e, amount: ev.target.value }; setF({ ...f, expenses: x }); }} />
-                <Input placeholder="Note" value={e.note} onChange={(ev) => { const x = [...f.expenses]; x[i] = { ...e, note: ev.target.value }; setF({ ...f, expenses: x }); }} />
+                <Input type="number" placeholder={bo("Amount")} value={e.amount} onChange={(ev) => { const x = [...f.expenses]; x[i] = { ...e, amount: ev.target.value }; setF({ ...f, expenses: x }); }} />
+                <Input placeholder={bo("Note")} value={e.note} onChange={(ev) => { const x = [...f.expenses]; x[i] = { ...e, note: ev.target.value }; setF({ ...f, expenses: x }); }} />
                 <Button size="icon" variant="ghost" onClick={() => setF({ ...f, expenses: f.expenses.filter((_: any, j: number) => j !== i) })}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
-            ))}
-            <Button size="sm" variant="outline" onClick={() => setF({ ...f, expenses: [...f.expenses, { type: "Packaging", amount: "", note: "" }] })}><Plus className="h-4 w-4 mr-1" /> Add expense</Button>
-            <div className="flex justify-between text-sm border-t border-border pt-2"><span>Total order costs</span><b>{format(totalCost)}</b></div>
+            )))}
+            <Button size="sm" variant="outline" onClick={() => setF({ ...f, expenses: [...f.expenses, { type: "Packaging", amount: "", note: "" }] })}><Plus className="h-4 w-4 mr-1" />{bo(" Add expense")}</Button>
+            <div className="flex justify-between text-sm border-t border-border pt-2"><span>{bo("Total order costs")}</span><b>{bo(format(totalCost))}</b></div>
           </div>
         );
     }
@@ -167,51 +168,51 @@ export const OrderFulfillment = ({ order, companies, format, onStatus }: { order
   return (
     <div className="border border-border rounded-lg p-4 space-y-4">
       <div className="flex items-center justify-between">
-        <p className="font-semibold text-sm">Order process</p>
-        <span className="text-xs text-muted-foreground">{f.stage === "done" ? "Completed" : f.stage === "returned" ? "Returned" : `Step ${idx + 1} of ${STAGES.length}`}</span>
+        <p className="font-semibold text-sm">{bo("Order process")}</p>
+        <span className="text-xs text-muted-foreground">{bo(f.stage === "done" ? "Completed" : f.stage === "returned" ? "Returned" : `Step ${idx + 1} of ${STAGES.length}`)}</span>
       </div>
-      <div className="flex gap-1">{STAGES.map((st, i) => (
+      <div className="flex gap-1">{bo(STAGES.map((st, i) => (
         <div key={st.key} className={`h-1.5 flex-1 rounded-full ${f.stage === "returned" ? "bg-destructive/60" : f.stage === "done" || i < idx ? "bg-foreground" : i === idx ? "bg-foreground/40" : "bg-muted"}`} />
-      ))}</div>
+      )))}</div>
 
       <div className="space-y-2">
-        {STAGES.map((st, i) => {
+        {bo(STAGES.map((st, i) => {
           const done = f.stage === "done" || (idx >= 0 && i < idx);
           const current = i === idx;
           return (
             <div key={st.key} className={`rounded-md border p-3 ${current ? "border-foreground" : "border-border"}`}>
               <div className="flex items-center justify-between">
-                <p className={`text-sm ${done ? "text-muted-foreground" : "font-medium"}`}>{done && <Check className="inline h-4 w-4 mr-1" />}{st.label}</p>
-                {current && <Button size="sm" disabled={busy} onClick={() => complete(st.key)}>Complete step</Button>}
+                <p className={`text-sm ${done ? "text-muted-foreground" : "font-medium"}`}>{bo(done && <Check className="inline h-4 w-4 mr-1" />)}{bo(st.label)}</p>
+                {bo(current && <Button size="sm" disabled={busy} onClick={() => complete(st.key)}>{bo("Complete step")}</Button>)}
               </div>
-              {current && <div className="mt-3">{body(st.key)}</div>}
+              {bo(current && <div className="mt-3">{bo(body(st.key))}</div>)}
             </div>
           );
-        })}
+        }))}
       </div>
 
-      {f.stage !== "returned" && f.stage !== "done" && idx >= 5 && (
+      {bo(f.stage !== "returned" && f.stage !== "done" && idx >= 5 && (
         <div className="flex flex-wrap items-end gap-2 border-t border-border pt-3">
-          <div className="flex-1 min-w-[180px]"><Label className="text-xs">Return reason</Label>
+          <div className="flex-1 min-w-[180px]"><Label className="text-xs">{bo("Return reason")}</Label>
             <select className="w-full h-10 rounded-md border border-input bg-background px-3 text-sm" value={returnReason} onChange={(e) => setReturnReason(e.target.value)}>
-              <option value="">Select…</option>
-              {["Customer unreachable", "Customer refused", "Wrong address", "Damaged parcel", "Other"].map((r) => <option key={r}>{r}</option>)}
+              <option value="">{bo("Select…")}</option>
+              {bo(["Customer unreachable", "Customer refused", "Wrong address", "Damaged parcel", "Other"].map((r) => <option key={r}>{bo(r)}</option>))}
             </select>
           </div>
-          <Button variant="outline" disabled={busy} onClick={markReturned}><RotateCcw className="h-4 w-4 mr-1" /> Mark returned</Button>
+          <Button variant="outline" disabled={busy} onClick={markReturned}><RotateCcw className="h-4 w-4 mr-1" />{bo(" Mark returned")}</Button>
         </div>
-      )}
+      ))}
 
-      <div><Label className="text-xs">Internal notes</Label><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} onBlur={() => persist(f)} /></div>
+      <div><Label className="text-xs">{bo("Internal notes")}</Label><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} onBlur={() => persist(f)} /></div>
 
-      {(f.history as any[]).length > 0 && (
+      {bo((f.history as any[]).length > 0 && (
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">Timeline</p>
-          <ul className="text-xs space-y-1">{[...f.history].reverse().map((h: any, i: number) => (
-            <li key={i}><span className="text-muted-foreground">{new Date(h.at).toLocaleString()}</span> — {h.event}</li>
-          ))}</ul>
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">{bo("Timeline")}</p>
+          <ul className="text-xs space-y-1">{bo([...f.history].reverse().map((h: any, i: number) => (
+            <li key={i}><span className="text-muted-foreground">{bo(new Date(h.at).toLocaleString())}</span>{bo(" — ")}{bo(h.event)}</li>
+          )))}</ul>
         </div>
-      )}
+      ))}
     </div>
   );
 };

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
+import { useSyncExternalStore } from "react";
 
-/** English → French dictionary for the BackOffice. Text not listed stays in English. */
 const FR: Record<string, string> = {
   "Overview": "Vue d'ensemble", "Products": "Produits", "Payments": "Paiements", "Special Offers": "Offres spéciales",
   "Orders": "Commandes", "Logistics": "Logistique", "Expenses": "Dépenses", "Users": "Utilisateurs",
@@ -55,43 +54,314 @@ const FR: Record<string, string> = {
   "Online": "En ligne", "Profit": "Bénéfice", "Cost": "Coût", "Sale": "Vente",
 };
 
+
+Object.assign(FR, {
+  "In stock / preparing": "En stock / préparation",
+  "On delivery": "En cours de livraison",
+  "Action failed": "Échec de l’action",
+  "Average basket": "Panier moyen",
+  "Total revenue": "Chiffre d’affaires total",
+  "Revenue (30 days)": "Chiffre d’affaires (30 jours)",
+  "Orders (30 days)": "Commandes (30 jours)",
+  "Online payments": "Paiements en ligne",
+  "Wallet top-ups": "Recharges du portefeuille",
+  "Order pipeline": "Suivi des commandes",
+  "Latest orders": "Dernières commandes",
+  "No orders yet.": "Aucune commande.",
+  "No orders match these filters.": "Aucune commande ne correspond aux filtres.",
+  "Type": "Type",
+  "Summary": "Résumé",
+  "Order payments": "Paiements des commandes",
+  "Online revenue": "Recettes en ligne",
+  "COD revenue": "Recettes à la livraison",
+  "Returns & refunds": "Retours et remboursements",
+  "Returns / refunds": "Retours / remboursements",
+  "Shipping costs": "Frais de livraison",
+  "Wallet traffic": "Mouvements du portefeuille",
+  "By company": "Par société",
+  "COD to collect": "Paiements à encaisser",
+  "COD collected": "Paiements encaissés",
+  "COD pending": "Paiements en attente",
+  "COD settled": "Paiements réglés",
+  "Unassigned": "Non attribué",
+  "Add a delivery company": "Ajouter une société de livraison",
+  "Price per delivery": "Prix par livraison",
+  "Add company": "Ajouter une société",
+  "No delivery companies yet.": "Aucune société de livraison.",
+  "No shipping jobs recorded.": "Aucune mission de livraison.",
+  "No wallet movements yet.": "Aucun mouvement du portefeuille.",
+  "No top-ups yet.": "Aucune recharge.",
+  "No withdrawals yet.": "Aucun retrait.",
+  "No transactions yet.": "Aucune transaction.",
+  "No offers yet.": "Aucune offre.",
+  "Offers": "Offres",
+  "Active": "Actif",
+  "Paused": "En pause",
+  "active": "actif",
+  "paused": "en pause",
+  "Activate": "Activer",
+  "Pause": "Mettre en pause",
+  "until": "jusqu’au",
+  "no end date": "sans date de fin",
+  "No pending documents.": "Aucun document en attente.",
+  "Verification queue": "Documents à vérifier",
+  "Manage withdrawals": "Gérer les retraits",
+  "Withdrawal requests": "Demandes de retrait",
+  "No withdrawals.": "Aucun retrait.",
+  "Nothing here yet.": "Aucun élément.",
+  "Sign out of the Back Office?": "Se déconnecter du Back Office ?",
+  "You will need to sign in again to manage the store.": "Vous devrez vous reconnecter pour gérer la boutique.",
+  "Admin access required": "Accès administrateur requis",
+  "You don't have permission to view this page.": "Vous n’avez pas l’autorisation de consulter cette page.",
+  "Back to store": "Retour à la boutique",
+  "(Back Office only)": "(Back Office uniquement)",
+  "Profit per item (cash on delivery):": "Bénéfice par article (paiement à la livraison) :",
+  "Profit per item (online, −8% discount):": "Bénéfice par article (en ligne, remise de 8 %) :",
+  "Click to upload a picture (JPG, PNG, WEBP)": "Importer une photo (JPG, PNG, WEBP)",
+  "No products stored yet.": "Aucun produit enregistré.",
+  "No stock set": "Stock non défini",
+  "in stock": "en stock",
+  "Edit product": "Modifier le produit",
+  "Save changes": "Enregistrer les modifications",
+  "Nothing selected — the offer applies to every product on the website.": "Aucune sélection — l’offre s’applique à tous les produits du site.",
+  "The offer applies only to the selected categories, sub-categories and products.": "L’offre s’applique uniquement aux catégories, sous-catégories et produits sélectionnés.",
+  "Register an expense": "Enregistrer une dépense",
+  "Label": "Libellé",
+  "Salaries": "Salaires",
+  "Rent": "Loyer",
+  "Bills (electricity, water, internet)": "Factures (électricité, eau, internet)",
+  "Stock purchase": "Achat de stock",
+  "Taxes": "Impôts",
+  "Software": "Logiciels",
+  "Other": "Autre",
+  "No expenses recorded.": "Aucune dépense enregistrée.",
+  "total": "total",
+  "Database": "Base de données",
+  "Messaging": "Messagerie",
+  "Analytics & ads": "Analyses et publicité",
+  "Automation": "Automatisation",
+  "Connect": "Connecter",
+  "connected": "connecté",
+  "Saved connections": "Connexions enregistrées",
+  "Nothing connected yet.": "Aucune connexion enregistrée.",
+  "Only admins can read saved connections.": "Seuls les administrateurs peuvent consulter les connexions.",
+  "Save connection": "Enregistrer la connexion",
+  "Add field": "Ajouter un champ",
+  "Value": "Valeur",
+  "Project URL": "URL du projet",
+  "Anon / publishable key": "Clé publique",
+  "Service role key": "Clé de service",
+  "Phone number ID": "Identifiant du numéro de téléphone",
+  "Business account ID": "Identifiant du compte professionnel",
+  "Access token": "Jeton d’accès",
+  "Account SID": "Identifiant du compte",
+  "Auth token": "Jeton d’authentification",
+  "From number": "Numéro expéditeur",
+  "SMTP host": "Serveur SMTP",
+  "Port": "Port",
+  "Username": "Nom d’utilisateur",
+  "Password": "Mot de passe",
+  "Page ID": "Identifiant de page",
+  "Instagram account ID": "Identifiant du compte Instagram",
+  "App ID": "Identifiant d’application",
+  "API key": "Clé API",
+  "API secret": "Secret API",
+  "Account ID": "Identifiant du compte",
+  "API URL": "URL API",
+  "Account number": "Numéro de compte",
+  "Account PIN": "Code PIN du compte",
+  "Company name": "Nom de la société",
+  "Other delivery company": "Autre société de livraison",
+  "Client ID": "Identifiant client",
+  "Secret": "Secret",
+  "Publishable key": "Clé publique",
+  "Secret key": "Clé secrète",
+  "Merchant ID": "Identifiant marchand",
+  "Store key": "Clé boutique",
+  "Measurement ID (G-…)": "Identifiant de mesure (G-…)",
+  "Pixel ID": "Identifiant du pixel",
+  "Conversions API token": "Jeton API Conversions",
+  "Webhook URL": "URL du webhook",
+  "Signing secret": "Secret de signature",
+  "Owner — cannot be removed": "Propriétaire — ne peut pas être supprimé",
+  "Full control": "Contrôle total",
+  "No sales in this period.": "Aucune vente sur cette période.",
+  "Legal name": "Raison sociale",
+  "Website": "Site web",
+  "Bank": "Banque",
+  "New agent": "Nouvel agent",
+  "New user": "Nouvel utilisateur",
+  "Full name": "Nom complet",
+  "Password (8+)": "Mot de passe (8 caractères minimum)",
+  "Job title / role": "Poste / fonction",
+  "Sections": "Sections",
+  "No access": "Aucun accès",
+  "View only": "Lecture seule",
+  "Specific actions": "Actions spécifiques",
+  "Personal & contact info": "Informations personnelles et coordonnées",
+  "Personal & contact": "Informations et coordonnées",
+  "Permissions": "Autorisations",
+  "Clients": "Clients",
+  "Add user": "Ajouter un utilisateur",
+  "Create user": "Créer l’utilisateur",
+  "Create agent": "Créer l’agent",
+  "No users match.": "Aucun utilisateur correspondant.",
+  "Verified": "Vérifié",
+  "no phone": "sans téléphone",
+  "Documents": "Documents",
+  "Joined": "Inscrit le",
+  "Wallet": "Portefeuille",
+  "Delete user": "Supprimer l’utilisateur",
+  "No documents uploaded.": "Aucun document importé.",
+  "View": "Consulter",
+  "Details": "Détails",
+  "Save permissions": "Enregistrer les autorisations",
+  "No back-office activity yet.": "Aucune activité administrative.",
+  "Account created": "Compte créé",
+  "Guest": "Invité",
+  "Deposit": "Dépôt",
+  "Withdrawal": "Retrait",
+  "done": "terminé",
+  "approved": "approuvé",
+  "rejected": "refusé",
+  "refunded": "remboursé",
+  "confirmed": "confirmé",
+  "paid": "payé",
+  "completed": "terminé",
+  "Pending": "En attente",
+  "Cancelled": "Annulé",
+  "Add products": "Ajouter des produits",
+  "Delete products": "Supprimer des produits",
+  "Change order status": "Modifier le statut des commandes",
+  "Create orders": "Créer des commandes",
+  "Export financial data (Excel)": "Exporter les données financières (Excel)",
+  "Approve / reject withdrawals": "Approuver / refuser les retraits",
+  "See client deposits": "Consulter les dépôts clients",
+  "Edit client info": "Modifier les informations clients",
+  "Delete clients": "Supprimer des clients",
+  "Approve / reject documents": "Approuver / refuser les documents",
+  "Create / delete offers": "Créer / supprimer des offres",
+  "Manage delivery companies": "Gérer les sociétés de livraison",
+  "Account active (can sign in)": "Compte actif (connexion autorisée)",
+  "Place orders": "Passer des commandes",
+  "Pay cash on delivery": "Payer à la livraison",
+  "Pay online (card / PayPal)": "Payer en ligne (carte / PayPal)",
+  "Pay with wallet": "Payer avec le portefeuille",
+  "Deposit (top up wallet)": "Recharger le portefeuille",
+  "Request withdrawals": "Demander un retrait",
+  "Wallet-to-wallet transfers": "Transferts entre portefeuilles",
+  "Save favorites": "Enregistrer des favoris",
+  "Invite & earn referral rewards": "Inviter et gagner des récompenses",
+  "Use Nova AI assistant": "Utiliser l’assistante Nova",
+  "WhatsApp companion": "Compagnon WhatsApp",
+  "Gift reminders": "Rappels de cadeaux",
+  "Packaging": "Emballage",
+  "Fuel / transport": "Carburant / transport",
+  "Return fee": "Frais de retour",
+  "COD fee": "Frais de paiement à la livraison",
+  "Insurance": "Assurance",
+  "Customer unreachable": "Client injoignable",
+  "Customer refused": "Client ayant refusé",
+  "Wrong address": "Adresse incorrecte",
+  "Damaged parcel": "Colis endommagé",
+  "Add delivery companies in Logistics → Delivery companies.": "Ajoutez une société dans Logistique → Sociétés de livraison.",
+  "Exception reason": "Motif de l’exception",
+  "Continue with exception": "Continuer avec une exception",
+  "Save step": "Enregistrer l’étape",
+  "Current step": "Étape en cours",
+  "Step": "Étape",
+  "of": "sur",
+  "Review": "Consulter",
+  "Back to current step": "Retour à l’étape en cours",
+  "Completed with exception": "Terminé avec une exception",
+  "Order details": "Détails de la commande",
+  "Checklist": "Liste de contrôle",
+  "Confirmed": "Confirmé",
+  "Not confirmed": "Non confirmé",
+  "Selected": "Sélectionné",
+  "Selection": "Sélection",
+  "Luxury & Lifestyle": "Luxe et art de vivre",
+  "Tech & Gear": "Technologie et équipements",
+  "Wellness & Beauty": "Bien-être et beauté",
+  "Art & Living": "Art et décoration",
+  "Home & Living": "Maison et intérieur",
+  "Fashion & Accessories": "Mode et accessoires",
+  "Fragrances": "Parfums",
+  "Self-Care": "Soins personnels",
+  "Watches": "Montres",
+  "Home Electronics": "Électronique maison",
+  "Air Diffusers": "Diffuseurs d’air",
+  "Home Decor": "Décoration",
+  "Lighting": "Éclairage",
+  "Housing Furniture": "Mobilier",
+  "Kitchen Tools": "Ustensiles de cuisine",
+  "Bedroom": "Chambre",
+  "Bath & Linen": "Bain et linge",
+  "Jewelry": "Bijoux",
+  "Bags": "Sacs",
+  "Eyewear": "Lunettes",
+  "Fragrance Vault": "Collection de parfums",
+  "Fragrances for Men": "Parfums pour hommes",
+  "Fragrances for Women": "Parfums pour femmes",
+  "Wellness Rituals": "Rituels de bien-être",
+  "Watches for Men": "Montres pour hommes",
+  "Watches for Women": "Montres pour femmes",
+  "The Grooming Suite": "Espace de soin",
+  "Massage & Recovery": "Massage et récupération",
+  "Lighting & Ambience": "Éclairage et ambiance",
+  "Bedroom Essentials": "Essentiels de la chambre",
+  "Bags & Leather": "Sacs et maroquinerie",
+  "User created": "Utilisateur créé",
+  "User updated": "Utilisateur mis à jour",
+  "User deleted": "Utilisateur supprimé",
+  "Agent created": "Agent créé",
+  "Agent updated": "Agent mis à jour",
+  "Agent deleted": "Agent supprimé",
+  "Product added": "Produit ajouté",
+  "Product updated": "Produit mis à jour",
+  "Could not save": "Enregistrement impossible",
+  "Net (revenue − refunds − shipping)": "Net (recettes − remboursements − livraison)",
+  "Gross revenue": "Recettes brutes",
+  "Costs": "Coûts",
+  "Total orders": "Nombre de commandes",
+  "Products listed": "Produits en vente",
+  "Online payment share (%)": "Part des paiements en ligne (%)",
+  "Deposits collected": "Dépôts encaissés",
+  "Withdrawals requested": "Retraits demandés",
+  "Net profit": "Bénéfice net",
+  "Return received": "Retour reçu",
+  "Settled": "Réglé",
+  "To prepare": "À préparer",
+  "Shipments sent": "Expéditions envoyées",
+  "Total shipping costs": "Coût total de livraison",
+  "PayPal captured": "PayPal encaissé",
+  "Shipping jobs": "Missions de livraison",
+  "Buyer / City": "Acheteur / ville",
+  "User:": "Utilisateur :",
+  "Eid al-Fitr, 14 February…": "Aïd el-Fitr, 14 février…",
+  "e.g. Production": "ex. Production",
+  "e.g. Salary — Fatima, October": "ex. Salaire — Fatima, octobre"
+});
+
 const KEY = "lamralux_bo_lang";
 export type BoLang = "en" | "fr";
-
+const listeners = new Set<() => void>();
+let language: BoLang = localStorage.getItem(KEY) === "en" ? "en" : "fr";
+const subscribe = (listener: () => void) => { listeners.add(listener); return () => { listeners.delete(listener); }; };
+const keys = Object.keys(FR).sort((a, b) => b.length - a.length);
+export const bo = <T,>(value: T): T => {
+  if (typeof value !== "string" || language === "en") return value;
+  const trimmed = value.trim();
+  if (FR[trimmed]) return value.replace(trimmed, FR[trimmed]) as T;
+  // Dynamic counts, totals and history keep their original data, translating only known labels.
+  let result = value;
+  const escaped = keys.map((key) => key.replace(/[.*+?^${}()|[]\\]/g, "\\$&"));
+  const pattern = new RegExp("(?<![\\p{L}\\p{N}_])(?:" + escaped.join("|") + ")(?![\\p{L}\\p{N}_])", "gu");
+  result = result.replace(pattern, (key) => FR[key] ?? key);
+  return result as T;
+};
 export const useBackofficeLang = () => {
-  const [lang, setLang] = useState<BoLang>(() => (localStorage.getItem(KEY) as BoLang) || "fr");
-  useEffect(() => {
-    localStorage.setItem(KEY, lang);
-    const originals = new WeakMap<Node, string>();
-    const phOriginals = new WeakMap<Element, string>();
-    const translateNode = (n: Node) => {
-      if (n.nodeType === Node.TEXT_NODE) {
-        const orig = originals.get(n) ?? n.nodeValue ?? "";
-        const key = orig.trim();
-        const fr = FR[key];
-        if (!fr) return;
-        originals.set(n, orig);
-        const target = lang === "fr" ? orig.replace(key, fr) : orig;
-        if (n.nodeValue !== target) n.nodeValue = target;
-      } else if (n instanceof Element) {
-        if (n.tagName === "SCRIPT" || n.tagName === "STYLE") return;
-        const ph = n.getAttribute("placeholder");
-        if (ph !== null) {
-          const orig = phOriginals.get(n) ?? ph;
-          if (FR[orig]) { phOriginals.set(n, orig); const t = lang === "fr" ? FR[orig] : orig; if (ph !== t) n.setAttribute("placeholder", t); }
-        }
-        n.childNodes.forEach(translateNode);
-      }
-    };
-    translateNode(document.body);
-    const obs = new MutationObserver((muts) => {
-      muts.forEach((m) => {
-        if (m.type === "characterData") { originals.delete(m.target); translateNode(m.target); }
-        m.addedNodes.forEach(translateNode);
-      });
-    });
-    obs.observe(document.body, { childList: true, subtree: true, characterData: true });
-    return () => obs.disconnect();
-  }, [lang]);
-  return { lang, setLang };
+  const lang = useSyncExternalStore(subscribe, () => language);
+  const setLang = (next: BoLang) => { language = next; localStorage.setItem(KEY, next); listeners.forEach((listener) => listener()); };
+  return { lang, setLang, t: bo };
 };

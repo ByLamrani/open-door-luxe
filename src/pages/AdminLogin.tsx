@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import heroImg from "@/assets/admin-login.jpg";
+import heroImg from "@/assets/backoffice-office.jpg";
 import logo from "@/assets/lamralux-mark.png";
 
 const AdminLogin = () => {
@@ -38,7 +38,7 @@ const AdminLogin = () => {
   return (
     <div className="min-h-screen grid lg:grid-cols-[2fr_1fr] bg-background">
       <div className="hidden lg:block relative">
-        <img src={heroImg} alt="Lamra Lux" className="absolute inset-0 h-full w-full object-cover" />
+        <img src={heroImg} alt="Lamra Lux office" width={1536} height={1024} className="absolute inset-0 h-full w-full object-cover" />
       </div>
       <div className="flex flex-col justify-center px-8 py-12">
         <div className="w-full max-w-sm mx-auto">

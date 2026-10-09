@@ -1,3 +1,4 @@
+import { bo } from "@/lib/backofficeI18n";
 import { useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -59,45 +60,45 @@ const savePerms = async (user_id: string, kind: string, permissions: any, job_ti
 /* ---------- Shared editors ---------- */
 const PersonFields = ({ v, set, withJob, withPassword = true }: { v: any; set: (x: any) => void; withJob?: boolean; withPassword?: boolean }) => (
   <div className="grid sm:grid-cols-2 gap-3">
-    {([["full_name", "Full name"], ["email", "Email"], ...(withPassword ? [["password", "Password (8+)"]] : []), ["phone", "Phone"],
+    {bo(([["full_name", "Full name"], ["email", "Email"], ...(withPassword ? [["password", "Password (8+)"]] : []), ["phone", "Phone"],
       ["city", "City"], ["country", "Country"], ["home_address", "Address"], ...(withJob ? [["job_title", "Job title / role"]] : [])] as [string, string][]).map(([k, l]) => (
       <div key={k} className={k === "home_address" ? "sm:col-span-2" : ""}>
-        <Label className="text-xs">{l}</Label>
+        <Label className="text-xs">{bo(l)}</Label>
         <Input type={k === "password" ? "password" : k === "email" ? "email" : "text"} value={v[k] ?? ""} onChange={(e) => set({ ...v, [k]: e.target.value })} />
       </div>
-    ))}
+    )))}
   </div>
 );
 
 const AgentPermEditor = ({ p, set }: { p: any; set: (x: any) => void }) => (
   <div className="space-y-4">
     <div>
-      <h4 className="text-sm font-semibold mb-2">Sections</h4>
+      <h4 className="text-sm font-semibold mb-2">{bo("Sections")}</h4>
       <div className="border border-border rounded-lg divide-y divide-border">
-        {AGENT_SECTIONS.map(([k, l]) => (
+        {bo(AGENT_SECTIONS.map(([k, l]) => (
           <div key={k} className="flex items-center justify-between px-3 py-2 text-sm">
-            <span>{l}</span>
+            <span>{bo(l)}</span>
             <div className="flex gap-1">
-              {(["none", "view", "manage"] as Level[]).map((lv) => (
+              {bo((["none", "view", "manage"] as Level[]).map((lv) => (
                 <button key={lv} type="button" onClick={() => set({ ...p, sections: { ...p.sections, [k]: lv } })}
                   className={`px-2 py-0.5 rounded border text-xs ${p.sections?.[k] === lv ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"}`}>
-                  {lv === "none" ? "No access" : lv === "view" ? "View only" : "Full control"}
+                  {bo(lv === "none" ? "No access" : lv === "view" ? "View only" : "Full control")}
                 </button>
-              ))}
+              )))}
             </div>
           </div>
-        ))}
+        )))}
       </div>
     </div>
     <div>
-      <h4 className="text-sm font-semibold mb-2">Specific actions</h4>
+      <h4 className="text-sm font-semibold mb-2">{bo("Specific actions")}</h4>
       <div className="grid sm:grid-cols-2 gap-2">
-        {AGENT_ACTIONS.map(([k, l]) => (
+        {bo(AGENT_ACTIONS.map(([k, l]) => (
           <label key={k} className="flex items-center gap-2 text-sm">
             <input type="checkbox" checked={!!p.actions?.[k]} onChange={(e) => set({ ...p, actions: { ...p.actions, [k]: e.target.checked } })} />
-            {l}
+            {bo(l)}
           </label>
-        ))}
+        )))}
       </div>
     </div>
   </div>
@@ -105,12 +106,12 @@ const AgentPermEditor = ({ p, set }: { p: any; set: (x: any) => void }) => (
 
 const ClientPermEditor = ({ p, set }: { p: any; set: (x: any) => void }) => (
   <div className="grid sm:grid-cols-2 gap-2">
-    {CLIENT_PERMS.map(([k, l]) => (
+    {bo(CLIENT_PERMS.map(([k, l]) => (
       <label key={k} className="flex items-center gap-2 text-sm">
         <input type="checkbox" checked={p?.[k] !== false} onChange={(e) => set({ ...p, [k]: e.target.checked })} />
-        {l}
+        {bo(l)}
       </label>
-    ))}
+    )))}
   </div>
 );
 
@@ -147,47 +148,47 @@ export const AgentsSection = ({ profiles, roles, perms, callAdminUsers, refresh,
   return (
     <Card>
       <CardHeader className="flex-row items-center justify-between">
-        <CardTitle>Agents ({agents.length})</CardTitle>
-        <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add agent</Button>
+        <CardTitle>{bo("Agents (")}{bo(agents.length)}{bo(")")}</CardTitle>
+        <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" />{bo(" Add agent")}</Button>
       </CardHeader>
       <CardContent className="space-y-2">
-        {agents.length === 0 && <p className="text-sm text-muted-foreground">No agents yet.</p>}
-        {agents.map((a) => {
+        {bo(agents.length === 0 && <p className="text-sm text-muted-foreground">{bo("No agents yet.")}</p>)}
+        {bo(agents.map((a) => {
           const row = perms.find((x) => x.user_id === a.user_id);
           const allowed = row ? AGENT_SECTIONS.filter(([k]) => row.permissions?.sections?.[k] && row.permissions.sections[k] !== "none").length : AGENT_SECTIONS.length;
           return (
             <div key={a.user_id} className="flex flex-wrap items-center justify-between gap-2 border border-border rounded-lg p-3 hover:border-foreground transition-colors">
               <div className="cursor-pointer flex-1" onClick={() => setEdit({ ...a, job_title: row?.job_title, perms: row?.permissions?.sections ? row.permissions : defaultAgentPerms() })}>
-                <div className="font-medium">{a.full_name || a.email} <Badge variant="outline" className="ml-1">{roleOf(a.user_id)}</Badge></div>
-                <div className="text-xs text-muted-foreground">{row?.job_title || "—"} • {a.email} • {a.phone || "no phone"} • {allowed}/{AGENT_SECTIONS.length} sections</div>
+                <div className="font-medium">{bo(a.full_name || a.email)} <Badge variant="outline" className="ml-1">{bo(roleOf(a.user_id))}</Badge></div>
+                <div className="text-xs text-muted-foreground">{bo(row?.job_title || "—")}{bo(" • ")}{bo(a.email)}{bo(" • ")}{bo(a.phone || "no phone")}{bo(" • ")}{bo(allowed)}{bo("/")}{bo(AGENT_SECTIONS.length)}{bo(" sections")}</div>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" variant="outline" onClick={() => setEdit({ ...a, job_title: row?.job_title, perms: row?.permissions?.sections ? row.permissions : defaultAgentPerms() })}>Permissions & info</Button>
+                <Button size="sm" variant="outline" onClick={() => setEdit({ ...a, job_title: row?.job_title, perms: row?.permissions?.sections ? row.permissions : defaultAgentPerms() })}>{bo("Permissions & info")}</Button>
                 <Button size="sm" variant="ghost" disabled={a.user_id === currentUserId || a.email?.toLowerCase() === "adil.lamrani.ejjouti@gmail.com"} onClick={() => confirm(`Delete ${a.email}?`) && callAdminUsers({ action: "delete", user_id: a.user_id }, "Agent deleted")}><Trash2 className="h-4 w-4 text-destructive" /></Button>
               </div>
             </div>
           );
-        })}
+        }))}
       </CardContent>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New agent</DialogTitle></DialogHeader>
-          <h4 className="text-sm font-semibold">Personal & contact info</h4>
+          <DialogHeader><DialogTitle>{bo("New agent")}</DialogTitle></DialogHeader>
+          <h4 className="text-sm font-semibold">{bo("Personal & contact info")}</h4>
           <PersonFields v={form} set={setForm} withJob />
           <AgentPermEditor p={p} set={setP} />
-          <Button onClick={create}>Create agent</Button>
+          <Button onClick={create}>{bo("Create agent")}</Button>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{edit?.email}</DialogTitle></DialogHeader>
-          {edit && <>
+          <DialogHeader><DialogTitle>{bo(edit?.email)}</DialogTitle></DialogHeader>
+          {bo(edit && <>
             <PersonFields v={edit} set={setEdit} withJob withPassword={false} />
             <AgentPermEditor p={edit.perms} set={(x) => setEdit({ ...edit, perms: x })} />
-            <Button onClick={saveEdit}>Save</Button>
-          </>}
+            <Button onClick={saveEdit}>{bo("Save")}</Button>
+          </>)}
         </DialogContent>
       </Dialog>
     </Card>
@@ -234,21 +235,21 @@ export const UsersSection = ({ profiles, roles, perms, callAdminUsers, refresh, 
   }, [sel, topups, withdrawals, txns, wallets]);
 
   const Tabs = ({ items, v, on }: { items: [string, string][]; v: string; on: (x: any) => void }) => (
-    <div className="flex flex-wrap gap-2">{items.map(([k, l]) => (
-      <button key={k} onClick={() => on(k)} className={`px-3 py-1 rounded-full border text-xs ${v === k ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"}`}>{l}</button>
-    ))}</div>
+    <div className="flex flex-wrap gap-2">{bo(items.map(([k, l]) => (
+      <button key={k} onClick={() => on(k)} className={`px-3 py-1 rounded-full border text-xs ${v === k ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"}`}>{bo(l)}</button>
+    )))}</div>
   );
 
   const OpRow = ({ r, kind }: { r: any; kind: "deposit" | "withdrawal" }) => (
     <tr className="border-b border-border/50">
-      <td className="py-2 pr-4">{nameOf(r.user_id)}</td>
-      <td className={`py-2 pr-4 font-medium ${kind === "withdrawal" ? "text-destructive" : ""}`}>{kind === "withdrawal" ? "−" : "+"}{format(Number(r.amount))}</td>
-      <td className="py-2 pr-4 text-muted-foreground">{kind === "deposit" ? (r.paypal_order_id ? "PayPal" : "—") : r.method}</td>
-      <td className="py-2 pr-4"><Badge variant="outline">{r.status}</Badge></td>
-      <td className="py-2 pr-4 text-muted-foreground">{new Date(r.created_at).toLocaleString()}</td>
-      <td className="py-2 pr-4">{kind === "withdrawal" && r.status === "pending" && (
-        <span className="flex gap-1"><Button size="sm" disabled={busy === r.id} onClick={() => onDecideWithdrawal(r, "approved")}>Approve</Button>
-          <Button size="sm" variant="destructive" disabled={busy === r.id} onClick={() => onDecideWithdrawal(r, "rejected")}>Reject</Button></span>)}</td>
+      <td className="py-2 pr-4">{bo(nameOf(r.user_id))}</td>
+      <td className={`py-2 pr-4 font-medium ${kind === "withdrawal" ? "text-destructive" : ""}`}>{bo(kind === "withdrawal" ? "−" : "+")}{bo(format(Number(r.amount)))}</td>
+      <td className="py-2 pr-4 text-muted-foreground">{bo(kind === "deposit" ? (r.paypal_order_id ? "PayPal" : "—") : r.method)}</td>
+      <td className="py-2 pr-4"><Badge variant="outline">{bo(r.status)}</Badge></td>
+      <td className="py-2 pr-4 text-muted-foreground">{bo(new Date(r.created_at).toLocaleString())}</td>
+      <td className="py-2 pr-4">{bo(kind === "withdrawal" && r.status === "pending" && (
+        <span className="flex gap-1"><Button size="sm" disabled={busy === r.id} onClick={() => onDecideWithdrawal(r, "approved")}>{bo("Approve")}</Button>
+          <Button size="sm" variant="destructive" disabled={busy === r.id} onClick={() => onDecideWithdrawal(r, "rejected")}>{bo("Reject")}</Button></span>))}</td>
     </tr>
   );
 
@@ -256,81 +257,81 @@ export const UsersSection = ({ profiles, roles, perms, callAdminUsers, refresh, 
     <Card>
       <CardHeader className="gap-3">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <CardTitle>Users ({clients.length})</CardTitle>
-          <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" /> Add user</Button>
+          <CardTitle>{bo("Users (")}{bo(clients.length)}{bo(")")}</CardTitle>
+          <Button onClick={() => setOpen(true)}><Plus className="h-4 w-4 mr-1" />{bo(" Add user")}</Button>
         </div>
         <Tabs items={[["clients", "Clients"], ["deposits", `Deposits (${topups.length})`], ["withdrawals", `Withdrawals (${withdrawals.length})`]]} v={sub} on={setSub} />
       </CardHeader>
       <CardContent className="overflow-x-auto">
-        {sub === "clients" && <>
-          <Input placeholder="Search name, email, phone, city…" value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm mb-3" />
+        {bo(sub === "clients" && <>
+          <Input placeholder={bo("Search name, email, phone, city…")} value={q} onChange={(e) => setQ(e.target.value)} className="max-w-sm mb-3" />
           <div className="space-y-2">
-            {filtered.slice(0, 300).map((p) => (
+            {bo(filtered.slice(0, 300).map((p) => (
               <button key={p.user_id} onClick={() => { setSel(p); setSelTab("info"); }} className="w-full text-left flex items-center justify-between gap-2 border border-border rounded-lg p-3 hover:bg-muted">
                 <div>
-                  <div className="font-medium">{p.full_name || "—"} {p.is_verified && <Badge variant="outline" className="ml-1">Verified</Badge>}</div>
-                  <div className="text-xs text-muted-foreground">{p.email} • {p.phone || "no phone"} • {p.city || "—"}</div>
+                  <div className="font-medium">{bo(p.full_name || "—")} {bo(p.is_verified && <Badge variant="outline" className="ml-1">{bo("Verified")}</Badge>)}</div>
+                  <div className="text-xs text-muted-foreground">{bo(p.email)}{bo(" • ")}{bo(p.phone || "no phone")}{bo(" • ")}{bo(p.city || "—")}</div>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
-            ))}
-            {filtered.length === 0 && <p className="text-sm text-muted-foreground">No users match.</p>}
+            )))}
+            {bo(filtered.length === 0 && <p className="text-sm text-muted-foreground">{bo("No users match.")}</p>)}
           </div>
-        </>}
-        {sub !== "clients" && (
+        </>)}
+        {bo(sub !== "clients" && (
           <table className="w-full text-sm min-w-[720px]">
             <thead><tr className="text-left text-xs uppercase tracking-wider text-muted-foreground border-b border-border">
-              <th className="py-2 pr-4">User</th><th className="py-2 pr-4">Amount</th><th className="py-2 pr-4">Method</th><th className="py-2 pr-4">Status</th><th className="py-2 pr-4">Date</th><th /></tr></thead>
+              <th className="py-2 pr-4">{bo("User")}</th><th className="py-2 pr-4">{bo("Amount")}</th><th className="py-2 pr-4">{bo("Method")}</th><th className="py-2 pr-4">{bo("Status")}</th><th className="py-2 pr-4">{bo("Date")}</th><th /></tr></thead>
             <tbody>
-              {(sub === "deposits" ? topups : withdrawals).map((r) => <OpRow key={r.id} r={r} kind={sub === "deposits" ? "deposit" : "withdrawal"} />)}
+              {bo((sub === "deposits" ? topups : withdrawals).map((r) => <OpRow key={r.id} r={r} kind={sub === "deposits" ? "deposit" : "withdrawal"} />))}
             </tbody>
           </table>
-        )}
+        ))}
       </CardContent>
 
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>New user</DialogTitle></DialogHeader>
-          <h4 className="text-sm font-semibold">Personal & contact info</h4>
+          <DialogHeader><DialogTitle>{bo("New user")}</DialogTitle></DialogHeader>
+          <h4 className="text-sm font-semibold">{bo("Personal & contact info")}</h4>
           <PersonFields v={form} set={setForm} />
-          <h4 className="text-sm font-semibold">Permissions</h4>
+          <h4 className="text-sm font-semibold">{bo("Permissions")}</h4>
           <ClientPermEditor p={cp} set={setCp} />
-          <Button onClick={create}>Create user</Button>
+          <Button onClick={create}>{bo("Create user")}</Button>
         </DialogContent>
       </Dialog>
 
       <Dialog open={!!sel} onOpenChange={(o) => !o && setSel(null)}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{sel?.full_name || sel?.email}</DialogTitle></DialogHeader>
-          {sel && <>
+          <DialogHeader><DialogTitle>{bo(sel?.full_name || sel?.email)}</DialogTitle></DialogHeader>
+          {bo(sel && <>
             <Tabs items={[["info", "Personal & contact"], ["documents", "Documents"], ["transactions", "Transactions"], ["permissions", "Permissions"]]} v={selTab} on={setSelTab} />
-            {selTab === "info" && <div className="space-y-3">
+            {bo(selTab === "info" && <div className="space-y-3">
               <PersonFields v={sel} set={setSel} withPassword={false} />
-              <div className="text-xs text-muted-foreground">Joined {new Date(sel.created_at).toLocaleDateString()} • Orders: {orders.filter((o) => o.user_id === sel.user_id).length} • Wallet: {format(Number(wallets.find((w) => w.user_id === sel.user_id)?.balance ?? 0))}</div>
+              <div className="text-xs text-muted-foreground">{bo("Joined ")}{bo(new Date(sel.created_at).toLocaleDateString())}{bo(" • Orders: ")}{bo(orders.filter((o) => o.user_id === sel.user_id).length)}{bo(" • Wallet: ")}{bo(format(Number(wallets.find((w) => w.user_id === sel.user_id)?.balance ?? 0)))}</div>
               <div className="flex gap-2">
-                <Button onClick={async () => { await callAdminUsers({ action: "update", user_id: sel.user_id, full_name: sanitizeText(sel.full_name || ""), phone: sanitizeText(sel.phone || ""), city: sanitizeText(sel.city || ""), home_address: sanitizeText(sel.home_address || ""), country: sanitizeText(sel.country || "") }, "User updated"); }}>Save</Button>
-                <Button variant="destructive" onClick={async () => { if (confirm(`Delete ${sel.email}?`) && await callAdminUsers({ action: "delete", user_id: sel.user_id }, "User deleted")) setSel(null); }}>Delete user</Button>
+                <Button onClick={async () => { await callAdminUsers({ action: "update", user_id: sel.user_id, full_name: sanitizeText(sel.full_name || ""), phone: sanitizeText(sel.phone || ""), city: sanitizeText(sel.city || ""), home_address: sanitizeText(sel.home_address || ""), country: sanitizeText(sel.country || "") }, "User updated"); }}>{bo("Save")}</Button>
+                <Button variant="destructive" onClick={async () => { if (confirm(`Delete ${sel.email}?`) && await callAdminUsers({ action: "delete", user_id: sel.user_id }, "User deleted")) setSel(null); }}>{bo("Delete user")}</Button>
               </div>
-            </div>}
-            {selTab === "documents" && <div className="space-y-2">
-              {docs.filter((d) => d.user_id === sel.user_id).length === 0 && <p className="text-sm text-muted-foreground">No documents uploaded.</p>}
-              {docs.filter((d) => d.user_id === sel.user_id).map((d) => (
+            </div>)}
+            {bo(selTab === "documents" && <div className="space-y-2">
+              {bo(docs.filter((d) => d.user_id === sel.user_id).length === 0 && <p className="text-sm text-muted-foreground">{bo("No documents uploaded.")}</p>)}
+              {bo(docs.filter((d) => d.user_id === sel.user_id).map((d) => (
                 <div key={d.id} className="flex items-center justify-between border border-border rounded-lg p-3 text-sm">
-                  <span>{d.document_type} <Badge variant="outline" className="ml-1">{d.status}</Badge></span>
-                  <Button size="sm" variant="outline" onClick={async () => { const { data } = await supabase.storage.from("verification-docs").createSignedUrl(d.document_url, 60); if (data?.signedUrl) window.open(data.signedUrl, "_blank"); }}><FileText className="h-4 w-4 mr-1" /> View</Button>
+                  <span>{bo(d.document_type)} <Badge variant="outline" className="ml-1">{bo(d.status)}</Badge></span>
+                  <Button size="sm" variant="outline" onClick={async () => { const { data } = await supabase.storage.from("verification-docs").createSignedUrl(d.document_url, 60); if (data?.signedUrl) window.open(data.signedUrl, "_blank"); }}><FileText className="h-4 w-4 mr-1" />{bo(" View")}</Button>
                 </div>
-              ))}
-            </div>}
-            {selTab === "transactions" && <table className="w-full text-sm">
-              <thead><tr className="text-left text-xs uppercase text-muted-foreground border-b border-border"><th className="py-2">Type</th><th>Amount</th><th>Status</th><th>Details</th><th>Date</th></tr></thead>
-              <tbody>{userTxns.map((t) => (
-                <tr key={t.type + t.id} className="border-b border-border/50"><td className="py-2">{t.type}</td>
-                  <td className={t.amount < 0 ? "text-destructive" : ""}>{format(t.amount)}</td><td>{t.status}</td><td className="text-muted-foreground">{t.note}</td><td className="text-muted-foreground">{new Date(t.date).toLocaleString()}</td></tr>))}
-                {userTxns.length === 0 && <tr><td colSpan={5} className="py-3 text-muted-foreground">No transactions yet.</td></tr>}
+              )))}
+            </div>)}
+            {bo(selTab === "transactions" && <table className="w-full text-sm">
+              <thead><tr className="text-left text-xs uppercase text-muted-foreground border-b border-border"><th className="py-2">{bo("Type")}</th><th>{bo("Amount")}</th><th>{bo("Status")}</th><th>{bo("Details")}</th><th>{bo("Date")}</th></tr></thead>
+              <tbody>{bo(userTxns.map((t) => (
+                <tr key={t.type + t.id} className="border-b border-border/50"><td className="py-2">{bo(t.type)}</td>
+                  <td className={t.amount < 0 ? "text-destructive" : ""}>{bo(format(t.amount))}</td><td>{bo(t.status)}</td><td className="text-muted-foreground">{bo(t.note)}</td><td className="text-muted-foreground">{bo(new Date(t.date).toLocaleString())}</td></tr>)))}
+                {bo(userTxns.length === 0 && <tr><td colSpan={5} className="py-3 text-muted-foreground">{bo("No transactions yet.")}</td></tr>)}
               </tbody>
-            </table>}
-            {selTab === "permissions" && <ClientPerms uid={sel.user_id} row={perms.find((x) => x.user_id === sel.user_id)} refresh={refresh} />}
-          </>}
+            </table>)}
+            {bo(selTab === "permissions" && <ClientPerms uid={sel.user_id} row={perms.find((x) => x.user_id === sel.user_id)} refresh={refresh} />)}
+          </>)}
         </DialogContent>
       </Dialog>
     </Card>
@@ -343,7 +344,7 @@ const ClientPerms = ({ uid, row, refresh }: { uid: string; row: any; refresh: ()
   return (
     <div className="space-y-3">
       <ClientPermEditor p={p} set={setP} />
-      <Button onClick={async () => { const e = await savePerms(uid, "client", p); toast({ title: e ? "Could not save" : "Permissions saved", variant: e ? "destructive" : undefined }); refresh(); }}>Save permissions</Button>
+      <Button onClick={async () => { const e = await savePerms(uid, "client", p); toast({ title: e ? "Could not save" : "Permissions saved", variant: e ? "destructive" : undefined }); refresh(); }}>{bo("Save permissions")}</Button>
     </div>
   );
 };
@@ -362,29 +363,29 @@ export const HistorySection = ({ auditLogs, profiles, orders, topups, withdrawal
   return (
     <Card>
       <CardHeader className="gap-3">
-        <CardTitle>History</CardTitle>
+        <CardTitle>{bo("History")}</CardTitle>
         <div className="flex gap-2">
-          {([["agents", "Users History"], ["clients", "Clients History"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setV(k)} className={`px-3 py-1 rounded-full border text-xs ${v === k ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"}`}>{l}</button>
-          ))}
+          {bo(([["agents", "Users History"], ["clients", "Clients History"]] as const).map(([k, l]) => (
+            <button key={k} onClick={() => setV(k)} className={`px-3 py-1 rounded-full border text-xs ${v === k ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground"}`}>{bo(l)}</button>
+          )))}
         </div>
       </CardHeader>
       <CardContent className="space-y-2">
-        {v === "agents" && <>
-          {auditLogs.length === 0 && <p className="text-sm text-muted-foreground">No back-office activity yet.</p>}
-          {auditLogs.map((l) => (
+        {bo(v === "agents" && <>
+          {bo(auditLogs.length === 0 && <p className="text-sm text-muted-foreground">{bo("No back-office activity yet.")}</p>)}
+          {bo(auditLogs.map((l) => (
             <div key={l.id} className="flex flex-wrap justify-between gap-2 border border-border rounded-lg p-3 text-sm">
-              <div><div className="font-medium">{l.action}</div><div className="text-xs text-muted-foreground">{l.actor_email || l.actor_id} • {l.entity || "—"}</div></div>
-              <span className="text-xs text-muted-foreground">{new Date(l.created_at).toLocaleString()}</span>
+              <div><div className="font-medium">{bo(l.action)}</div><div className="text-xs text-muted-foreground">{bo(l.actor_email || l.actor_id)}{bo(" • ")}{bo(l.entity || "—")}</div></div>
+              <span className="text-xs text-muted-foreground">{bo(new Date(l.created_at).toLocaleString())}</span>
             </div>
-          ))}
-        </>}
-        {v === "clients" && clientEvents.map((e) => (
+          )))}
+        </>)}
+        {bo(v === "clients" && clientEvents.map((e) => (
           <div key={e.id} className="flex flex-wrap justify-between gap-2 border border-border rounded-lg p-3 text-sm">
-            <div><div className="font-medium">{e.who}</div><div className="text-xs text-muted-foreground">{e.what}</div></div>
-            <div className="text-right">{e.amount !== null && <div className={e.amount < 0 ? "text-destructive" : ""}>{format(e.amount)}</div>}<span className="text-xs text-muted-foreground">{new Date(e.date).toLocaleString()}</span></div>
+            <div><div className="font-medium">{bo(e.who)}</div><div className="text-xs text-muted-foreground">{bo(e.what)}</div></div>
+            <div className="text-right">{bo(e.amount !== null && <div className={e.amount < 0 ? "text-destructive" : ""}>{bo(format(e.amount))}</div>)}<span className="text-xs text-muted-foreground">{bo(new Date(e.date).toLocaleString())}</span></div>
           </div>
-        ))}
+        )))}
       </CardContent>
     </Card>
   );

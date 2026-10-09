@@ -1,0 +1,6 @@
+- [ ] Replace BackOffice login image with a professional office scene.
+- [ ] Make EN/FR switching reversible across all BackOffice sections and dialogs.
+- [ ] Allow documented exceptions in fulfillment checks and show a dedicated view per step.
+- [ ] Organize offer targeting into aligned category, sub-category, and product tables.
+- [ ] Keep Adil exclusively under Admin without changing his access rights.
+- [ ] Verify tests and the affected BackOffice views.
