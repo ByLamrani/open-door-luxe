@@ -1,3 +1,4 @@
+import { bo } from "@/lib/backofficeI18n";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -43,38 +44,38 @@ const ProductForm = ({ v, set, file, setFile, currentImage }: { v: any; set: (x:
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="space-y-1">
-        <Label>Category</Label>
+        <Label>{bo("Category")}</Label>
         <select className={selectCls} value={v.cluster} onChange={(e) => set({ ...v, cluster: e.target.value, item: "" })}>
-          <option value="">Select a category</option>
-          {catalog.map((c) => <option key={c.cluster} value={c.cluster}>{c.cluster}</option>)}
+          <option value="">{bo("Select a category")}</option>
+          {bo(catalog.map((c) => <option key={c.cluster} value={c.cluster}>{bo(c.cluster)}</option>))}
         </select>
       </div>
       <div className="space-y-1">
-        <Label>Sub-category</Label>
+        <Label>{bo("Sub-category")}</Label>
         <select className={selectCls} value={v.item} disabled={!cluster} onChange={(e) => set({ ...v, item: e.target.value })}>
-          <option value="">{cluster ? "Select a sub-category" : "Choose a category first"}</option>
-          {cluster?.items.map((i) => <option key={i.path} value={itemKey(i)}>{i.name}</option>)}
+          <option value="">{bo(cluster ? "Select a sub-category" : "Choose a category first")}</option>
+          {bo(cluster?.items.map((i) => <option key={i.path} value={itemKey(i)}>{bo(i.name)}</option>))}
         </select>
       </div>
-      <div className="space-y-1 sm:col-span-2"><Label>Name</Label><Input value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} /></div>
-      <div className="space-y-1"><Label>Buying price (cost)</Label><Input type="number" value={v.buying_price} onChange={(e) => set({ ...v, buying_price: e.target.value })} /></div>
-      <div className="space-y-1"><Label>Selling price</Label><Input type="number" value={v.price} onChange={(e) => set({ ...v, price: e.target.value })} /></div>
-      <div className="space-y-1"><Label>Comparative price (before discount)</Label><Input type="number" value={v.compare_price} onChange={(e) => set({ ...v, compare_price: e.target.value })} /></div>
-      <div className="space-y-1"><Label>Quantity in stock <span className="text-muted-foreground text-xs">(Back Office only)</span></Label><Input type="number" value={v.quantity} onChange={(e) => set({ ...v, quantity: e.target.value })} /></div>
-      {price > 0 && (
+      <div className="space-y-1 sm:col-span-2"><Label>{bo("Name")}</Label><Input value={v.name} onChange={(e) => set({ ...v, name: e.target.value })} /></div>
+      <div className="space-y-1"><Label>{bo("Buying price (cost)")}</Label><Input type="number" value={v.buying_price} onChange={(e) => set({ ...v, buying_price: e.target.value })} /></div>
+      <div className="space-y-1"><Label>{bo("Selling price")}</Label><Input type="number" value={v.price} onChange={(e) => set({ ...v, price: e.target.value })} /></div>
+      <div className="space-y-1"><Label>{bo("Comparative price (before discount)")}</Label><Input type="number" value={v.compare_price} onChange={(e) => set({ ...v, compare_price: e.target.value })} /></div>
+      <div className="space-y-1"><Label>{bo("Quantity in stock ")}<span className="text-muted-foreground text-xs">{bo("(Back Office only)")}</span></Label><Input type="number" value={v.quantity} onChange={(e) => set({ ...v, quantity: e.target.value })} /></div>
+      {bo(price > 0 && (
         <div className="sm:col-span-2 text-xs rounded-md bg-muted p-3 grid sm:grid-cols-2 gap-1">
-          <span>Profit per item (cash on delivery): <b>{margin.toFixed(2)}</b></span>
-          <span>Profit per item (online, −8% discount): <b className={onlineMargin < 0 ? "text-destructive" : ""}>{onlineMargin.toFixed(2)}</b></span>
+          <span>{bo("Profit per item (cash on delivery): ")}<b>{bo(margin.toFixed(2))}</b></span>
+          <span>{bo("Profit per item (online, −8% discount): ")}<b className={onlineMargin < 0 ? "text-destructive" : ""}>{bo(onlineMargin.toFixed(2))}</b></span>
         </div>
-      )}
-      <div className="space-y-1 sm:col-span-2"><Label>Description</Label><Textarea value={v.description} onChange={(e) => set({ ...v, description: e.target.value })} /></div>
+      ))}
+      <div className="space-y-1 sm:col-span-2"><Label>{bo("Description")}</Label><Textarea value={v.description} onChange={(e) => set({ ...v, description: e.target.value })} /></div>
       <div className="space-y-1 sm:col-span-2">
-        <Label>Picture</Label>
+        <Label>{bo("Picture")}</Label>
         <label className="flex items-center gap-4 border border-dashed border-border rounded-lg p-4 cursor-pointer hover:border-foreground">
-          {file ? <img src={URL.createObjectURL(file)} alt="Preview" className="h-16 w-16 object-cover rounded" />
+          {bo(file ? <img src={URL.createObjectURL(file)} alt="Preview" className="h-16 w-16 object-cover rounded" />
             : currentImage ? <img src={currentImage} alt="Current" className="h-16 w-16 object-cover rounded" />
-            : <ImagePlus className="h-8 w-8 text-muted-foreground" />}
-          <span className="text-sm text-muted-foreground">{file ? file.name : "Click to upload a picture (JPG, PNG, WEBP)"}</span>
+            : <ImagePlus className="h-8 w-8 text-muted-foreground" />)}
+          <span className="text-sm text-muted-foreground">{bo(file ? file.name : "Click to upload a picture (JPG, PNG, WEBP)")}</span>
           <input type="file" accept="image/*" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </label>
       </div>
@@ -149,48 +150,48 @@ export const ProductsSection = ({ products, inventory, refresh, format }: { prod
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Add a product</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{bo("Add a product")}</CardTitle></CardHeader>
         <CardContent className="space-y-3">
           <ProductForm v={form} set={setForm} file={file} setFile={setFile} />
-          <Button onClick={add} disabled={busy} className="w-full">{busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />} Add product</Button>
+          <Button onClick={add} disabled={busy} className="w-full">{bo(busy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Plus className="h-4 w-4 mr-2" />)}{bo(" Add product")}</Button>
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Catalogue ({products.length})</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{bo("Catalogue (")}{bo(products.length)}{bo(")")}</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          {products.length === 0 && <p className="text-sm text-muted-foreground">No products stored yet.</p>}
-          {products.map((p) => {
+          {bo(products.length === 0 && <p className="text-sm text-muted-foreground">{bo("No products stored yet.")}</p>)}
+          {bo(products.map((p) => {
             const i = inv(p.id);
             return (
               <button key={p.id} onClick={() => open(p)} className="w-full text-left flex items-center justify-between gap-3 border border-border rounded-lg p-3 hover:bg-muted">
                 <div className="flex items-center gap-3">
-                  {p.image && <img src={p.image} alt={p.name} className="h-12 w-12 object-cover rounded" />}
+                  {bo(p.image && <img src={p.image} alt={p.name} className="h-12 w-12 object-cover rounded" />)}
                   <div>
-                    <p className="font-semibold text-sm">{p.name}</p>
+                    <p className="font-semibold text-sm">{bo(p.name)}</p>
                     <p className="text-xs text-muted-foreground">
-                      {format(p.price)} • {clusterOfProduct(p.category, p.subcategory) || p.category} / {catalog.flatMap((c) => c.items).find((x) => x.category === p.category && (x.subcategory ?? "") === (p.subcategory ?? ""))?.name ?? p.subcategory ?? p.category}
+                      {bo(format(p.price))}{bo(" • ")}{bo(clusterOfProduct(p.category, p.subcategory) || p.category)}{bo(" / ")}{bo(catalog.flatMap((c) => c.items).find((x) => x.category === p.category && (x.subcategory ?? "") === (p.subcategory ?? ""))?.name ?? p.subcategory ?? p.category)}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge variant={i && i.quantity > 0 ? "outline" : "destructive"}>{i ? `${i.quantity} in stock` : "No stock set"}</Badge>
+                  <Badge variant={i && i.quantity > 0 ? "outline" : "destructive"}>{bo(i ? `${i.quantity} in stock` : "No stock set")}</Badge>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </div>
               </button>
             );
-          })}
+          }))}
         </CardContent>
       </Card>
       <Dialog open={!!edit} onOpenChange={(o) => !o && setEdit(null)}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>Edit product</DialogTitle></DialogHeader>
-          {edit && <>
+          <DialogHeader><DialogTitle>{bo("Edit product")}</DialogTitle></DialogHeader>
+          {bo(edit && <>
             <ProductForm v={edit} set={setEdit} file={editFile} setFile={setEditFile} currentImage={edit.image} />
             <div className="flex gap-2">
-              <Button onClick={saveEdit} disabled={busy} className="flex-1">{busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />} Save changes</Button>
-              <Button variant="destructive" onClick={() => remove(edit.id)}><Trash2 className="h-4 w-4 mr-1" /> Delete</Button>
+              <Button onClick={saveEdit} disabled={busy} className="flex-1">{bo(busy && <Loader2 className="h-4 w-4 mr-2 animate-spin" />)}{bo(" Save changes")}</Button>
+              <Button variant="destructive" onClick={() => remove(edit.id)}><Trash2 className="h-4 w-4 mr-1" />{bo(" Delete")}</Button>
             </div>
-          </>}
+          </>)}
         </DialogContent>
       </Dialog>
     </div>
@@ -200,7 +201,7 @@ export const ProductsSection = ({ products, inventory, refresh, format }: { prod
 /* ---------------- Offer targeting (organized) ---------------- */
 const Chip = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: any }) => (
   <button type="button" onClick={onClick}
-    className={`px-2.5 py-1 rounded-full border text-xs transition-colors ${active ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}>{children}</button>
+    className={`px-2.5 py-1 rounded-full border text-xs transition-colors ${active ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}>{bo(children)}</button>
 );
 
 export const OfferTargets = ({ cats, setCats, subs, setSubs, prods, setProds, dbProducts }: {
@@ -215,56 +216,56 @@ export const OfferTargets = ({ cats, setCats, subs, setSubs, prods, setProds, db
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <Label>Applies to</Label>
-        <Chip active={all} onClick={() => { setCats([]); setSubs([]); setProds([]); }}>All products</Chip>
+        <Label>{bo("Applies to")}</Label>
+        <Chip active={all} onClick={() => { setCats([]); setSubs([]); setProds([]); }}>{bo("All products")}</Chip>
       </div>
       <div className="grid lg:grid-cols-3 gap-3">
         <div className="border border-border rounded-lg p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3">1 · Categories {cats.length > 0 && `(${cats.length})`}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3">{bo("1 · Categories ")}{bo(cats.length > 0 && `(${cats.length})`)}</p>
           <div className="space-y-3">
-            {catalog.map((c) => {
+            {bo(catalog.map((c) => {
               const cs = Array.from(new Set(c.items.map((i) => i.category)));
               return (
                 <div key={c.cluster}>
-                  <p className="text-[11px] text-muted-foreground mb-1">{c.cluster}</p>
-                  <div className="flex flex-wrap gap-1.5">{cs.map((x) => <Chip key={x} active={cats.includes(x)} onClick={() => toggle(cats, setCats, x)}>{x}</Chip>)}</div>
+                  <p className="text-[11px] text-muted-foreground mb-1">{bo(c.cluster)}</p>
+                  <div className="flex flex-wrap gap-1.5">{bo(cs.map((x) => <Chip key={x} active={cats.includes(x)} onClick={() => toggle(cats, setCats, x)}>{bo(x)}</Chip>))}</div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
         <div className="border border-border rounded-lg p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3">2 · Sub-categories {subs.length > 0 && `(${subs.length})`}</p>
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3">{bo("2 · Sub-categories ")}{bo(subs.length > 0 && `(${subs.length})`)}</p>
           <div className="space-y-3">
-            {catalog.map((c) => {
+            {bo(catalog.map((c) => {
               const items = c.items.filter((i) => i.subcategory);
               if (!items.length) return null;
               return (
                 <div key={c.cluster}>
-                  <p className="text-[11px] text-muted-foreground mb-1">{c.cluster}</p>
-                  <div className="flex flex-wrap gap-1.5">{items.map((i) => {
+                  <p className="text-[11px] text-muted-foreground mb-1">{bo(c.cluster)}</p>
+                  <div className="flex flex-wrap gap-1.5">{bo(items.map((i) => {
                     const key = `${i.category} / ${i.subcategory}`;
-                    return <Chip key={key} active={subs.includes(key)} onClick={() => toggle(subs, setSubs, key)}>{i.name}</Chip>;
-                  })}</div>
+                    return <Chip key={key} active={subs.includes(key)} onClick={() => toggle(subs, setSubs, key)}>{bo(i.name)}</Chip>;
+                  }))}</div>
                 </div>
               );
-            })}
+            }))}
           </div>
         </div>
         <div className="border border-border rounded-lg p-3">
-          <p className="text-xs font-semibold uppercase tracking-wider mb-3">3 · Products {prods.length > 0 && `(${prods.length})`}</p>
-          <Input placeholder="Search a product…" value={q} onChange={(e) => setQ(e.target.value)} className="mb-2 h-8" />
+          <p className="text-xs font-semibold uppercase tracking-wider mb-3">{bo("3 · Products ")}{bo(prods.length > 0 && `(${prods.length})`)}</p>
+          <Input placeholder={bo("Search a product…")} value={q} onChange={(e) => setQ(e.target.value)} className="mb-2 h-8" />
           <div className="space-y-3 max-h-80 overflow-y-auto pr-1">
-            {Object.entries(byCat).map(([cat, list]) => (
+            {bo(Object.entries(byCat).map(([cat, list]) => (
               <div key={cat}>
-                <p className="text-[11px] text-muted-foreground mb-1">{cat}</p>
-                <div className="flex flex-wrap gap-1.5">{list.map((p) => <Chip key={p.id} active={prods.includes(p.id)} onClick={() => toggle(prods, setProds, p.id)}>{p.name}</Chip>)}</div>
+                <p className="text-[11px] text-muted-foreground mb-1">{bo(cat)}</p>
+                <div className="flex flex-wrap gap-1.5">{bo(list.map((p) => <Chip key={p.id} active={prods.includes(p.id)} onClick={() => toggle(prods, setProds, p.id)}>{bo(p.name)}</Chip>))}</div>
               </div>
-            ))}
+            )))}
           </div>
         </div>
       </div>
-      <p className="text-xs text-muted-foreground">{all ? "Nothing selected — the offer applies to every product on the website." : "The offer applies only to the selected categories, sub-categories and products."}</p>
+      <p className="text-xs text-muted-foreground">{bo(all ? "Nothing selected — the offer applies to every product on the website." : "The offer applies only to the selected categories, sub-categories and products.")}</p>
     </div>
   );
 };
@@ -303,34 +304,34 @@ export const ExpensesSection = ({ format, onChange }: { format: (n: number) => s
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle>Register an expense</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{bo("Register an expense")}</CardTitle></CardHeader>
         <CardContent className="grid sm:grid-cols-2 gap-3">
-          <div className="space-y-1"><Label>Type</Label><select className={selectCls} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>{EXP_CATS.map((c) => <option key={c}>{c}</option>)}</select></div>
-          <div className="space-y-1"><Label>Label</Label><Input placeholder="e.g. Salary — Fatima, October" value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} /></div>
-          <div className="space-y-1"><Label>Amount</Label><Input type="number" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} /></div>
-          <div className="space-y-1"><Label>Date</Label><Input type="date" value={f.spent_on} onChange={(e) => setF({ ...f, spent_on: e.target.value })} /></div>
-          <div className="space-y-1 sm:col-span-2"><Label>Notes</Label><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
-          <Button onClick={add} className="sm:col-span-2"><Plus className="h-4 w-4 mr-1" /> Add expense</Button>
+          <div className="space-y-1"><Label>{bo("Type")}</Label><select className={selectCls} value={f.category} onChange={(e) => setF({ ...f, category: e.target.value })}>{bo(EXP_CATS.map((c) => <option key={c}>{bo(c)}</option>))}</select></div>
+          <div className="space-y-1"><Label>{bo("Label")}</Label><Input placeholder={bo("e.g. Salary — Fatima, October")} value={f.label} onChange={(e) => setF({ ...f, label: e.target.value })} /></div>
+          <div className="space-y-1"><Label>{bo("Amount")}</Label><Input type="number" value={f.amount} onChange={(e) => setF({ ...f, amount: e.target.value })} /></div>
+          <div className="space-y-1"><Label>{bo("Date")}</Label><Input type="date" value={f.spent_on} onChange={(e) => setF({ ...f, spent_on: e.target.value })} /></div>
+          <div className="space-y-1 sm:col-span-2"><Label>{bo("Notes")}</Label><Textarea value={f.notes} onChange={(e) => setF({ ...f, notes: e.target.value })} /></div>
+          <Button onClick={add} className="sm:col-span-2"><Plus className="h-4 w-4 mr-1" />{bo(" Add expense")}</Button>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="gap-3">
-          <CardTitle>Expenses — total {format(total)}</CardTitle>
+          <CardTitle>{bo("Expenses — total ")}{bo(format(total))}</CardTitle>
           <div className="flex flex-wrap gap-2">
-            <Chip active={filter === "all"} onClick={() => setFilter("all")}>All</Chip>
-            {EXP_CATS.map((c) => <Chip key={c} active={filter === c} onClick={() => setFilter(c)}>{c}</Chip>)}
+            <Chip active={filter === "all"} onClick={() => setFilter("all")}>{bo("All")}</Chip>
+            {bo(EXP_CATS.map((c) => <Chip key={c} active={filter === c} onClick={() => setFilter(c)}>{bo(c)}</Chip>))}
           </div>
-          {byCat.length > 0 && <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">{byCat.map(([c, v]) => <span key={c}>{c}: <b className="text-foreground">{format(v)}</b></span>)}</div>}
+          {bo(byCat.length > 0 && <div className="flex flex-wrap gap-3 text-xs text-muted-foreground">{bo(byCat.map(([c, v]) => <span key={c}>{bo(c)}{bo(": ")}<b className="text-foreground">{bo(format(v))}</b></span>))}</div>)}
         </CardHeader>
         <CardContent className="space-y-2">
-          {shown.length === 0 && <p className="text-sm text-muted-foreground">No expenses recorded.</p>}
-          {shown.map((r) => (
+          {bo(shown.length === 0 && <p className="text-sm text-muted-foreground">{bo("No expenses recorded.")}</p>)}
+          {bo(shown.map((r) => (
             <div key={r.id} className="flex items-center justify-between gap-2 border border-border rounded-lg p-3 text-sm">
-              <div><div className="font-medium">{r.label}</div><div className="text-xs text-muted-foreground">{r.category} • {r.spent_on}{r.notes ? ` • ${r.notes}` : ""}</div></div>
-              <div className="flex items-center gap-2"><span className="font-semibold text-destructive">−{format(Number(r.amount))}</span>
+              <div><div className="font-medium">{bo(r.label)}</div><div className="text-xs text-muted-foreground">{bo(r.category)}{bo(" • ")}{bo(r.spent_on)}{bo(r.notes ? ` • ${r.notes}` : "")}</div></div>
+              <div className="flex items-center gap-2"><span className="font-semibold text-destructive">{bo("−")}{bo(format(Number(r.amount)))}</span>
                 <Button size="sm" variant="ghost" onClick={() => del(r.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button></div>
             </div>
-          ))}
+          )))}
         </CardContent>
       </Card>
     </div>
@@ -397,69 +398,69 @@ export const ConnectionsSection = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle className="flex items-center gap-2"><Plug className="h-5 w-5" /> APIs & Connections</CardTitle>
-          <Button onClick={() => setOpen("custom")}><Plus className="h-4 w-4 mr-1" /> Set a new connection</Button>
+          <CardTitle className="flex items-center gap-2"><Plug className="h-5 w-5" />{bo(" APIs & Connections")}</CardTitle>
+          <Button onClick={() => setOpen("custom")}><Plus className="h-4 w-4 mr-1" />{bo(" Set a new connection")}</Button>
         </CardHeader>
         <CardContent className="space-y-4">
-          {groups.map((g) => (
+          {bo(groups.map((g) => (
             <div key={g}>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">{g}</p>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">{bo(g)}</p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-2">
-                {PRESETS.filter((p) => p.group === g).map((p) => {
+                {bo(PRESETS.filter((p) => p.group === g).map((p) => {
                   const n = rows.filter((r) => r.provider === p.id).length;
                   return (
                     <button key={p.id} onClick={() => { setOpen(p); setVals({}); }} className="text-left border border-border rounded-lg p-3 hover:border-foreground">
-                      <div className="font-medium text-sm">{p.name}</div>
-                      <div className="text-xs text-muted-foreground">{n ? `${n} connected` : "Connect"}</div>
+                      <div className="font-medium text-sm">{bo(p.name)}</div>
+                      <div className="text-xs text-muted-foreground">{bo(n ? `${n} connected` : "Connect")}</div>
                     </button>
                   );
-                })}
+                }))}
               </div>
             </div>
-          ))}
+          )))}
         </CardContent>
       </Card>
       <Card>
-        <CardHeader><CardTitle>Saved connections ({rows.length})</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{bo("Saved connections (")}{bo(rows.length)}{bo(")")}</CardTitle></CardHeader>
         <CardContent className="space-y-2">
-          {rows.length === 0 && <p className="text-sm text-muted-foreground">Nothing connected yet.</p>}
-          {rows.map((r) => (
+          {bo(rows.length === 0 && <p className="text-sm text-muted-foreground">{bo("Nothing connected yet.")}</p>)}
+          {bo(rows.map((r) => (
             <div key={r.id} className="border border-border rounded-lg p-3 text-sm">
               <div className="flex items-center justify-between gap-2">
-                <div><span className="font-medium">{nameOf(r.provider)}</span>{r.label && <span className="text-muted-foreground"> — {r.label}</span>} <Badge variant="outline" className="ml-1">{r.category}</Badge></div>
+                <div><span className="font-medium">{bo(nameOf(r.provider))}</span>{bo(r.label && <span className="text-muted-foreground">{bo(" — ")}{bo(r.label)}</span>)} <Badge variant="outline" className="ml-1">{bo(r.category)}</Badge></div>
                 <div className="flex items-center gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => setReveal(reveal === r.id ? null : r.id)}>{reveal === r.id ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}</Button>
-                  <Button size="sm" variant="outline" onClick={() => toggle(r)}>{r.is_active ? "Active" : "Paused"}</Button>
+                  <Button size="sm" variant="ghost" onClick={() => setReveal(reveal === r.id ? null : r.id)}>{bo(reveal === r.id ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />)}</Button>
+                  <Button size="sm" variant="outline" onClick={() => toggle(r)}>{bo(r.is_active ? "Active" : "Paused")}</Button>
                   <Button size="sm" variant="ghost" onClick={() => del(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
               </div>
               <div className="mt-2 grid sm:grid-cols-2 gap-x-4 text-xs text-muted-foreground">
-                {Object.entries(r.fields || {}).map(([k, v]) => <span key={k}>{k}: <span className="font-mono">{reveal === r.id ? String(v) : mask(String(v))}</span></span>)}
+                {bo(Object.entries(r.fields || {}).map(([k, v]) => <span key={k}>{bo(k)}{bo(": ")}<span className="font-mono">{bo(reveal === r.id ? String(v) : mask(String(v)))}</span></span>))}
               </div>
             </div>
-          ))}
+          )))}
         </CardContent>
       </Card>
       <Dialog open={!!open} onOpenChange={(o) => !o && setOpen(null)}>
         <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
-          <DialogHeader><DialogTitle>{open === "custom" ? "Set a new connection" : `Connect ${open ? (open as Preset).name : ""}`}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{bo(open === "custom" ? "Set a new connection" : `Connect ${open ? (open as Preset).name : ""}`)}</DialogTitle></DialogHeader>
           <div className="space-y-3">
-            {open === "custom" && <div className="space-y-1"><Label>Platform name</Label><Input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder="e.g. Glovo, Jumia, Odoo…" /></div>}
-            <div className="space-y-1"><Label>Label (optional)</Label><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder="e.g. Production" /></div>
-            {open && open !== "custom" && open.fields.map(([k, l, secret]) => (
-              <div key={k} className="space-y-1"><Label>{l}</Label><Input type={secret ? "password" : "text"} value={vals[k] ?? ""} onChange={(e) => setVals({ ...vals, [k]: e.target.value })} /></div>
-            ))}
-            {open === "custom" && <>
-              {custom.map((c, i) => (
+            {bo(open === "custom" && <div className="space-y-1"><Label>{bo("Platform name")}</Label><Input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder={bo("e.g. Glovo, Jumia, Odoo…")} /></div>)}
+            <div className="space-y-1"><Label>{bo("Label (optional)")}</Label><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={bo("e.g. Production")} /></div>
+            {bo(open && open !== "custom" && open.fields.map(([k, l, secret]) => (
+              <div key={k} className="space-y-1"><Label>{bo(l)}</Label><Input type={secret ? "password" : "text"} value={vals[k] ?? ""} onChange={(e) => setVals({ ...vals, [k]: e.target.value })} /></div>
+            )))}
+            {bo(open === "custom" && <>
+              {bo(custom.map((c, i) => (
                 <div key={i} className="flex gap-2">
-                  <Input placeholder="Field (e.g. api_key)" value={c.k} onChange={(e) => setCustom(custom.map((x, j) => (j === i ? { ...x, k: e.target.value } : x)))} />
-                  <Input placeholder="Value" value={c.v} onChange={(e) => setCustom(custom.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)))} />
+                  <Input placeholder={bo("Field (e.g. api_key)")} value={c.k} onChange={(e) => setCustom(custom.map((x, j) => (j === i ? { ...x, k: e.target.value } : x)))} />
+                  <Input placeholder={bo("Value")} value={c.v} onChange={(e) => setCustom(custom.map((x, j) => (j === i ? { ...x, v: e.target.value } : x)))} />
                 </div>
-              ))}
-              <Button variant="outline" size="sm" onClick={() => setCustom([...custom, { k: "", v: "" }])}><Plus className="h-4 w-4 mr-1" /> Add field</Button>
-            </>}
-            <p className="text-xs text-muted-foreground">Only admins can read saved connections.</p>
-            <Button onClick={save} className="w-full">Save connection</Button>
+              )))}
+              <Button variant="outline" size="sm" onClick={() => setCustom([...custom, { k: "", v: "" }])}><Plus className="h-4 w-4 mr-1" />{bo(" Add field")}</Button>
+            </>)}
+            <p className="text-xs text-muted-foreground">{bo("Only admins can read saved connections.")}</p>
+            <Button onClick={save} className="w-full">{bo("Save connection")}</Button>
           </div>
         </DialogContent>
       </Dialog>
@@ -480,21 +481,21 @@ export const AdminOwnerPanel = ({ profiles, orders, inventory, format }: { profi
   const exp = expenses.filter((e) => new Date(e.spent_on).getTime() >= since).reduce((a, e) => a + Number(e.amount), 0);
   const net = sum("net") - exp;
   const Stat = ({ l, v, neg }: { l: string; v: number; neg?: boolean }) => (
-    <div className="border border-border rounded-lg p-4"><p className="text-xs uppercase tracking-wider text-muted-foreground">{l}</p><p className={`text-xl font-bold ${neg ? "text-destructive" : ""}`}>{format(v)}</p></div>
+    <div className="border border-border rounded-lg p-4"><p className="text-xs uppercase tracking-wider text-muted-foreground">{bo(l)}</p><p className={`text-xl font-bold ${neg ? "text-destructive" : ""}`}>{bo(format(v))}</p></div>
   );
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><Crown className="h-5 w-5" /> Admin</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="flex items-center gap-2"><Crown className="h-5 w-5" />{bo(" Admin")}</CardTitle></CardHeader>
         <CardContent className="text-sm space-y-1">
-          <p className="font-medium">{owner?.full_name || "Adil Lamrani"} <Badge className="ml-1">Owner — cannot be removed</Badge></p>
-          <p className="text-muted-foreground">{OWNER_EMAIL}{owner?.phone ? ` • ${owner.phone}` : ""}{owner?.city ? ` • ${owner.city}` : ""}</p>
+          <p className="font-medium">{bo(owner?.full_name || "Adil Lamrani")} <Badge className="ml-1">{bo("Owner — cannot be removed")}</Badge></p>
+          <p className="text-muted-foreground">{bo(OWNER_EMAIL)}{bo(owner?.phone ? ` • ${owner.phone}` : "")}{bo(owner?.city ? ` • ${owner.city}` : "")}</p>
         </CardContent>
       </Card>
       <Card>
         <CardHeader className="gap-3">
-          <CardTitle>Net profits</CardTitle>
-          <div className="flex gap-2">{(["day", "week", "month", "all"] as const).map((r) => <Chip key={r} active={range === r} onClick={() => setRange(r)}>{r === "all" ? "All time" : r === "day" ? "Today" : `This ${r}`}</Chip>)}</div>
+          <CardTitle>{bo("Net profits")}</CardTitle>
+          <div className="flex gap-2">{bo((["day", "week", "month", "all"] as const).map((r) => <Chip key={r} active={range === r} onClick={() => setRange(r)}>{bo(r === "all" ? "All time" : r === "day" ? "Today" : `This ${r}`)}</Chip>))}</div>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -507,16 +508,16 @@ export const AdminOwnerPanel = ({ profiles, orders, inventory, format }: { profi
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm min-w-[640px]">
-              <thead><tr className="text-left text-xs uppercase text-muted-foreground border-b border-border"><th className="py-2">Order</th><th>Payment</th><th>Sale</th><th>Discount</th><th>Cost</th><th>Shipping</th><th>Profit</th></tr></thead>
-              <tbody>{rows.map((r) => (
-                <tr key={r.o.id} className="border-b border-border/50"><td className="py-2">{r.o.order_id}</td><td>{String(r.o.payment_method).startsWith("cod") ? "COD" : "Online"}</td>
-                  <td>{format(r.revenue)}</td><td className="text-muted-foreground">−{format(r.discount)}</td><td className="text-muted-foreground">−{format(r.cost)}</td><td className="text-muted-foreground">−{format(r.shipping)}</td>
-                  <td className={r.net < 0 ? "text-destructive font-medium" : "font-medium"}>{format(r.net)}</td></tr>))}
-                {rows.length === 0 && <tr><td colSpan={7} className="py-3 text-muted-foreground">No sales in this period.</td></tr>}
+              <thead><tr className="text-left text-xs uppercase text-muted-foreground border-b border-border"><th className="py-2">{bo("Order")}</th><th>{bo("Payment")}</th><th>{bo("Sale")}</th><th>{bo("Discount")}</th><th>{bo("Cost")}</th><th>{bo("Shipping")}</th><th>{bo("Profit")}</th></tr></thead>
+              <tbody>{bo(rows.map((r) => (
+                <tr key={r.o.id} className="border-b border-border/50"><td className="py-2">{bo(r.o.order_id)}</td><td>{bo(String(r.o.payment_method).startsWith("cod") ? "COD" : "Online")}</td>
+                  <td>{bo(format(r.revenue))}</td><td className="text-muted-foreground">{bo("−")}{bo(format(r.discount))}</td><td className="text-muted-foreground">{bo("−")}{bo(format(r.cost))}</td><td className="text-muted-foreground">{bo("−")}{bo(format(r.shipping))}</td>
+                  <td className={r.net < 0 ? "text-destructive font-medium" : "font-medium"}>{bo(format(r.net))}</td></tr>)))}
+                {bo(rows.length === 0 && <tr><td colSpan={7} className="py-3 text-muted-foreground">{bo("No sales in this period.")}</td></tr>)}
               </tbody>
             </table>
           </div>
-          <p className="text-xs text-muted-foreground">Profit = sale (after online/quantity discounts) − buying price × quantity − shipping. Returned and cancelled orders are excluded. Set each product's buying price in Products for accurate figures.</p>
+          <p className="text-xs text-muted-foreground">{bo("Profit = sale (after online/quantity discounts) − buying price × quantity − shipping. Returned and cancelled orders are excluded. Set each product's buying price in Products for accurate figures.")}</p>
         </CardContent>
       </Card>
     </div>
@@ -549,17 +550,17 @@ export const CompanyPanel = () => {
   const labelOf = (k: string) => COMPANY_FIELDS.find(([x]) => x === k)?.[1] ?? k;
   return (
     <Card>
-      <CardHeader><CardTitle>Company</CardTitle></CardHeader>
+      <CardHeader><CardTitle>{bo("Company")}</CardTitle></CardHeader>
       <CardContent className="space-y-5">
-        {groups.map(([g, ks]) => (
+        {bo(groups.map(([g, ks]) => (
           <div key={g}>
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">{g}</p>
-            <div className="grid sm:grid-cols-2 gap-3">{ks.map((k) => (
-              <div key={k} className="space-y-1"><Label className="text-xs">{labelOf(k)}</Label><Input value={d[k] ?? ""} onChange={(e) => setD({ ...d, [k]: e.target.value })} /></div>
-            ))}</div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">{bo(g)}</p>
+            <div className="grid sm:grid-cols-2 gap-3">{bo(ks.map((k) => (
+              <div key={k} className="space-y-1"><Label className="text-xs">{bo(labelOf(k))}</Label><Input value={d[k] ?? ""} onChange={(e) => setD({ ...d, [k]: e.target.value })} /></div>
+            )))}</div>
           </div>
-        ))}
-        <Button onClick={save}>Save company info</Button>
+        )))}
+        <Button onClick={save}>{bo("Save company info")}</Button>
       </CardContent>
     </Card>
   );

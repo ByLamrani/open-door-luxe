@@ -45,7 +45,7 @@ import { AgentsSection, UsersSection, HistorySection } from "@/components/admin/
 import { ProductsSection, OfferTargets, ExpensesSection, ConnectionsSection, AdminOwnerPanel, CompanyPanel, useInventory } from "@/components/admin/AdminBusiness";
 import { Receipt, Plug } from "lucide-react";
 import { OrderFulfillment } from "@/components/admin/OrderFulfillment";
-import { useBackofficeLang } from "@/lib/backofficeI18n";
+import { bo, useBackofficeLang } from "@/lib/backofficeI18n";
 
 const CATEGORIES = Array.from(new Set(catalog.flatMap((c) => c.items.map((i) => i.category))));
 const subcategoriesOf = (cat: string) =>
@@ -60,7 +60,7 @@ const Chip = ({ active, onClick, children }: { active: boolean; onClick: () => v
     onClick={onClick}
     className={`px-3 py-1 rounded-full border text-xs transition-colors ${active ? "bg-foreground text-background border-foreground" : "border-border text-muted-foreground hover:text-foreground"}`}
   >
-    {children}
+    {bo(children)}
   </button>
 );
 
@@ -508,10 +508,10 @@ const AdminPanel = () => {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 text-center">
         <ShieldAlert className="h-12 w-12 mx-auto text-destructive mb-4" />
-        <h1 className="text-2xl font-bold mb-2">Admin access required</h1>
-        <p className="text-muted-foreground mb-6">You don't have permission to view this page.</p>
+        <h1 className="text-2xl font-bold mb-2">{bo("Admin access required")}</h1>
+        <p className="text-muted-foreground mb-6">{bo("You don't have permission to view this page.")}</p>
         <Button asChild variant="outline">
-          <Link to="/">Back to store</Link>
+          <Link to="/">{bo("Back to store")}</Link>
         </Button>
       </div>
     );
@@ -538,17 +538,17 @@ const AdminPanel = () => {
 
   const SubTabs = ({ value, onChange, items }: { value: string; onChange: (v: string) => void; items: [string, string][] }) => (
     <div className="flex flex-wrap gap-2 mb-6">
-      {items.map(([k, l]) => <Chip key={k} active={value === k} onClick={() => onChange(k)}>{l}</Chip>)}
+      {bo(items.map(([k, l]) => <Chip key={k} active={value === k} onClick={() => onChange(k)}>{bo(l)}</Chip>))}
     </div>
   );
   const Stat = ({ label, value, onClick }: { label: string; value: any; onClick?: () => void }) => (
     <Card onClick={onClick} className={onClick ? "cursor-pointer hover:border-foreground transition-colors" : ""}>
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-          {onClick && <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+          <p className="text-xs uppercase tracking-wide text-muted-foreground">{bo(label)}</p>
+          {bo(onClick && <ChevronRight className="h-4 w-4 text-muted-foreground" />)}
         </div>
-        <p className="text-2xl font-bold mt-1">{value}</p>
+        <p className="text-2xl font-bold mt-1">{bo(value)}</p>
       </CardContent>
     </Card>
   );
@@ -571,34 +571,34 @@ const AdminPanel = () => {
 
             <Card>
               <CardHeader>
-                <CardTitle>Order pipeline</CardTitle>
+                <CardTitle>{bo("Order pipeline")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-4 sm:grid-cols-4">
-                {ORDER_BUCKETS.map((b) => (
+                {bo(ORDER_BUCKETS.map((b) => (
                   <button
                     key={b.key}
                     onClick={() => goOrders({ stock: "processing", delivery: "shipped", received: "delivered", returned: "returned" }[b.key] as string)}
                     className="text-left border border-border rounded-lg p-4 hover:border-foreground transition-colors"
                   >
-                    <p className="text-sm text-muted-foreground flex justify-between">{b.label}<ChevronRight className="h-4 w-4" /></p>
-                    <p className="text-2xl font-bold">{bucketCount(b.statuses)}</p>
+                    <p className="text-sm text-muted-foreground flex justify-between">{bo(b.label)}<ChevronRight className="h-4 w-4" /></p>
+                    <p className="text-2xl font-bold">{bo(bucketCount(b.statuses))}</p>
                   </button>
-                ))}
+                )))}
               </CardContent>
             </Card>
 
             <Card>
-              <CardHeader><CardTitle>Latest orders</CardTitle></CardHeader>
+              <CardHeader><CardTitle>{bo("Latest orders")}</CardTitle></CardHeader>
               <CardContent className="space-y-2">
-                {orders.slice(0, 5).map((o) => (
+                {bo(orders.slice(0, 5).map((o) => (
                   <button key={o.id} onClick={() => setSelectedOrder(o)} className="w-full flex justify-between items-center border border-border rounded-lg p-3 text-sm hover:border-foreground">
-                    <span className="font-semibold">{o.order_id}</span>
-                    <span className="text-muted-foreground">{buyerName(o)}</span>
-                    <span>{format(o.total)}</span>
-                    <Badge variant="outline">{o.status}</Badge>
+                    <span className="font-semibold">{bo(o.order_id)}</span>
+                    <span className="text-muted-foreground">{bo(buyerName(o))}</span>
+                    <span>{bo(format(o.total))}</span>
+                    <Badge variant="outline">{bo(o.status)}</Badge>
                   </button>
-                ))}
-                {orders.length === 0 && <p className="text-sm text-muted-foreground">No orders yet.</p>}
+                )))}
+                {bo(orders.length === 0 && <p className="text-sm text-muted-foreground">{bo("No orders yet.")}</p>)}
               </CardContent>
             </Card>
           </div>
@@ -608,47 +608,46 @@ const AdminPanel = () => {
         return (
           <Card>
             <CardHeader className="space-y-4">
-              <CardTitle>Orders ({filteredOrders.length})</CardTitle>
+              <CardTitle>{bo("Orders (")}{bo(filteredOrders.length)}{bo(")")}</CardTitle>
               <div className="flex flex-wrap gap-2">
-                {["all", ...ORDER_STATUSES].map((s) => (
+                {bo(["all", ...ORDER_STATUSES].map((s) => (
                   <Chip key={s} active={orderStatusFilter === s} onClick={() => setOrderStatusFilter(s)}>
-                    {s[0].toUpperCase() + s.slice(1)} ({orders.filter((o) => statusMatch(o, s)).length})
-                  </Chip>
-                ))}
+                    {bo(s[0].toUpperCase() + s.slice(1))}{bo(" (")}{bo(orders.filter((o) => statusMatch(o, s)).length)}{bo(") ")}</Chip>
+                )))}
               </div>
               <div className="flex flex-wrap gap-2">
-                {(["all", "day", "week", "month"] as const).map((r) => (
+                {bo((["all", "day", "week", "month"] as const).map((r) => (
                   <Chip key={r} active={orderRange === r} onClick={() => setOrderRange(r)}>
-                    {{ all: "All time", day: "Today", week: "This week", month: "This month" }[r]}
+                    {bo({ all: "All time", day: "Today", week: "This week", month: "This month" }[r])}
                   </Chip>
-                ))}
+                )))}
               </div>
             </CardHeader>
             <CardContent className="overflow-x-auto">
-              {filteredOrders.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No orders match these filters.</p>
+              {bo(filteredOrders.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{bo("No orders match these filters.")}</p>
               ) : (
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
-                      <th className="py-2 pr-3">Order</th>
-                      <th className="py-2 pr-3">Date</th>
-                      <th className="py-2 pr-3">Buyer</th>
-                      <th className="py-2 pr-3">Total</th>
-                      <th className="py-2 pr-3">Type</th>
-                      <th className="py-2 pr-3">Status</th>
+                      <th className="py-2 pr-3">{bo("Order")}</th>
+                      <th className="py-2 pr-3">{bo("Date")}</th>
+                      <th className="py-2 pr-3">{bo("Buyer")}</th>
+                      <th className="py-2 pr-3">{bo("Total")}</th>
+                      <th className="py-2 pr-3">{bo("Type")}</th>
+                      <th className="py-2 pr-3">{bo("Status")}</th>
                       <th />
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredOrders.map((o) => (
+                    {bo(filteredOrders.map((o) => (
                       <tr key={o.id} className="border-b border-border hover:bg-muted/50 cursor-pointer" onClick={() => setSelectedOrder(o)}>
-                        <td className="py-2 pr-3 font-semibold">{o.order_id}</td>
-                        <td className="py-2 pr-3 whitespace-nowrap">{new Date(o.created_at).toLocaleString()}</td>
-                        <td className="py-2 pr-3">{buyerName(o)}</td>
-                        <td className="py-2 pr-3">{format(o.total)}</td>
+                        <td className="py-2 pr-3 font-semibold">{bo(o.order_id)}</td>
+                        <td className="py-2 pr-3 whitespace-nowrap">{bo(new Date(o.created_at).toLocaleString())}</td>
+                        <td className="py-2 pr-3">{bo(buyerName(o))}</td>
+                        <td className="py-2 pr-3">{bo(format(o.total))}</td>
                         <td className="py-2 pr-3">
-                          <Badge variant={isCod(o) ? "outline" : "default"}>{isCod(o) ? "COD" : "Online"}</Badge>
+                          <Badge variant={isCod(o) ? "outline" : "default"}>{bo(isCod(o) ? "COD" : "Online")}</Badge>
                         </td>
                         <td className="py-2 pr-3" onClick={(e) => e.stopPropagation()}>
                           <select
@@ -657,15 +656,15 @@ const AdminPanel = () => {
                             disabled={busy === o.id}
                             onChange={(e) => setOrderStatus(o, e.target.value)}
                           >
-                            {[...ORDER_STATUSES, "cancelled"].map((s) => <option key={s} value={s}>{s}</option>)}
+                            {bo([...ORDER_STATUSES, "cancelled"].map((s) => <option key={s} value={s}>{bo(s)}</option>))}
                           </select>
                         </td>
                         <td className="py-2"><ChevronRight className="h-4 w-4 text-muted-foreground" /></td>
                       </tr>
-                    ))}
+                    )))}
                   </tbody>
                 </table>
-              )}
+              ))}
             </CardContent>
           </Card>
         );
@@ -678,7 +677,7 @@ const AdminPanel = () => {
         return (
           <div>
             <SubTabs value={logSub} onChange={setLogSub} items={[["overview", "Overview"], ["shipments", "Shipments"], ["companies", "Delivery companies"], ["finance", "Shipping finance"], ["jobs", "Shipping jobs"]]} />
-            {logSub === "overview" && (
+            {bo(logSub === "overview" && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat label="To prepare" value={orders.filter((o) => statusMatch(o, "processing")).length} onClick={() => goOrders("processing")} />
                 <Stat label="On delivery" value={orders.filter((o) => o.status === "shipped").length} onClick={() => goOrders("shipped")} />
@@ -689,32 +688,32 @@ const AdminPanel = () => {
                 <Stat label="Shipping costs" value={format(sum(orders, "shipping_cost"))} onClick={() => setLogSub("finance")} />
                 <Stat label="COD to collect" value={format(codToCollect)} onClick={() => setLogSub("finance")} />
               </div>
-            )}
-            {logSub === "shipments" && (
+            ))}
+            {bo(logSub === "shipments" && (
               <Card>
-                <CardHeader><CardTitle>Shipments</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{bo("Shipments")}</CardTitle></CardHeader>
                 <CardContent className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="text-left text-xs uppercase text-muted-foreground border-b border-border">
-                        <th className="py-2 pr-3">Order</th><th className="py-2 pr-3">Buyer / City</th><th className="py-2 pr-3">Status</th>
-                        <th className="py-2 pr-3">Company</th><th className="py-2 pr-3">Shipping cost</th><th className="py-2 pr-3">COD settled</th>
+                        <th className="py-2 pr-3">{bo("Order")}</th><th className="py-2 pr-3">{bo("Buyer / City")}</th><th className="py-2 pr-3">{bo("Status")}</th>
+                        <th className="py-2 pr-3">{bo("Company")}</th><th className="py-2 pr-3">{bo("Shipping cost")}</th><th className="py-2 pr-3">{bo("COD settled")}</th>
                       </tr>
                     </thead>
                     <tbody>
-                      {orders.map((o) => (
+                      {bo(orders.map((o) => (
                         <tr key={o.id} className="border-b border-border">
-                          <td className="py-2 pr-3 font-semibold cursor-pointer underline-offset-2 hover:underline" onClick={() => setSelectedOrder(o)}>{o.order_id}</td>
-                          <td className="py-2 pr-3">{buyerName(o)} • {o.shipping_info?.city || "—"}</td>
-                          <td className="py-2 pr-3"><Badge variant="outline">{o.status}</Badge></td>
+                          <td className="py-2 pr-3 font-semibold cursor-pointer underline-offset-2 hover:underline" onClick={() => setSelectedOrder(o)}>{bo(o.order_id)}</td>
+                          <td className="py-2 pr-3">{bo(buyerName(o))}{bo(" • ")}{bo(o.shipping_info?.city || "—")}</td>
+                          <td className="py-2 pr-3"><Badge variant="outline">{bo(o.status)}</Badge></td>
                           <td className="py-2 pr-3">
                             <select className="h-8 rounded-md border border-input bg-background px-2 text-xs" value={o.delivery_company_id ?? ""}
                               onChange={(e) => {
                                 const c = companies.find((x) => x.id === e.target.value);
                                 updateOrder(o, { delivery_company_id: e.target.value || null, ...(c && !Number(o.shipping_cost) ? { shipping_cost: c.price_per_delivery } : {}) });
                               }}>
-                              <option value="">— none —</option>
-                              {companies.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                              <option value="">{bo("— none —")}</option>
+                              {bo(companies.map((c) => <option key={c.id} value={c.id}>{bo(c.name)}</option>))}
                             </select>
                           </td>
                           <td className="py-2 pr-3">
@@ -722,58 +721,57 @@ const AdminPanel = () => {
                               onBlur={(e) => Number(e.target.value) !== Number(o.shipping_cost) && updateOrder(o, { shipping_cost: Number(e.target.value || 0) })} />
                           </td>
                           <td className="py-2 pr-3">
-                            {isCod(o) ? (
+                            {bo(isCod(o) ? (
                               <Button size="sm" variant={o.cod_settled ? "default" : "outline"} onClick={() => updateOrder(o, { cod_settled: !o.cod_settled })}>
-                                {o.cod_settled ? "Settled" : "Pending"}
+                                {bo(o.cod_settled ? "Settled" : "Pending")}
                               </Button>
-                            ) : <span className="text-xs text-muted-foreground">Online</span>}
+                            ) : <span className="text-xs text-muted-foreground">{bo("Online")}</span>)}
                           </td>
                         </tr>
-                      ))}
+                      )))}
                     </tbody>
                   </table>
-                  {orders.length === 0 && <p className="text-sm text-muted-foreground">No orders yet.</p>}
+                  {bo(orders.length === 0 && <p className="text-sm text-muted-foreground">{bo("No orders yet.")}</p>)}
                 </CardContent>
               </Card>
-            )}
-            {logSub === "companies" && (
+            ))}
+            {bo(logSub === "companies" && (
               <div className="space-y-6">
                 <Card>
-                  <CardHeader><CardTitle>Add a delivery company</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{bo("Add a delivery company")}</CardTitle></CardHeader>
                   <CardContent className="grid gap-3 sm:grid-cols-2">
-                    <div className="space-y-1"><Label>Name</Label><Input value={newCompany.name} onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })} /></div>
-                    <div className="space-y-1"><Label>Price per delivery</Label><Input type="number" value={newCompany.price_per_delivery} onChange={(e) => setNewCompany({ ...newCompany, price_per_delivery: e.target.value })} /></div>
-                    <div className="space-y-1"><Label>Phone</Label><Input value={newCompany.contact_phone} onChange={(e) => setNewCompany({ ...newCompany, contact_phone: e.target.value })} /></div>
-                    <div className="space-y-1"><Label>Email</Label><Input value={newCompany.contact_email} onChange={(e) => setNewCompany({ ...newCompany, contact_email: e.target.value })} /></div>
-                    <Button onClick={addCompany} className="sm:col-span-2"><Plus className="h-4 w-4 mr-2" /> Add company</Button>
+                    <div className="space-y-1"><Label>{bo("Name")}</Label><Input value={newCompany.name} onChange={(e) => setNewCompany({ ...newCompany, name: e.target.value })} /></div>
+                    <div className="space-y-1"><Label>{bo("Price per delivery")}</Label><Input type="number" value={newCompany.price_per_delivery} onChange={(e) => setNewCompany({ ...newCompany, price_per_delivery: e.target.value })} /></div>
+                    <div className="space-y-1"><Label>{bo("Phone")}</Label><Input value={newCompany.contact_phone} onChange={(e) => setNewCompany({ ...newCompany, contact_phone: e.target.value })} /></div>
+                    <div className="space-y-1"><Label>{bo("Email")}</Label><Input value={newCompany.contact_email} onChange={(e) => setNewCompany({ ...newCompany, contact_email: e.target.value })} /></div>
+                    <Button onClick={addCompany} className="sm:col-span-2"><Plus className="h-4 w-4 mr-2" />{bo(" Add company")}</Button>
                   </CardContent>
                 </Card>
                 <Card>
-                  <CardHeader><CardTitle>Delivery companies ({companies.length})</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{bo("Delivery companies (")}{bo(companies.length)}{bo(")")}</CardTitle></CardHeader>
                   <CardContent className="space-y-2">
-                    {companies.length === 0 && <p className="text-sm text-muted-foreground">No delivery companies yet.</p>}
-                    {companies.map((c) => {
+                    {bo(companies.length === 0 && <p className="text-sm text-muted-foreground">{bo("No delivery companies yet.")}</p>)}
+                    {bo(companies.map((c) => {
                       const co = orders.filter((o) => o.delivery_company_id === c.id);
                       return (
                         <div key={c.id} className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg p-3">
                           <div>
-                            <p className="font-semibold text-sm">{c.name}</p>
+                            <p className="font-semibold text-sm">{bo(c.name)}</p>
                             <p className="text-xs text-muted-foreground">
-                              {c.contact_phone || "—"} • {c.contact_email || "—"} • {format(c.price_per_delivery)} / delivery
-                            </p>
+                              {bo(c.contact_phone || "—")}{bo(" • ")}{bo(c.contact_email || "—")}{bo(" • ")}{bo(format(c.price_per_delivery))}{bo(" / delivery ")}</p>
                             <p className="text-xs text-muted-foreground">
-                              {co.length} shipments • {co.filter((o) => o.status === "delivered").length} delivered • {co.filter((o) => o.status === "returned").length} returned • owed {format(sum(co, "shipping_cost"))}
+                              {bo(co.length)}{bo(" shipments • ")}{bo(co.filter((o) => o.status === "delivered").length)}{bo(" delivered • ")}{bo(co.filter((o) => o.status === "returned").length)}{bo(" returned • owed ")}{bo(format(sum(co, "shipping_cost")))}
                             </p>
                           </div>
                           <Button size="sm" variant="destructive" onClick={() => deleteCompany(c.id)}><Trash2 className="h-4 w-4" /></Button>
                         </div>
                       );
-                    })}
+                    }))}
                   </CardContent>
                 </Card>
               </div>
-            )}
-            {logSub === "finance" && (
+            ))}
+            {bo(logSub === "finance" && (
               <div className="space-y-6">
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                   <Stat label="Total shipping costs" value={format(sum(orders, "shipping_cost"))} />
@@ -782,44 +780,44 @@ const AdminPanel = () => {
                   <Stat label="COD collected" value={format(codCollected)} />
                 </div>
                 <Card>
-                  <CardHeader><CardTitle>By company</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>{bo("By company")}</CardTitle></CardHeader>
                   <CardContent className="space-y-2">
-                    {[...companies, { id: undefined, name: "Unassigned" }].map((c: any) => {
+                    {bo([...companies, { id: undefined, name: "Unassigned" }].map((c: any) => {
                       const co = orders.filter((o) => (o.delivery_company_id ?? undefined) === c.id);
                       const cod = co.filter((o) => isCod(o) && o.status === "delivered");
                       return (
                         <div key={c.id ?? "none"} className="grid grid-cols-2 sm:grid-cols-5 gap-2 border border-border rounded-lg p-3 text-sm">
-                          <span className="font-semibold">{c.name}</span>
-                          <span>{co.length} shipments</span>
-                          <span>Costs {format(sum(co, "shipping_cost"))}</span>
-                          <span>COD pending {format(cod.filter((o) => !o.cod_settled).reduce((a, o) => a + Number(o.due_on_delivery ?? o.total ?? 0), 0))}</span>
-                          <span>COD settled {format(cod.filter((o) => o.cod_settled).reduce((a, o) => a + Number(o.due_on_delivery ?? o.total ?? 0), 0))}</span>
+                          <span className="font-semibold">{bo(c.name)}</span>
+                          <span>{bo(co.length)}{bo(" shipments")}</span>
+                          <span>{bo("Costs ")}{bo(format(sum(co, "shipping_cost")))}</span>
+                          <span>{bo("COD pending ")}{bo(format(cod.filter((o) => !o.cod_settled).reduce((a, o) => a + Number(o.due_on_delivery ?? o.total ?? 0), 0)))}</span>
+                          <span>{bo("COD settled ")}{bo(format(cod.filter((o) => o.cod_settled).reduce((a, o) => a + Number(o.due_on_delivery ?? o.total ?? 0), 0)))}</span>
                         </div>
                       );
-                    })}
+                    }))}
                   </CardContent>
                 </Card>
               </div>
-            )}
-            {logSub === "jobs" && (
+            ))}
+            {bo(logSub === "jobs" && (
               <Card>
-                <CardHeader><CardTitle>Shipping jobs ({jobs.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{bo("Shipping jobs (")}{bo(jobs.length)}{bo(")")}</CardTitle></CardHeader>
                 <CardContent className="space-y-3">
-                  {jobs.length === 0 && <p className="text-sm text-muted-foreground">No shipping jobs recorded.</p>}
-                  {jobs.map((j) => (
+                  {bo(jobs.length === 0 && <p className="text-sm text-muted-foreground">{bo("No shipping jobs recorded.")}</p>)}
+                  {bo(jobs.map((j) => (
                     <div key={j.id} className="border border-border rounded-lg p-3">
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold">{j.order_id || "—"}</span>
-                        <Badge variant="outline">{j.status}</Badge>
+                        <span className="font-semibold">{bo(j.order_id || "—")}</span>
+                        <Badge variant="outline">{bo(j.status)}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {j.buyer_name || "—"} • {j.destination || "—"} • {new Date(j.created_at).toLocaleString()}
+                        {bo(j.buyer_name || "—")}{bo(" • ")}{bo(j.destination || "—")}{bo(" • ")}{bo(new Date(j.created_at).toLocaleString())}
                       </p>
                     </div>
-                  ))}
+                  )))}
                 </CardContent>
               </Card>
-            )}
+            ))}
           </div>
         );
       }
@@ -831,17 +829,17 @@ const AdminPanel = () => {
         const refunds = orders.filter((o) => ["returned", "received", "cancelled"].includes(o.status));
         const PayRow = ({ o }: { o: any }) => (
           <button onClick={() => setSelectedOrder(o)} className="w-full grid grid-cols-2 sm:grid-cols-5 gap-2 text-left border border-border rounded-lg p-3 text-sm hover:border-foreground">
-            <span className="font-semibold">{o.order_id}</span>
-            <span>{format(o.total)}</span>
-            <span className="text-muted-foreground">{o.payment_method}</span>
-            <span className="text-muted-foreground">{o.status}</span>
-            <span className="text-muted-foreground">{new Date(o.created_at).toLocaleDateString()}</span>
+            <span className="font-semibold">{bo(o.order_id)}</span>
+            <span>{bo(format(o.total))}</span>
+            <span className="text-muted-foreground">{bo(o.payment_method)}</span>
+            <span className="text-muted-foreground">{bo(o.status)}</span>
+            <span className="text-muted-foreground">{bo(new Date(o.created_at).toLocaleDateString())}</span>
           </button>
         );
         return (
           <div>
             <SubTabs value={paySub} onChange={setPaySub} items={[["summary", "Summary"], ["orders", "Order payments"], ["online", "Online"], ["cod", "Cash on delivery"], ["paypal", "PayPal"], ["refunds", "Returns & refunds"], ["topups", "Wallet top-ups"], ["wallet", "Wallet traffic"], ["withdrawals", "Withdrawals"]]} />
-            {paySub === "summary" && (
+            {bo(paySub === "summary" && (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
                 <Stat label="Gross revenue" value={format(stats.revenue)} onClick={() => setPaySub("orders")} />
                 <Stat label="Online revenue" value={format(sum(online, "total"))} onClick={() => setPaySub("online")} />
@@ -856,60 +854,60 @@ const AdminPanel = () => {
                 <Stat label="Wallet top-ups" value={format(stats.topups)} onClick={() => setPaySub("topups")} />
                 <Stat label="Withdrawals requested" value={format(sum(withdrawals, "amount"))} onClick={() => setPaySub("withdrawals")} />
               </div>
-            )}
-            {["orders", "online", "cod", "paypal", "refunds"].includes(paySub) && (
+            ))}
+            {bo(["orders", "online", "cod", "paypal", "refunds"].includes(paySub) && (
               <Card>
                 <CardContent className="pt-6 space-y-2 max-h-[640px] overflow-y-auto">
-                  {({ orders, online, cod, paypal, refunds } as Record<string, any[]>)[paySub].map((o) => <PayRow key={o.id} o={o} />)}
-                  {({ orders, online, cod, paypal, refunds } as Record<string, any[]>)[paySub].length === 0 && (
-                    <p className="text-sm text-muted-foreground">Nothing here yet.</p>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-            {paySub === "topups" && (
-              <Card>
-                <CardHeader><CardTitle>Wallet top-ups ({topups.length})</CardTitle></CardHeader>
-                <CardContent className="space-y-2">
-                  {topups.length === 0 && <p className="text-sm text-muted-foreground">No top-ups yet.</p>}
-                  {topups.map((t) => (
-                    <div key={t.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
-                      <span>{format(t.amount)} {t.currency}</span>
-                      <span className="text-muted-foreground">{t.status} • {new Date(t.created_at).toLocaleDateString()}</span>
-                    </div>
+                  {bo(({ orders, online, cod, paypal, refunds } as Record<string, any[]>)[paySub].map((o) => <PayRow key={o.id} o={o} />))}
+                  {bo(({ orders, online, cod, paypal, refunds } as Record<string, any[]>)[paySub].length === 0 && (
+                    <p className="text-sm text-muted-foreground">{bo("Nothing here yet.")}</p>
                   ))}
                 </CardContent>
               </Card>
-            )}
-            {paySub === "wallet" && (
+            ))}
+            {bo(paySub === "topups" && (
               <Card>
-                <CardHeader><CardTitle>Wallet traffic ({txns.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{bo("Wallet top-ups (")}{bo(topups.length)}{bo(")")}</CardTitle></CardHeader>
+                <CardContent className="space-y-2">
+                  {bo(topups.length === 0 && <p className="text-sm text-muted-foreground">{bo("No top-ups yet.")}</p>)}
+                  {bo(topups.map((t) => (
+                    <div key={t.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
+                      <span>{bo(format(t.amount))} {bo(t.currency)}</span>
+                      <span className="text-muted-foreground">{bo(t.status)}{bo(" • ")}{bo(new Date(t.created_at).toLocaleDateString())}</span>
+                    </div>
+                  )))}
+                </CardContent>
+              </Card>
+            ))}
+            {bo(paySub === "wallet" && (
+              <Card>
+                <CardHeader><CardTitle>{bo("Wallet traffic (")}{bo(txns.length)}{bo(")")}</CardTitle></CardHeader>
                 <CardContent className="space-y-2 max-h-[640px] overflow-y-auto">
-                  {txns.length === 0 && <p className="text-sm text-muted-foreground">No wallet movements yet.</p>}
-                  {txns.map((t) => (
+                  {bo(txns.length === 0 && <p className="text-sm text-muted-foreground">{bo("No wallet movements yet.")}</p>)}
+                  {bo(txns.map((t) => (
                     <div key={t.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
-                      <span>{t.transaction_type} <span className="text-muted-foreground">• {t.description || ""}</span></span>
-                      <span className={Number(t.amount) < 0 ? "text-destructive" : ""}>{format(t.amount)}</span>
+                      <span>{bo(t.transaction_type)} <span className="text-muted-foreground">{bo("• ")}{bo(t.description || "")}</span></span>
+                      <span className={Number(t.amount) < 0 ? "text-destructive" : ""}>{bo(format(t.amount))}</span>
                     </div>
-                  ))}
+                  )))}
                 </CardContent>
               </Card>
-            )}
-            {paySub === "withdrawals" && (
+            ))}
+            {bo(paySub === "withdrawals" && (
               <Card>
-                <CardHeader><CardTitle>Withdrawals ({withdrawals.length})</CardTitle></CardHeader>
+                <CardHeader><CardTitle>{bo("Withdrawals (")}{bo(withdrawals.length)}{bo(")")}</CardTitle></CardHeader>
                 <CardContent className="space-y-2">
-                  {withdrawals.length === 0 && <p className="text-sm text-muted-foreground">No withdrawals yet.</p>}
-                  {withdrawals.map((w) => (
+                  {bo(withdrawals.length === 0 && <p className="text-sm text-muted-foreground">{bo("No withdrawals yet.")}</p>)}
+                  {bo(withdrawals.map((w) => (
                     <div key={w.id} className="flex justify-between border border-border rounded-lg p-3 text-sm">
-                      <span>{format(w.amount)} • {w.method}</span>
-                      <span className="text-muted-foreground">{w.status} • {new Date(w.created_at).toLocaleDateString()}</span>
+                      <span>{bo(format(w.amount))}{bo(" • ")}{bo(w.method)}</span>
+                      <span className="text-muted-foreground">{bo(w.status)}{bo(" • ")}{bo(new Date(w.created_at).toLocaleDateString())}</span>
                     </div>
-                  ))}
-                  <Button variant="outline" size="sm" onClick={() => setTab("withdrawals")}>Manage withdrawals</Button>
+                  )))}
+                  <Button variant="outline" size="sm" onClick={() => setTab("withdrawals")}>{bo("Manage withdrawals")}</Button>
                 </CardContent>
               </Card>
-            )}
+            ))}
           </div>
         );
       }
@@ -944,23 +942,23 @@ const AdminPanel = () => {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Create a special-occasion offer</CardTitle>
+                <CardTitle>{bo("Create a special-occasion offer")}</CardTitle>
               </CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1">
-                  <Label>Title</Label>
+                  <Label>{bo("Title")}</Label>
                   <Input value={newOffer.title} onChange={(e) => setNewOffer({ ...newOffer, title: e.target.value })} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Occasion</Label>
-                  <Input placeholder="Eid al-Fitr, 14 February…" value={newOffer.occasion} onChange={(e) => setNewOffer({ ...newOffer, occasion: e.target.value })} />
+                  <Label>{bo("Occasion")}</Label>
+                  <Input placeholder={bo("Eid al-Fitr, 14 February…")} value={newOffer.occasion} onChange={(e) => setNewOffer({ ...newOffer, occasion: e.target.value })} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Discount (%)</Label>
+                  <Label>{bo("Discount (%)")}</Label>
                   <Input type="number" value={newOffer.discount_pct} onChange={(e) => setNewOffer({ ...newOffer, discount_pct: e.target.value })} />
                 </div>
                 <div className="space-y-1">
-                  <Label>Ends on</Label>
+                  <Label>{bo("Ends on")}</Label>
                   <Input type="date" value={newOffer.ends_at} onChange={(e) => setNewOffer({ ...newOffer, ends_at: e.target.value })} />
                 </div>
 
@@ -969,43 +967,42 @@ const AdminPanel = () => {
                 </div>
 
                 <div className="space-y-1 sm:col-span-2">
-                  <Label>Description</Label>
+                  <Label>{bo("Description")}</Label>
                   <Textarea value={newOffer.description} onChange={(e) => setNewOffer({ ...newOffer, description: e.target.value })} />
                 </div>
                 <Button onClick={addOffer} disabled={busy === "new-offer"} className="sm:col-span-2">
-                  <Sparkles className="h-4 w-4 mr-2" /> Create offer
-                </Button>
+                  <Sparkles className="h-4 w-4 mr-2" />{bo(" Create offer ")}</Button>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Offers ({offers.length})</CardTitle>
+                <CardTitle>{bo("Offers (")}{bo(offers.length)}{bo(")")}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                {offers.length === 0 && <p className="text-sm text-muted-foreground">No offers yet.</p>}
-                {offers.map((o) => (
+                {bo(offers.length === 0 && <p className="text-sm text-muted-foreground">{bo("No offers yet.")}</p>)}
+                {bo(offers.map((o) => (
                   <div key={o.id} className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg p-3">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-semibold text-sm">{o.title}</span>
-                        <Badge variant={o.is_active ? "default" : "outline"}>{o.is_active ? "active" : "paused"}</Badge>
+                        <span className="font-semibold text-sm">{bo(o.title)}</span>
+                        <Badge variant={o.is_active ? "default" : "outline"}>{bo(o.is_active ? "active" : "paused")}</Badge>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {o.occasion || "—"} • {Number(o.discount_pct)}% • {scopeLabel(o)} •{" "}
-                        {o.ends_at ? `until ${new Date(o.ends_at).toLocaleDateString()}` : "no end date"}
+                        {bo(o.occasion || "—")}{bo(" • ")}{bo(Number(o.discount_pct))}{bo("% • ")}{bo(scopeLabel(o))}{bo(" •")}{bo(" ")}
+                        {bo(o.ends_at ? `until ${new Date(o.ends_at).toLocaleDateString()}` : "no end date")}
                       </p>
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="outline" onClick={() => toggleOffer(o)}>
-                        {o.is_active ? "Pause" : "Activate"}
+                        {bo(o.is_active ? "Pause" : "Activate")}
                       </Button>
                       <Button size="sm" variant="destructive" onClick={() => deleteOffer(o.id)}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </div>
                   </div>
-                ))}
+                )))}
               </CardContent>
             </Card>
           </div>
@@ -1016,34 +1013,28 @@ const AdminPanel = () => {
         return (
           <Card>
             <CardHeader>
-              <CardTitle>Verification queue ({docs.length})</CardTitle>
+              <CardTitle>{bo("Verification queue (")}{bo(docs.length)}{bo(")")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {docs.length === 0 && <p className="text-muted-foreground text-sm">No pending documents.</p>}
-              {docs.map((d) => (
+              {bo(docs.length === 0 && <p className="text-muted-foreground text-sm">{bo("No pending documents.")}</p>)}
+              {bo(docs.map((d) => (
                 <div key={d.id} className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg p-3">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <Badge variant="outline">{d.account_type}</Badge>
-                      <Badge variant="secondary">{d.document_type}</Badge>
+                      <Badge variant="outline">{bo(d.account_type)}</Badge>
+                      <Badge variant="secondary">{bo(d.document_type)}</Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      User: {d.user_id} • {new Date(d.created_at).toLocaleString()}
+                    <p className="text-xs text-muted-foreground">{bo(" User: ")}{bo(d.user_id)}{bo(" • ")}{bo(new Date(d.created_at).toLocaleString())}
                     </p>
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" variant="outline" onClick={() => signedUrl(d.document_url)}>
-                      <FileText className="h-4 w-4 mr-1" /> View
-                    </Button>
-                    <Button size="sm" onClick={() => decideDoc(d, "approved")} disabled={busy === d.id}>
-                      Confirm
-                    </Button>
-                    <Button size="sm" variant="destructive" onClick={() => decideDoc(d, "rejected")} disabled={busy === d.id}>
-                      Reject
-                    </Button>
+                      <FileText className="h-4 w-4 mr-1" />{bo(" View ")}</Button>
+                    <Button size="sm" onClick={() => decideDoc(d, "approved")} disabled={busy === d.id}>{bo(" Confirm ")}</Button>
+                    <Button size="sm" variant="destructive" onClick={() => decideDoc(d, "rejected")} disabled={busy === d.id}>{bo(" Reject ")}</Button>
                   </div>
                 </div>
-              ))}
+              )))}
             </CardContent>
           </Card>
         );
@@ -1052,32 +1043,28 @@ const AdminPanel = () => {
         return (
           <Card>
             <CardHeader>
-              <CardTitle>Withdrawal requests ({withdrawals.length})</CardTitle>
+              <CardTitle>{bo("Withdrawal requests (")}{bo(withdrawals.length)}{bo(")")}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {withdrawals.length === 0 && <p className="text-muted-foreground text-sm">No withdrawals.</p>}
-              {withdrawals.map((w) => (
+              {bo(withdrawals.length === 0 && <p className="text-muted-foreground text-sm">{bo("No withdrawals.")}</p>)}
+              {bo(withdrawals.map((w) => (
                 <div key={w.id} className="flex flex-wrap items-center justify-between gap-3 border border-border rounded-lg p-3">
                   <div>
                     <div className="font-semibold">
-                      {format(w.amount)} {w.currency}
+                      {bo(format(w.amount))} {bo(w.currency)}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      {w.method} • {w.status} • {new Date(w.created_at).toLocaleString()}
+                      {bo(w.method)}{bo(" • ")}{bo(w.status)}{bo(" • ")}{bo(new Date(w.created_at).toLocaleString())}
                     </div>
                   </div>
-                  {w.status === "pending" && (
+                  {bo(w.status === "pending" && (
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={() => decideWithdrawal(w, "approved")} disabled={busy === w.id}>
-                        Approve
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => decideWithdrawal(w, "rejected")} disabled={busy === w.id}>
-                        Reject
-                      </Button>
+                      <Button size="sm" onClick={() => decideWithdrawal(w, "approved")} disabled={busy === w.id}>{bo(" Approve ")}</Button>
+                      <Button size="sm" variant="destructive" onClick={() => decideWithdrawal(w, "rejected")} disabled={busy === w.id}>{bo(" Reject ")}</Button>
                     </div>
-                  )}
+                  ))}
                 </div>
-              ))}
+              )))}
             </CardContent>
           </Card>
         );
@@ -1086,13 +1073,13 @@ const AdminPanel = () => {
         return (
           <div className="space-y-4">
             <div className="flex gap-2">
-              {(["admin", "company", "agents"] as const).map((k) => (
-                <Chip key={k} active={adminSub === k} onClick={() => setAdminSub(k)}>{k === "admin" ? "Admin" : k === "company" ? "Company" : "Agents"}</Chip>
-              ))}
+              {bo((["admin", "company", "agents"] as const).map((k) => (
+                <Chip key={k} active={adminSub === k} onClick={() => setAdminSub(k)}>{bo(k === "admin" ? "Admin" : k === "company" ? "Company" : "Agents")}</Chip>
+              )))}
             </div>
-            {adminSub === "admin" && <AdminOwnerPanel profiles={profiles} orders={orders} inventory={inventory} format={format} />}
-            {adminSub === "company" && <CompanyPanel />}
-            {adminSub === "agents" && <AgentsSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format} currentUserId={user?.id} />}
+            {bo(adminSub === "admin" && <AdminOwnerPanel profiles={profiles} orders={orders} inventory={inventory} format={format} />)}
+            {bo(adminSub === "company" && <CompanyPanel />)}
+            {bo(adminSub === "agents" && <AgentsSection profiles={profiles} roles={roles} perms={permRows} callAdminUsers={callAdminUsers} refresh={refresh} format={format} currentUserId={user?.id} />)}
           </div>
         );
 
@@ -1119,14 +1106,14 @@ const AdminPanel = () => {
                 <BarChart3 className="h-5 w-5 text-gold" />
               </div>
               <div>
-                <h2 className="font-display text-lg font-semibold">Back Office</h2>
-                <p className="text-xs text-muted-foreground">Lamra Lux</p>
+                <h2 className="font-display text-lg font-semibold">{bo("Back Office")}</h2>
+                <p className="text-xs text-muted-foreground">{bo("Lamra Lux")}</p>
               </div>
             </div>
           </div>
 
           <nav className="flex-1 p-3 space-y-1">
-            {visibleTabs.map((t) => {
+            {bo(visibleTabs.map((t) => {
               const Icon = t.icon;
               const active = tab === t.id;
               return (
@@ -1140,24 +1127,21 @@ const AdminPanel = () => {
                   }`}
                 >
                   <Icon className="h-4 w-4" />
-                  {t.label}
+                  {bo(t.label)}
                 </button>
               );
-            })}
+            }))}
           </nav>
 
           <div className="p-4 border-t border-border space-y-2">
             <Button onClick={exportExcel} className="w-full" variant="outline">
-              <Download className="h-4 w-4 mr-2" /> Download Excel
-            </Button>
+              <Download className="h-4 w-4 mr-2" />{bo(" Download Excel ")}</Button>
             <Button asChild variant="ghost" className="w-full justify-start">
               <Link to="/">
-                <Store className="h-4 w-4 mr-2" /> View store
-              </Link>
+                <Store className="h-4 w-4 mr-2" />{bo(" View store ")}</Link>
             </Button>
             <Button variant="ghost" className="w-full justify-start text-destructive hover:text-destructive hover:bg-destructive/10" onClick={() => setConfirmSignOut(true)}>
-              <LogOut className="h-4 w-4 mr-2" /> Sign out
-            </Button>
+              <LogOut className="h-4 w-4 mr-2" />{bo(" Sign out ")}</Button>
           </div>
         </aside>
 
@@ -1168,20 +1152,19 @@ const AdminPanel = () => {
               <div className="flex items-center gap-3">
                 <ShieldCheck className="h-6 w-6 text-gold" />
                 <div>
-                  <h1 className="text-2xl font-bold font-display">Lamra Lux Dashboard</h1>
-                  <p className="text-xs text-muted-foreground">Manage traffic, orders, products, payments and offers.</p>
+                  <h1 className="text-2xl font-bold font-display">{bo("Lamra Lux Dashboard")}</h1>
+                  <p className="text-xs text-muted-foreground">{bo("Manage traffic, orders, products, payments and offers.")}</p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="flex rounded-md border border-border overflow-hidden text-xs" translate="no">
-                  {(["en", "fr"] as const).map((l) => (
-                    <button key={l} onClick={() => setBoLang(l)} className={`px-2.5 py-1.5 ${boLang === l ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>{l.toUpperCase()}</button>
-                  ))}
+                  {bo((["en", "fr"] as const).map((l) => (
+                    <button key={l} onClick={() => setBoLang(l)} className={`px-2.5 py-1.5 ${boLang === l ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"}`}>{bo(l.toUpperCase())}</button>
+                  )))}
                 </div>
-                <Badge variant="outline" className="font-body">Admin</Badge>
+                <Badge variant="outline" className="font-body">{bo("Admin")}</Badge>
                 <Button onClick={exportExcel} className="hidden sm:flex" variant="outline">
-                  <Download className="h-4 w-4 mr-2" /> Download Excel
-                </Button>
+                  <Download className="h-4 w-4 mr-2" />{bo(" Download Excel ")}</Button>
               </div>
             </div>
           </header>
@@ -1189,7 +1172,7 @@ const AdminPanel = () => {
           {/* Mobile tab selector */}
           <div className="md:hidden p-4 border-b border-border overflow-x-auto">
             <div className="flex gap-2 min-w-max">
-              {visibleTabs.map((t) => {
+              {bo(visibleTabs.map((t) => {
                 const Icon = t.icon;
                 return (
                   <button
@@ -1202,15 +1185,15 @@ const AdminPanel = () => {
                     }`}
                   >
                     <Icon className="h-4 w-4" />
-                    {t.label}
+                    {bo(t.label)}
                   </button>
                 );
-              })}
+              }))}
             </div>
           </div>
 
           <div className="p-4 sm:p-6 lg:p-8 max-w-7xl">
-            {renderContent()}
+            {bo(renderContent())}
           </div>
         </main>
       </div>
@@ -1218,21 +1201,19 @@ const AdminPanel = () => {
       <AlertDialog open={confirmSignOut} onOpenChange={setConfirmSignOut}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Sign out of the Back Office?</AlertDialogTitle>
-            <AlertDialogDescription>You will need to sign in again to manage the store.</AlertDialogDescription>
+            <AlertDialogTitle>{bo("Sign out of the Back Office?")}</AlertDialogTitle>
+            <AlertDialogDescription>{bo("You will need to sign in again to manage the store.")}</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => signOut()}>
-              Sign out
-            </AlertDialogAction>
+            <AlertDialogCancel>{bo("Cancel")}</AlertDialogCancel>
+            <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90" onClick={() => signOut()}>{bo(" Sign out ")}</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <Dialog open={!!selectedOrder} onOpenChange={(o) => !o && setSelectedOrder(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          {selectedOrder && (() => {
+          {bo(selectedOrder && (() => {
             const o = selectedOrder;
             const s = o.shipping_info || {};
             const buyer = profiles.find((p) => p.user_id === o.user_id);
@@ -1260,43 +1241,42 @@ const AdminPanel = () => {
             return (
               <>
                 <DialogHeader>
-                  <DialogTitle className="flex items-center gap-2">
-                    Order {o.order_id} <Badge variant="outline">{o.status}</Badge>
+                  <DialogTitle className="flex items-center gap-2">{bo(" Order ")}{bo(o.order_id)} <Badge variant="outline">{bo(o.status)}</Badge>
                   </DialogTitle>
                 </DialogHeader>
                 <div className="flex flex-wrap gap-2">
-                  {[...ORDER_STATUSES, "cancelled"].map((st) => (
+                  {bo([...ORDER_STATUSES, "cancelled"].map((st) => (
                     <Button key={st} size="sm" variant={o.status === st ? "default" : "outline"} disabled={busy === o.id} onClick={() => setOrderStatus(o, st)}>
-                      {st}
+                      {bo(st)}
                     </Button>
-                  ))}
+                  )))}
                 </div>
                 <OrderFulfillment order={o} companies={companies} format={format} onStatus={(st) => { setSelectedOrder({ ...o, status: st }); refresh(); }} />
                 <div className="grid sm:grid-cols-2 gap-x-6 gap-y-2 text-sm">
-                  {rows.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
+                  {bo(rows.filter(([, v]) => v !== null && v !== undefined && v !== "").map(([k, v]) => (
                     <div key={k} className="border-b border-border py-1">
-                      <p className="text-xs text-muted-foreground">{k}</p>
-                      <p className="break-words">{String(v)}</p>
+                      <p className="text-xs text-muted-foreground">{bo(k)}</p>
+                      <p className="break-words">{bo(String(v))}</p>
                     </div>
-                  ))}
+                  )))}
                 </div>
                 <div>
-                  <p className="font-semibold text-sm mb-2">Items ({items.length})</p>
+                  <p className="font-semibold text-sm mb-2">{bo("Items (")}{bo(items.length)}{bo(")")}</p>
                   <div className="space-y-2">
-                    {items.map((it, i) => (
+                    {bo(items.map((it, i) => (
                       <div key={i} className="flex items-center justify-between gap-3 border border-border rounded-lg p-2 text-sm">
                         <div className="flex items-center gap-3">
-                          {it.image && <img src={it.image} alt="" className="h-10 w-10 object-cover rounded" />}
-                          <span>{it.name || it.product_name || it.id}</span>
+                          {bo(it.image && <img src={it.image} alt="" className="h-10 w-10 object-cover rounded" />)}
+                          <span>{bo(it.name || it.product_name || it.id)}</span>
                         </div>
-                        <span>{it.quantity ?? 1} × {format(Number(it.price || 0))}</span>
+                        <span>{bo(it.quantity ?? 1)}{bo(" × ")}{bo(format(Number(it.price || 0)))}</span>
                       </div>
-                    ))}
+                    )))}
                   </div>
                 </div>
               </>
             );
-          })()}
+          })())}
         </DialogContent>
       </Dialog>
     </div>
