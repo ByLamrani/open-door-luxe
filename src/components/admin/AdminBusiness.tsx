@@ -370,29 +370,36 @@ export const ConnectionsSection = () => {
   const [custom, setCustom] = useState<{ k: string; v: string }[]>([{ k: "", v: "" }]);
   const [customName, setCustomName] = useState("");
   const [reveal, setReveal] = useState<string | null>(null);
-  const load = async () => { const { data } = await supabase.from("api_connections" as any).select("*").order("created_at", { ascending: false }); setRows((data as any[]) ?? []); };
+  const call = async (body: any) => {
+    const { data, error } = await supabase.functions.invoke("api-connections", { body });
+    if (error || data?.error) throw new Error(data?.error || error?.message || "Error");
+    return data;
+  };
+  const load = async () => { try { const d = await call({ action: "list" }); setRows(d.rows ?? []); } catch { setRows([]); } };
   useEffect(() => { load(); }, []);
   const groups = Array.from(new Set(PRESETS.map((p) => p.group)));
 
   const save = async () => {
-    let provider: string, category: string, fields: Record<string, string>;
+    if (!label.trim()) return toast({ title: bo("Give this API a label (e.g. Aramex — Production)"), variant: "destructive" });
+    let provider: string, category: string, pub: Record<string, string> = {}, sec: Record<string, string> = {};
     if (open === "custom") {
-      if (!customName.trim()) return toast({ title: "Give the connection a name", variant: "destructive" });
+      if (!customName.trim()) return toast({ title: bo("Give the connection a name"), variant: "destructive" });
       provider = sanitizeText(customName, 80); category = "custom";
-      fields = Object.fromEntries(custom.filter((c) => c.k.trim()).map((c) => [sanitizeText(c.k, 80), c.v.trim()]));
+      custom.filter((c) => c.k.trim() && c.v.trim()).forEach((c) => { sec[sanitizeText(c.k, 80)] = c.v.trim(); });
     } else if (open) {
-      provider = open.id; category = open.group; fields = Object.fromEntries(Object.entries(vals).map(([k, v]) => [k, v.trim()]));
+      provider = open.id; category = open.group;
+      const missing = open.fields.filter(([k]) => !(vals[k] ?? "").trim());
+      if (missing.length) return toast({ title: bo("Fill in every field"), description: missing.map(([, l]) => bo(l)).join(", "), variant: "destructive" });
+      open.fields.forEach(([k, , secret]) => { (secret ? sec : pub)[k] = sanitizeText(vals[k], 4000); });
     } else return;
-    const { error } = await supabase.from("api_connections" as any).insert({ provider, category, label: sanitizeText(label, 80) || null, fields } as any);
-    if (error) return toast({ title: "Could not save", description: error.message, variant: "destructive" });
-    await logAudit("connection.create", { entity: "api_connections", details: { provider } });
-    toast({ title: "Connection saved" });
+    try { await call({ action: "create", provider, category, label: sanitizeText(label, 80), public_fields: pub, secret_fields: sec }); }
+    catch (e: any) { return toast({ title: bo("Could not save"), description: e.message, variant: "destructive" }); }
+    toast({ title: bo("Connection saved"), description: bo("Secret keys are encrypted and can never be read back.") });
     setOpen(null); setLabel(""); setVals({}); setCustom([{ k: "", v: "" }]); setCustomName(""); load();
   };
-  const toggle = async (r: any) => { await supabase.from("api_connections" as any).update({ is_active: !r.is_active } as any).eq("id", r.id); load(); };
-  const del = async (r: any) => { if (!confirm("Remove this connection?")) return; await supabase.from("api_connections" as any).delete().eq("id", r.id); await logAudit("connection.delete", { entity: "api_connections", entityId: r.id }); load(); };
+  const toggle = async (r: any) => { try { await call({ action: "toggle", id: r.id }); } catch {} load(); };
+  const del = async (r: any) => { if (!confirm(bo("Remove this connection?"))) return; try { await call({ action: "delete", id: r.id }); } catch {} load(); };
   const nameOf = (id: string) => PRESETS.find((p) => p.id === id)?.name ?? id;
-  const mask = (v: string) => (v.length <= 6 ? "••••" : `${v.slice(0, 3)}••••${v.slice(-3)}`);
 
   return (
     <div className="space-y-6">
