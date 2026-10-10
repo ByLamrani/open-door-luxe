@@ -436,13 +436,13 @@ export const ConnectionsSection = () => {
               <div className="flex items-center justify-between gap-2">
                 <div><span className="font-medium">{bo(nameOf(r.provider))}</span>{bo(r.label && <span className="text-muted-foreground">{bo(" — ")}{bo(r.label)}</span>)} <Badge variant="outline" className="ml-1">{bo(r.category)}</Badge></div>
                 <div className="flex items-center gap-1">
-                  <Button size="sm" variant="ghost" onClick={() => setReveal(reveal === r.id ? null : r.id)}>{bo(reveal === r.id ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />)}</Button>
                   <Button size="sm" variant="outline" onClick={() => toggle(r)}>{bo(r.is_active ? "Active" : "Paused")}</Button>
                   <Button size="sm" variant="ghost" onClick={() => del(r)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                 </div>
               </div>
               <div className="mt-2 grid sm:grid-cols-2 gap-x-4 text-xs text-muted-foreground">
-                {bo(Object.entries(r.fields || {}).map(([k, v]) => <span key={k}>{bo(k)}{bo(": ")}<span className="font-mono">{bo(reveal === r.id ? String(v) : mask(String(v)))}</span></span>))}
+                {bo(Object.entries(r.fields || {}).map(([k, v]) => <span key={k}>{bo(k)}{bo(": ")}<span className="font-mono">{bo(String(v))}</span></span>))}
+                {bo(Object.entries(r.secret_hints || {}).map(([k, v]) => <span key={k}>{bo(k)}{bo(": ")}<span className="font-mono">{bo(String(v))}</span>{bo(" 🔒")}</span>))}
               </div>
             </div>
           )))}
@@ -453,9 +453,9 @@ export const ConnectionsSection = () => {
           <DialogHeader><DialogTitle>{bo(open === "custom" ? "Set a new connection" : `Connect ${open ? (open as Preset).name : ""}`)}</DialogTitle></DialogHeader>
           <div className="space-y-3">
             {bo(open === "custom" && <div className="space-y-1"><Label>{bo("Platform name")}</Label><Input value={customName} onChange={(e) => setCustomName(e.target.value)} placeholder={bo("e.g. Glovo, Jumia, Odoo…")} /></div>)}
-            <div className="space-y-1"><Label>{bo("Label (optional)")}</Label><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={bo("e.g. Production")} /></div>
+            <div className="space-y-1"><Label>{bo("API label *")}</Label><Input value={label} onChange={(e) => setLabel(e.target.value)} placeholder={bo("e.g. Aramex — Production")} /><p className="text-[11px] text-muted-foreground">{bo("The name used to recognise this API key in the BackOffice.")}</p></div>
             {bo(open && open !== "custom" && open.fields.map(([k, l, secret]) => (
-              <div key={k} className="space-y-1"><Label>{bo(l)}</Label><Input type={secret ? "password" : "text"} value={vals[k] ?? ""} onChange={(e) => setVals({ ...vals, [k]: e.target.value })} /></div>
+              <div key={k} className="space-y-1"><Label className="flex items-center gap-2">{bo(l)}{bo(secret && <Badge variant="outline" className="text-[10px]">{bo("Encrypted")}</Badge>)}</Label><Input type={secret ? "password" : "text"} autoComplete="off" value={vals[k] ?? ""} onChange={(e) => setVals({ ...vals, [k]: e.target.value })} /></div>
             )))}
             {bo(open === "custom" && <>
               {bo(custom.map((c, i) => (
