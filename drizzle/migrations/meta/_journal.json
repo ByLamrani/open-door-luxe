@@ -50,6 +50,13 @@
       "when": 1791502703021,
       "tag": "0006_order_fulfillment",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1791630965758,
+      "tag": "0007_secure_api_connections",
+      "breakpoints": true
     }
   ]
 }

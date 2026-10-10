@@ -82,6 +82,9 @@ export type Database = {
           is_active: boolean
           label: string | null
           provider: string
+          secret_ciphertext: string | null
+          secret_hints: Json
+          updated_at: string
         }
         Insert: {
           category?: string
@@ -91,6 +94,9 @@ export type Database = {
           is_active?: boolean
           label?: string | null
           provider: string
+          secret_ciphertext?: string | null
+          secret_hints?: Json
+          updated_at?: string
         }
         Update: {
           category?: string
@@ -100,6 +106,9 @@ export type Database = {
           is_active?: boolean
           label?: string | null
           provider?: string
+          secret_ciphertext?: string | null
+          secret_hints?: Json
+          updated_at?: string
         }
         Relationships: []
       }
